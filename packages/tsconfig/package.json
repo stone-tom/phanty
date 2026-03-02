@@ -1,0 +1,22 @@
+{
+  "name": "@repo/tsconfig",
+  "version": "1.0.0",
+  "description": "",
+  "files": [
+    "base.json",
+    "vite.json",
+    "server.json"
+  ],
+  "exports": {
+    "./base.json": "./base.json",
+    "./server.json": "./server.json",
+    "./vite.json": "./vite.json"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.24.0"
+}
