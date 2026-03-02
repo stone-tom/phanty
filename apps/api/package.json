@@ -8,12 +8,12 @@
     "lint:fix": "biome check . --write"
   },
   "dependencies": {
-    "elysia": "latest"
+    "elysia": "latest",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
-    "bun-types": "latest",
-    "@repo/tsconfig": "workspace:*"
-
+    "@repo/tsconfig": "workspace:*",
+    "bun-types": "latest"
   },
   "module": "src/index.js"
 }

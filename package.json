@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
-    "dev": "turbo run dev"
+    "dev": "turbo run dev --ui tui"
   },
   "keywords": [],
   "author": "",
