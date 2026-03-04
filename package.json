@@ -7,7 +7,12 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
-    "dev": "turbo run dev --ui tui"
+    "dev": "turbo run dev --ui tui",
+    "db:seed": "turbo run db:seed",
+    "atlas:diff": "turbo run atlas:diff --",
+    "atlas:apply": "turbo run atlas:apply",
+    "atlas:status": "turbo run atlas:status",
+    "atlas:rehash": "turbo run atlas:rehash"
   },
   "keywords": [],
   "author": "",

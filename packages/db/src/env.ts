@@ -17,7 +17,9 @@ function createEnv<T extends ZodRawShape>(
 
 export const env = createEnv(
   z.object({
-    API_PORT: z.coerce.number().default(3000),
     DATABASE_URL: z.string(),
+    MAX_POOL_SIZE: z.coerce.number().optional().default(20),
+    IDLE_TIMEOUT: z.coerce.number().optional().default(30),
+    MAX_LIFETIME: z.coerce.number().optional().default(3600),
   }),
 );

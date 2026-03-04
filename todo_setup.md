@@ -5,6 +5,9 @@
 * frontend vite react app with tanstack start
 * shadcn setup
 * write a few endpoints and some frontend
+* testing
+* service injection
+
 * first eden tests
 * better-upload
 * better-auth (also better-auth ui?)
@@ -12,3 +15,4 @@
 * docker build and starting docker with .prod.yml
 * react-email -> sending first emails (probably start with better-auth stuff)
 * add some prometheus exporter?
+* GOOD README!!

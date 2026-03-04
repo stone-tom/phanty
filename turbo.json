@@ -4,7 +4,10 @@
     "dev": {
       "cache": false,
       "outputs": [],
-      "inputs": ["$TURBO_DEFAULT$", ".env"]
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env"
+      ]
     },
     "lint": {
       "inputs": [
@@ -13,6 +16,41 @@
         "../../biome.json"
       ],
       "outputs": []
+    },
+    "db:seed": {
+      "cache": false,
+      "inputs": [
+        "src/**/*",
+        ".env"
+      ]
+    },
+    "atlas:diff": {
+      "cache": false,
+      "inputs": [
+        "src/**/*",
+        ".env"
+      ]
+    },
+    "atlas:apply": {
+      "cache": false,
+      "inputs": [
+        "src/**/*",
+        ".env"
+      ]
+    },
+    "atlas:status": {
+      "cache": false,
+      "inputs": [
+        "src/**/*",
+        ".env"
+      ]
+    },
+    "atlas:rehash": {
+      "cache": false,
+      "inputs": [
+        "src/**/*",
+        ".env"
+      ]
     },
     "lint:fix": {
       "cache": false,
