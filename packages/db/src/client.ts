@@ -1,7 +1,7 @@
-import { drizzle } from "drizzle-orm/bun-sql";
-import { SQL } from "bun";
-import * as schema from './schema';
+import { SQL } from 'bun';
+import { drizzle } from 'drizzle-orm/bun-sql';
 import { env } from './env';
+import * as schema from './schema';
 
 export function createDbClient(databaseUrl: string) {
   const client = new SQL(databaseUrl, {
@@ -9,7 +9,6 @@ export function createDbClient(databaseUrl: string) {
     idleTimeout: env.IDLE_TIMEOUT,
     maxLifetime: env.MAX_POOL_SIZE,
   });
-
 
   return drizzle(client, { schema });
 }

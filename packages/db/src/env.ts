@@ -1,4 +1,4 @@
-import { z, ZodObject, ZodRawShape } from "zod";
+import { type ZodObject, type ZodRawShape, z } from 'zod';
 
 function createEnv<T extends ZodRawShape>(
   schema: ZodObject<T>,
@@ -7,7 +7,7 @@ function createEnv<T extends ZodRawShape>(
   const parsed = schema.safeParse(source);
 
   if (!parsed.success) {
-    console.error("❌ Invalid environment variables:");
+    console.error('❌ Invalid environment variables:');
     console.error(parsed.error.flatten().fieldErrors);
     process.exit(1);
   }

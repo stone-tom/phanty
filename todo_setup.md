@@ -1,12 +1,12 @@
 * drizzle database
 * logger package
+* service injection
 * bullmq worker
 * open api setup
 * frontend vite react app with tanstack start
 * shadcn setup
 * write a few endpoints and some frontend
 * testing
-* service injection
 
 * first eden tests
 * better-upload
