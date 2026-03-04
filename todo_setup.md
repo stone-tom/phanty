@@ -1,4 +1,3 @@
-* logger package
 * service injection
 * bullmq worker
 * open api setup
