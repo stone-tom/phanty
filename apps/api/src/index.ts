@@ -1,8 +1,15 @@
 import { Elysia } from 'elysia';
 import { env } from './env';
+import { logPLugin } from './plugins/logger';
+import { createLogger } from '@repo/logger';
 
-const app = new Elysia().get('/', () => 'Hello Elysia').listen(env.API_PORT);
+const globalLogger = createLogger('api', 'global');
 
-console.log(
-  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
+const app = new Elysia()
+  .use(logPLugin)
+  .get('/', () => 'Hello Elysia')
+  .listen(env.API_PORT);
+
+globalLogger.info(
+  `Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
 );
