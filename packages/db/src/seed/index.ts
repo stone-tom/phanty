@@ -1,11 +1,17 @@
+import { createLogger } from '@repo/logger';
 import { createDbClient } from '../client';
 import { env } from '../env';
 import { seedTest } from './test.seed';
 
+const logger = createLogger('db', 'seed');
+
 const db = createDbClient(env.DATABASE_URL);
 
 export async function main() {
+  logger.info('Started seeding test data...');
   await seedTest(db);
+  logger.info('finished seeding test data...');
+  logger.info('✅ Database seeding completed successfully');
 }
 
 main().catch((error) => {

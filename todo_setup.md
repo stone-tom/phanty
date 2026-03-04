@@ -1,4 +1,3 @@
-* drizzle database
 * logger package
 * service injection
 * bullmq worker
