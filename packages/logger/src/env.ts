@@ -17,7 +17,12 @@ function createEnv<T extends ZodRawShape>(
 
 export const env = createEnv(
   z.object({
-    LOG_LEVEL: z.string().optional().default('info'),
-    LOG_FORMAT: z.string().optional().default('pretty'),
+    LOGGING_LOG_LEVEL: z.string().optional().default('info'),
+    LOGGING_LOG_FORMAT: z.string().optional().default('pretty'),
+    LOGGING_HIDE_OBJECT: z
+      .string()
+      .optional()
+      .transform((value) => value === 'true')
+      .default(false),
   }),
 );

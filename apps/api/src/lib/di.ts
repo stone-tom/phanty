@@ -4,23 +4,22 @@ import {
   injectable,
   Lifecycle,
 } from 'tsyringe';
+import type { constructor as TsyringeConstructor } from 'tsyringe/dist/typings/types';
 
 export interface RegisterServiceOptions {
   token?: InjectionToken<unknown>;
   lifecycle?: Lifecycle;
 }
 
-// Define a proper constructor type instead of using the banned Function type
-type Constructor = abstract new (...args: unknown[]) => unknown;
-
 export function RegisterService(
   options?: RegisterServiceOptions,
 ): ClassDecorator {
   return (target) => {
     const effectiveLifecycle = options?.lifecycle ?? Lifecycle.Singleton;
-    const effectiveToken = options?.token ?? (target as Constructor);
+    const effectiveToken =
+      options?.token ?? (target as unknown as TsyringeConstructor<unknown>);
 
-    const classConstructor = target as Constructor;
+    const classConstructor = target as unknown as TsyringeConstructor<unknown>;
 
     container.register(
       effectiveToken,

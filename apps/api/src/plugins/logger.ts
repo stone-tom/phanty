@@ -1,5 +1,6 @@
 import { createLogger } from '@repo/logger';
 import Elysia from 'elysia';
+import { env } from '../env';
 
 export const logPLugin = new Elysia({ name: 'logger', seed: 'api' })
   .decorate('logger', createLogger('api', 'request'))
@@ -10,31 +11,29 @@ export const logPLugin = new Elysia({ name: 'logger', seed: 'api' })
   })
   .onAfterResponse({ as: 'global' }, ({ request, set, startTime, logger }) => {
     const duration = startTime ? Math.round(performance.now() - startTime) : 0;
-    logger.info(
+    const path = request.url ? new URL(request.url).pathname : 'unknown';
+    logger.debug(
       {
         statusCode: set.status,
         durationMs: duration,
         method: request.method,
-        path: new URL(request.url).pathname,
+        path,
       },
-      'Request completed',
+      `[${request.method}] ${path} ${set.status} Request completed in ${duration}ms`,
     );
   })
-  .onError({ as: 'global' }, ({ request, startTime, logger, error, set }) => {
-    const duration = startTime ? Math.round(performance.now() - startTime) : 0;
-
+  .onError({ as: 'global' }, ({ request, code, logger, error }) => {
     const errorMessage =
       error instanceof Error ? error.message : error.toString();
     const errorStack = error instanceof Error ? error.stack : undefined;
 
     logger.error(
       {
+        code,
         method: request.method,
         path: new URL(request.url).pathname,
-        statusCode: set.status,
-        durationMs: duration,
         error: errorMessage,
-        stack: process.env.NODE_ENV === 'development' ? errorStack : undefined,
+        stack: env.NODE_ENV === 'development' ? errorStack : undefined,
       },
       'Request failed',
     );
