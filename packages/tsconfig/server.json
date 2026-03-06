@@ -2,9 +2,13 @@
   "extends": "./base.json",
   "compilerOptions": {
     "target": "ESNext",
-    "lib": ["ESNext"],
+    "lib": [
+      "ESNext"
+    ],
     "module": "ESNext",
-    "types": ["bun-types"],
+    "types": [
+      "bun-types"
+    ],
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
     "allowSyntheticDefaultImports": true,

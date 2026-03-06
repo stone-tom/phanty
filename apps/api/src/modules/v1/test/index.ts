@@ -1,12 +1,11 @@
 import Elysia from 'elysia';
-import { requestScope } from '../../../plugins/di';
-import { TestService } from './service';
+import { testService } from './service';
 
 export const test = new Elysia({ prefix: '/test' })
-  .use(requestScope)
-  .get('/', ({ scope }) => {
-    const service = scope.resolve(TestService);
-
-    return service.findAll();
+  .use(testService)
+  .get('/', ({ testService }) => {
+    return testService.findAll();
   })
-  .get('/:id', ({ params }) => `Hello Test ${params.id}`);
+  .get('/:id', ({ testService }) => {
+    return testService.findAll();
+  });

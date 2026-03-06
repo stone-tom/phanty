@@ -4,14 +4,16 @@ import { env } from '../env';
 
 export const logPLugin = new Elysia({ name: 'logger', seed: 'api' })
   .decorate('logger', createLogger('api', 'request'))
-  .derive(() => {
+  .derive({ as: 'global' }, ({ request }) => {
     return {
       startTime: performance.now(),
+      url: request.url,
     };
   })
-  .onAfterResponse({ as: 'global' }, ({ request, set, startTime, logger }) => {
+  .onAfterResponse({ as: 'global' }, ({ request, set, url, startTime, logger }) => {
     const duration = startTime ? Math.round(performance.now() - startTime) : 0;
-    const path = request.url ? new URL(request.url).pathname : 'unknown';
+    const path = url ? new URL(url).pathname : 'unknown';
+
     logger.debug(
       {
         statusCode: set.status,

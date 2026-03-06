@@ -1,5 +1,3 @@
-import 'reflect-metadata';
-
 import { createLogger } from '@repo/logger';
 import { Elysia } from 'elysia';
 import { env } from './env';
