@@ -11,8 +11,7 @@
 * react-email -> sending first emails (probably start with better-auth stuff)
 * add some prometheus exporter?
 * GOOD README!!
-* add healthcheck to every app
-* add metrics exporters to every app
+* add metrics exporters to api
 * ansible and full on deployment (with all componenets including opbservabitl.ity)
 * multitenant redis??? bullmq with prefixes? rest lets see idk how acl works tbh
 * testing

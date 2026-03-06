@@ -3,6 +3,7 @@ import { createLogger } from '@repo/logger';
 import { Elysia } from 'elysia';
 import { env } from './env';
 import { v1 } from './modules/v1';
+import { healhcheck } from './plugins/healtcheck';
 import { logPLugin } from './plugins/logger';
 import { maintenance } from './plugins/maintenance';
 
@@ -12,6 +13,7 @@ const app = new Elysia()
   .use(maintenance)
   .use(openapi())
   .use(logPLugin)
+  .use(healhcheck)
   .use(v1)
   .listen(env.API_PORT);
 

@@ -9,9 +9,11 @@
   },
   "dependencies": {
     "@elysiajs/openapi": "^1.4.14",
+    "@repo/db": "workspace:*",
     "@repo/logger": "workspace:*",
     "@repo/queues": "workspace:*",
     "bullmq": "^5.70.4",
+    "drizzle-orm": "^0.45.1",
     "elysia": "latest",
     "pino": "^10.3.1",
     "pino-pretty": "^13.1.3",
