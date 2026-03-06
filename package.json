@@ -8,8 +8,18 @@
 	"scripts": {
 		"dev": "pnpm -r --parallel run dev",
 		"build": "pnpm -r run build",
+
 		"lint": "biome check .",
-		"format": "biome format --write ."
+		"lint:fix": "biome check . --write",
+		"format": "biome format --write .",
+
+		"typecheck": "pnpm -r run typecheck",
+
+		"db:seed": "pnpm --filter @repo/db db:seed",
+		"atlas:diff": "pnpm --filter @repo/db atlas:diff",
+		"atlas:rehash": "pnpm --filter @repo/db atlas:rehash",
+		"atlas:apply": "pnpm --filter @repo/db atlas:apply",
+		"atlas:status": "pnpm --filter @repo/db atlas:status"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.6"
