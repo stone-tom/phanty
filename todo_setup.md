@@ -18,3 +18,4 @@
 * add some prometheus exporter?
 * GOOD README!!
 * maintenance mode
+* ansible and full on deployment (with all componenets including opbservabitl.ity)
