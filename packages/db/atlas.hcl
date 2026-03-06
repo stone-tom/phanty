@@ -4,12 +4,17 @@ variable "envfile" {
 }
 
 locals {
-    envfile = {
-        for line in split("\n", file(var.envfile)): split("=", line)[0] => regex("=(.*)", line)[0]
-        if !startswith(line, "#") && length(split("=", line)) > 1
-    }
-}
+  envfile_raw = file(var.envfile)
 
+  envfile = {
+    for line in split("\n", local.envfile_raw) :
+    trimspace(element(split("=", line), 0)) => trimspace(regex("=(.*)", line)[0])
+    if !startswith(trimspace(line), "#") &&
+       length(split("=", line)) > 1 &&
+       trimspace(line) != ""
+  }
+  db_url = getenv("DATABASE_URL") != "" ? getenv("DATABASE_URL") : local.envfile["DATABASE_URL"]
+}
 
 # command: pnpm --silent exec drizzle-kit export
 data "external_schema" "drizzle" {
@@ -24,7 +29,7 @@ data "external_schema" "drizzle" {
 
 env "prod" {
   src = data.external_schema.drizzle.url
-  url = local.envfile["DATABASE_URL"]
+  url = local.db_url
   dev = "docker://postgres/18/dev?search_path=public"
 
   migration {
