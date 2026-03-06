@@ -12,7 +12,8 @@
     "atlas:diff": "turbo run atlas:diff --",
     "atlas:apply": "turbo run atlas:apply",
     "atlas:status": "turbo run atlas:status",
-    "atlas:rehash": "turbo run atlas:rehash"
+    "atlas:rehash": "turbo run atlas:rehash",
+    "cli": "pnpm --filter cli start --"
   },
   "keywords": [],
   "author": "",
