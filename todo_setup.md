@@ -17,3 +17,4 @@
 * react-email -> sending first emails (probably start with better-auth stuff)
 * add some prometheus exporter?
 * GOOD README!!
+* maintenance mode
