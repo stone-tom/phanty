@@ -1,0 +1,23 @@
+{
+  "name": "@repo/queues",
+  "version": "1.0.0",
+  "description": "Queue definitions and types for BullMQ",
+  "main": "index.js",
+  "scripts": {
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write"
+  },
+  "keywords": [],
+  "author": "",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "license": "ISC",
+  "packageManager": "pnpm@10.24.0",
+  "devDependencies": {
+    "@repo/tsconfig": "workspace:*"
+  },
+  "dependencies": {
+    "zod": "^4.3.6"
+  }
+}

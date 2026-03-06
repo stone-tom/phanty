@@ -10,20 +10,25 @@ export const logPLugin = new Elysia({ name: 'logger', seed: 'api' })
       url: request.url,
     };
   })
-  .onAfterResponse({ as: 'global' }, ({ request, set, url, startTime, logger }) => {
-    const duration = startTime ? Math.round(performance.now() - startTime) : 0;
-    const path = url ? new URL(url).pathname : 'unknown';
+  .onAfterResponse(
+    { as: 'global' },
+    ({ request, set, url, startTime, logger }) => {
+      const duration = startTime
+        ? Math.round(performance.now() - startTime)
+        : 0;
+      const path = url ? new URL(url).pathname : 'unknown';
 
-    logger.debug(
-      {
-        statusCode: set.status,
-        durationMs: duration,
-        method: request.method,
-        path,
-      },
-      `[${request.method}] ${path} ${set.status} Request completed in ${duration}ms`,
-    );
-  })
+      logger.debug(
+        {
+          statusCode: set.status,
+          durationMs: duration,
+          method: request.method,
+          path,
+        },
+        `[${request.method}] ${path} ${set.status} Request completed in ${duration}ms`,
+      );
+    },
+  )
   .onError({ as: 'global' }, ({ request, code, logger, error }) => {
     const errorMessage =
       error instanceof Error ? error.message : error.toString();

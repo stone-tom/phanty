@@ -1,4 +1,3 @@
-* service injection
 * bullmq worker
 * open api setup
 * frontend vite react app with tanstack start
@@ -18,4 +17,7 @@
 * add some prometheus exporter?
 * GOOD README!!
 * maintenance mode
+* add healthcheck to every app
+* add metrics exporters to every app
 * ansible and full on deployment (with all componenets including opbservabitl.ity)
+* multitenant redis???

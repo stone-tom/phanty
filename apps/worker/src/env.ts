@@ -17,11 +17,11 @@ function createEnv<T extends ZodRawShape>(
 
 export const env = createEnv(
   z.object({
-    API_PORT: z.coerce.number().default(3000),
-    DATABASE_URL: z.string(),
     NODE_ENV: z
       .enum(['development', 'production', 'test'])
       .default('development'),
+    WORKER_QUEUES: z.string().default('all'),
+    WORKER_DEFAULT_CONCURRENCY: z.coerce.number().default(3),
     REDIS_HOST: z.string().default('localhost'),
     REDIS_PORT: z.coerce.number().default(6379),
     REDIS_PASSWORD: z.string().optional(),
