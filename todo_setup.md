@@ -16,3 +16,4 @@
 * multitenant redis??? bullmq with prefixes? rest lets see idk how acl works tbh
 * testing
 * cronjob???
+* cli???
