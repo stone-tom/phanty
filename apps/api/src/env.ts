@@ -26,5 +26,20 @@ export const env = createEnv(
     REDIS_PORT: z.coerce.number().default(6379),
     REDIS_PASSWORD: z.string().optional(),
     REDIS_USERNAME: z.string().optional(),
+    MAINTENANCE_IGNORE_IPS: z
+      .string()
+      .optional()
+      .transform((value) =>
+        value
+          ?.split(',')
+          .map((ip) => ip.trim())
+          .filter(Boolean),
+      )
+      .default([]),
+    MAINTENANCE_MODE: z
+      .string()
+      .optional()
+      .transform((value) => value === 'true')
+      .default(false),
   }),
 );

@@ -2,9 +2,8 @@
 * shadcn setup
 * better-auth (also better-auth ui?)
 * write a few endpoints and some frontend
-
-
 * first eden tests
+
 * better-upload
 * add open telemetry -> end 2 end fully from the frontend to the backend including worker
 
@@ -12,7 +11,6 @@
 * react-email -> sending first emails (probably start with better-auth stuff)
 * add some prometheus exporter?
 * GOOD README!!
-* maintenance mode -> this will be mostly handled by the backend and the frontend should then just do things
 * add healthcheck to every app
 * add metrics exporters to every app
 * ansible and full on deployment (with all componenets including opbservabitl.ity)
