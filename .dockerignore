@@ -1,0 +1,16 @@
+.git
+.gitignore
+.github
+.vscode
+.pnpm-store
+node_modules
+**/node_modules
+**/.env
+**/.env.*
+dist
+build
+coverage
+**/dist
+**/build
+**/coverage
+.DS_Store
