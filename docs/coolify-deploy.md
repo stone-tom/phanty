@@ -46,7 +46,7 @@ Environment variables:
 
 - `NODE_ENV=production`
 - `API_PORT=3000`
-- `DATABASE_URL=<internal postgres url from Coolify DB resource>`
+- `DATABASE_URL=<internal postgres url from Coolify DB resource>?sslmode=disable` -> sslmode needed so atlas (for migrations) can access it
 - `MAINTENANCE_MODE=false`
 - `MAINTENANCE_IGNORE_IPS=`
 - `RUN_DB_MIGRATIONS=true`
