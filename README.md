@@ -70,6 +70,7 @@ Packages:
 Root/Workspace docs:
 
 - [`README.md`](./README.md) - this file (entrypoint and index)
+- [`docs/coolify-deploy.md`](./docs/coolify-deploy.md) - production deployment setup for Coolify
 
 ## Documentation Conventions
 
