@@ -51,6 +51,8 @@ Environment variables:
 - `MAINTENANCE_IGNORE_IPS=`
 - `RUN_DB_MIGRATIONS=true`
 
+When `RUN_DB_MIGRATIONS=true`, `DATABASE_URL` must be set to a valid Postgres URL (for example `postgres://user:pass@host:5432/dbname`).
+
 Then assign a domain (example: `api.example.com`).
 
 ## 3) Create Web Resource (`phanty-web`)
