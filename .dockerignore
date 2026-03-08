@@ -10,4 +10,7 @@ node_modules
 dist
 build
 coverage
+**/dist
+**/build
+**/coverage
 .DS_Store
