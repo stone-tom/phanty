@@ -7,7 +7,7 @@ const db = createDbClient(env.DATABASE_URL);
 export async function main() {
 	console.info('Started seeding test data...');
 	await seedTest(db);
-	console.info('finished seeding test data...');
+	console.info('Finished seeding test data...');
 	console.info('✅ Database seeding completed successfully');
 }
 
