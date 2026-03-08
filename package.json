@@ -22,6 +22,7 @@
 		"atlas:status": "pnpm --filter @repo/db atlas:status"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.4.6"
+		"@biomejs/biome": "2.4.6",
+		"bun-types": "^1.3.10"
 	}
 }
