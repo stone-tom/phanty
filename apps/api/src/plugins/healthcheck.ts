@@ -12,8 +12,9 @@ const checkDb = async () => {
 	}
 };
 
-export const healthcheck = new Elysia({ name: 'healthcheck' })
-	.get('/health', async ({ set }) => {
+export const healthcheck = new Elysia({ name: 'healthcheck' }).get(
+	'/health',
+	async ({ set }) => {
 		const [database] = await Promise.all([checkDb()]);
 
 		const isHealthy = database.status === 'up';
@@ -24,5 +25,5 @@ export const healthcheck = new Elysia({ name: 'healthcheck' })
 			status: isHealthy ? 'ok' : 'degraded',
 			uptime: Math.floor(process.uptime()),
 		};
-	})
-	.listen(3000);
+	},
+);

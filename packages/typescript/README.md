@@ -12,11 +12,9 @@ In a package `tsconfig.json`:
 
 ```json
 {
-	"extends": "../../packages/typescript/base.json"
+	"extends": "@repo/typescript/base.json"
 }
 ```
-
-Relative `extends` is preferred in this repo because it is consistently resolved by both `tsc` and VS Code across project references.
 
 ## What It Standardizes
 

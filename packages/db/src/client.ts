@@ -7,7 +7,7 @@ export function createDbClient(databaseUrl: string) {
 	const client = new SQL(databaseUrl, {
 		max: env.MAX_POOL_SIZE,
 		idleTimeout: env.IDLE_TIMEOUT,
-		maxLifetime: env.MAX_POOL_SIZE,
+		maxLifetime: env.MAX_LIFETIME,
 	});
 
 	return drizzle(client, { schema });

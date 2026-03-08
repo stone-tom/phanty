@@ -1,5 +1,5 @@
 import Elysia from 'elysia';
-import { db } from 'src/lib/db';
+import { db } from '../../../lib/db';
 
 export class TestService {
 	async findAll() {
