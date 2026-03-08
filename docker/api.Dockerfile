@@ -2,7 +2,9 @@ FROM oven/bun:1.3.1-alpine AS build
 
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@10.30.3 --activate
+ENV PATH="/root/.bun/bin:${PATH}"
+
+RUN bun add -g pnpm@10.30.3
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api/package.json apps/api/package.json
