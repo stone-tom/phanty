@@ -21,6 +21,10 @@
         "noForEach": "error",
         "useLiteralKeys": "error"
       },
+      "a11y": {
+        "useSemanticElements": "info",
+        "useValidAnchor": "info"
+      },
       "correctness": {
         "noUnusedImports": "error",
         "noUnusedVariables": "error",

@@ -1,5 +1,3 @@
-* frontend vite react app with tanstack start
-* shadcn setup
 * better-auth (also better-auth ui?)
 * write a few endpoints and some frontend
 * first eden tests
