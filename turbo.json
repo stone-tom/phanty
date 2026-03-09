@@ -3,11 +3,7 @@
   "tasks": {
     "dev": {
       "cache": false,
-      "outputs": [],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        ".env"
-      ]
+      "persistent": true
     },
     "lint": {
       "inputs": [

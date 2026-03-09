@@ -41,9 +41,9 @@
   "assist": {
     "enabled": true,
     "actions": {
-        "source": {
-            "organizeImports": "on"
-        }
+      "source": {
+        "organizeImports": "on"
+      }
     }
   },
   "javascript": {
@@ -55,6 +55,14 @@
       "bracketSpacing": true,
       "bracketSameLine": false
     },
-    "globals": ["Bun", "import.meta"]
+    "globals": [
+      "Bun",
+      "import.meta"
+    ]
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
   }
 }
