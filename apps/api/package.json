@@ -4,7 +4,8 @@
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"dev": "bun run --watch src/index.ts",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsc --noEmit",
+		"auth:seed": "bun run src/seed/auth.seed.ts"
 	},
 	"dependencies": {
 		"@elysiajs/openapi": "^1.4.14",

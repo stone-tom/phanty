@@ -40,7 +40,8 @@ Recommended settings:
 `docker/api.Dockerfile` builds the API with `bun build --compile`, then on container start:
 
 1. applies pending Atlas SQL migrations from `packages/db/migrations`
-2. starts the compiled API binary
+2. optionally runs auth seed user creation
+3. starts the compiled API binary
 
 Environment variables:
 
@@ -50,8 +51,22 @@ Environment variables:
 - `MAINTENANCE_MODE=false`
 - `MAINTENANCE_IGNORE_IPS=`
 - `RUN_DB_MIGRATIONS=true`
+- `BETTER_AUTH_SECRET=<strong random secret>`
+- `BETTER_AUTH_URL=https://api.example.com`
+- `RUN_AUTH_SEED=false`
+- `SEED_AUTH_NAME=Admin`
+- `SEED_AUTH_EMAIL=admin@phanty.app`
+- `SEED_AUTH_PASSWORD=<set a strong password>`
 
 When `RUN_DB_MIGRATIONS=true`, `DATABASE_URL` must be set to a valid Postgres URL (for example `postgres://user:pass@host:5432/dbname`).
+When `RUN_AUTH_SEED=true`, the container runs `/app/auth-seed` during startup before launching the API.
+The seed is idempotent and skips creation if the email already exists.
+
+One-off production seeding flow:
+
+1. Set `RUN_AUTH_SEED=true` on `phanty-api`.
+2. Redeploy once and confirm logs show seeded user (or already exists).
+3. Set `RUN_AUTH_SEED=false` again to avoid running seed every startup.
 
 Then assign a domain (example: `api.example.com`).
 
