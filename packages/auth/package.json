@@ -1,0 +1,23 @@
+{
+  "name": "@repo/auth",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "auth:generate": "auth generate --config ./src/server.ts --output ../../packages/db/src/schema/auth.ts --yes"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.24.0",
+  "dependencies": {
+    "auth": "^1.5.4",
+    "better-auth": "^1.5.4",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@repo/db": "workspace:*",
+    "@repo/tsconfig": "workspace:*"
+  }
+}

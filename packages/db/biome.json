@@ -1,6 +1,6 @@
 {
   "extends": ["../../biome.json"],
   "files": {
-    "includes": ["src/**/*", "drizzle.config.ts"]
+    "includes": ["src/**/*", "drizzle.config.ts", "!src/schema/auth.ts"]
   }
 }

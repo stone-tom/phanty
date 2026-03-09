@@ -9,6 +9,7 @@
     "lint:fix": "turbo run lint:fix",
     "dev": "turbo run dev --ui tui",
     "db:seed": "turbo run db:seed",
+    "auth:generate": "turbo run auth:generate",
     "atlas:diff": "turbo run atlas:diff --",
     "atlas:apply": "turbo run atlas:apply",
     "atlas:status": "turbo run atlas:status",

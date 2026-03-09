@@ -1,4 +1,5 @@
 * better-auth (also better-auth ui?)
+* react-email -> sending first emails (probably start with better-auth stuff)
 * write a few endpoints and some frontend
 * first eden tests
 
@@ -6,7 +7,6 @@
 * add open telemetry -> end 2 end fully from the frontend to the backend including worker
 
 * docker build and starting docker with .prod.yml
-* react-email -> sending first emails (probably start with better-auth stuff)
 * add some prometheus exporter?
 * GOOD README!!
 * add metrics exporters to api
@@ -15,3 +15,4 @@
 * testing
 * cronjobs???
 * am ende nochmal püber die biome und tsconfig drüberfahren
+* REMOVE TUBRO????

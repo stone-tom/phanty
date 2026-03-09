@@ -1,6 +1,4 @@
-import { createDbClient } from '@repo/db';
+import { createDbClient, type Database } from '@repo/db/client';
 import { env } from '../env';
 
-export const db: ReturnType<typeof createDbClient> = createDbClient(
-  env.DATABASE_URL,
-);
+export const db: Database = createDbClient(env.DATABASE_URL);

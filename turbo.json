@@ -20,6 +20,13 @@
         ".env"
       ]
     },
+    "auth:generate": {
+      "cache": false,
+      "inputs": [
+        "src/**/*",
+        ".env"
+      ]
+    },
     "atlas:diff": {
       "cache": false,
       "inputs": [
