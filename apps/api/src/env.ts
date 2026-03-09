@@ -37,5 +37,7 @@ export const env = createEnv(
 			.optional()
 			.transform((value) => value === 'true')
 			.default(false),
+		BETTER_AUTH_SECRET: z.string(),
+		BETTER_AUTH_URL: z.string(),
 	}),
 );
