@@ -1,10 +1,13 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { openAPI } from 'better-auth/plugins';
+import { env } from '../env';
 import { db } from './db';
 
 export const auth = betterAuth({
 	basePath: '/api',
+	secret: env.BETTER_AUTH_SECRET,
+	baseURL: env.BETTER_AUTH_URL,
 	plugins: [openAPI()],
 	database: drizzleAdapter(db, {
 		provider: 'pg',
