@@ -16,7 +16,9 @@
 		"atlas:diff": "pnpm --filter @repo/db atlas:diff",
 		"atlas:rehash": "pnpm --filter @repo/db atlas:rehash",
 		"atlas:apply": "pnpm --filter @repo/db atlas:apply",
-		"atlas:status": "pnpm --filter @repo/db atlas:status"
+		"atlas:status": "pnpm --filter @repo/db atlas:status",
+		"lingui:extract": "pnpm --filter @repo/web lingui:extract",
+		"lingui:compile": "pnpm --filter @repo/web lingui:compile"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.6",
