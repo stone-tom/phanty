@@ -19,6 +19,16 @@ export const env = createEnv(
 	z.object({
 		API_PORT: z.coerce.number().default(3000),
 		DATABASE_URL: z.string(),
+		CORS_ORIGINS: z
+			.string()
+			.optional()
+			.transform((value) =>
+				value
+					?.split(',')
+					.map((origin) => origin.trim())
+					.filter(Boolean),
+			)
+			.default(['http://localhost:5173']),
 		NODE_ENV: z
 			.enum(['development', 'production', 'test'])
 			.default('development'),
@@ -37,5 +47,10 @@ export const env = createEnv(
 			.optional()
 			.transform((value) => value === 'true')
 			.default(false),
+		BETTER_AUTH_SECRET: z.string(),
+		BETTER_AUTH_URL: z.string(),
+		SEED_AUTH_NAME: z.string().default('Admin'),
+		SEED_AUTH_EMAIL: z.email().default('admin@phanty.app'),
+		SEED_AUTH_PASSWORD: z.string().default('change-me-please'),
 	}),
 );

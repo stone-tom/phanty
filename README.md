@@ -39,7 +39,13 @@ Create local env files:
 
 ```bash
 cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
 cp packages/db/.env.example packages/db/.env
+```
+
+Start docker container:
+```bash
+docker compose up -d
 ```
 
 ## Workspace Commands
@@ -54,6 +60,12 @@ Run from repository root:
 - `pnpm format` - format repository with Biome
 - `pnpm db:seed` - seed database using `@repo/db`
 - `pnpm atlas:diff|atlas:rehash|atlas:apply|atlas:status` - migration workflow helpers
+
+## Biome Config Layout
+
+- Root config in [`biome.json`](./biome.json) contains shared defaults for the entire repo.
+- Package/app-specific Biome config should live beside that package (for example [`apps/web/biome.json`](./apps/web/biome.json)).
+- Package configs extend root using `extends: "//"` and override only local needs.
 
 ## Technical Documentation Index
 

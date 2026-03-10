@@ -34,24 +34,5 @@
 				"organizeImports": "on"
 			}
 		}
-	},
-	"overrides": [
-		{
-			"includes": ["apps/web/**"],
-			"linter": {
-				"domains": {
-					"react": "recommended",
-					"tailwind": "recommended"
-				}
-			},
-			"javascript": {
-				"jsxRuntime": "transparent"
-			},
-			"css": {
-				"parser": {
-					"tailwindDirectives": true
-				}
-			}
-		}
-	]
+	}
 }

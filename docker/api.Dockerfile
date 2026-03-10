@@ -19,6 +19,7 @@ COPY packages/db ./packages/db
 COPY packages/typescript ./packages/typescript
 
 RUN bun build apps/api/src/index.ts --compile --minify --outfile /app/server
+RUN bun build apps/api/src/seed/auth.seed.ts --compile --minify --outfile /app/auth-seed
 
 FROM arigaio/atlas:latest AS atlas
 
@@ -32,6 +33,7 @@ ENV NODE_ENV=production
 ENV API_PORT=3000
 
 COPY --from=build /app/server /app/server
+COPY --from=build /app/auth-seed /app/auth-seed
 COPY --from=atlas /atlas /usr/local/bin/atlas
 COPY packages/db/migrations /app/packages/db/migrations
 COPY docker/api-entrypoint.sh /app/api-entrypoint.sh

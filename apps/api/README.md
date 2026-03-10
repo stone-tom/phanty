@@ -36,6 +36,7 @@ Defined in [`.env.example`](./.env.example):
 - `DATABASE_URL` - Postgres connection string
 - `API_PORT` - HTTP port (default: `3000`)
 - `NODE_ENV` - `development | production | test`
+- `CORS_ORIGINS` - comma-separated frontend origins allowed by CORS
 - `MAINTENANCE_MODE` - `true` to return `503` for most routes
 - `MAINTENANCE_IGNORE_IPS` - comma-separated allowlist for maintenance mode
 

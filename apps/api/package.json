@@ -4,11 +4,14 @@
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"dev": "bun run --watch src/index.ts",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsc --noEmit",
+		"auth:seed": "bun run src/seed/auth.seed.ts"
 	},
 	"dependencies": {
-		"@repo/db": "workspace:*",
+		"@elysiajs/cors": "^1.4.1",
 		"@elysiajs/openapi": "^1.4.14",
+		"@repo/db": "workspace:*",
+		"better-auth": "^1.5.4",
 		"drizzle-orm": "^0.45.1",
 		"elysia": "^1.4.27",
 		"zod": "^4.3.6"
