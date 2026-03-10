@@ -42,6 +42,11 @@ cp apps/api/.env.example apps/api/.env
 cp packages/db/.env.example packages/db/.env
 ```
 
+Start docker container:
+```bash
+docker compose up -d
+```
+
 ## Workspace Commands
 
 Run from repository root:
