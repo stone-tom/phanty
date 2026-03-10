@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { LoadingButton } from '@/components/ui/loading-button';
-import { authClient } from '../../../lib/auth-client';
+import { authClient } from '@/lib/auth-client';
 
 const schema = z.object({
 	email: z.email(),
