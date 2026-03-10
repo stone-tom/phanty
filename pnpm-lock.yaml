@@ -121,9 +121,6 @@ importers:
       '@lingui/swc-plugin':
         specifier: ^5.11.0
         version: 5.11.0(@lingui/core@5.9.2(@lingui/babel-plugin-lingui-macro@5.9.2(typescript@5.9.3)))
-      '@lingui/vite-plugin':
-        specifier: ^5.9.2
-        version: 5.9.2(typescript@5.9.3)(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0))
       '@repo/typescript':
         specifier: workspace:*
         version: link:../../packages/typescript
@@ -1115,12 +1112,6 @@ packages:
         optional: true
       next:
         optional: true
-
-  '@lingui/vite-plugin@5.9.2':
-    resolution: {integrity: sha512-cKfVCoOJsHssx7OazCb8P/KHn1UqCiod+OGIpGqchtla09xPNSZmfyEp/Of0+S6G5REkOMV/ZGgl+awtGkJ0fA==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      vite: ^3 || ^4 || ^5.0.9 || ^6 || ^7
 
   '@messageformat/parser@5.1.1':
     resolution: {integrity: sha512-3p0YRGCcTUCYvBKLIxtDDyrJ0YijGIwrTRu1DT8gIviIDZru8H23+FkY6MJBzM1n9n20CiM4VeDYuBsrrwnLjg==}
@@ -4611,16 +4602,6 @@ snapshots:
   '@lingui/swc-plugin@5.11.0(@lingui/core@5.9.2(@lingui/babel-plugin-lingui-macro@5.9.2(typescript@5.9.3)))':
     dependencies:
       '@lingui/core': 5.9.2(@lingui/babel-plugin-lingui-macro@5.9.2(typescript@5.9.3))
-
-  '@lingui/vite-plugin@5.9.2(typescript@5.9.3)(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0))':
-    dependencies:
-      '@lingui/cli': 5.9.2(typescript@5.9.3)
-      '@lingui/conf': 5.9.2(typescript@5.9.3)
-      vite: 7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.31.1)(tsx@4.21.0)
-    transitivePeerDependencies:
-      - babel-plugin-macros
-      - supports-color
-      - typescript
 
   '@messageformat/parser@5.1.1':
     dependencies:

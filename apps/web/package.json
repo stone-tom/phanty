@@ -41,7 +41,6 @@
 		"@biomejs/biome": "2.4.6",
 		"@lingui/cli": "^5.9.2",
 		"@lingui/swc-plugin": "^5.11.0",
-		"@lingui/vite-plugin": "^5.9.2",
 		"@repo/typescript": "workspace:*",
 		"@tanstack/router-plugin": "^1.166.6",
 		"@types/node": "^24.10.1",
