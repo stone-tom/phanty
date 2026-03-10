@@ -20,4 +20,4 @@ if [ "${RUN_AUTH_SEED:-false}" = "true" ]; then
 	/app/auth-seed
 fi
 
-exec /app/server
+RUN_AUTH_SEED=false exec /app/server

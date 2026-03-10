@@ -38,7 +38,7 @@ Defined in [`.env.example`](./.env.example):
 - `API_PORT` - HTTP port (default: `3000`)
 - `NODE_ENV` - `development | production | test`
 - `CORS_ORIGINS` - comma-separated frontend origins allowed by CORS
-- `ALLOW_SEED_SIGNUP` - keep `false` in runtime; set `true` only for controlled seeding
+- `RUN_AUTH_SEED` - keep `false` in runtime; set `true` only for controlled seeding
 - `MAINTENANCE_MODE` - `true` to return `503` for most routes
 - `MAINTENANCE_IGNORE_IPS` - comma-separated allowlist for maintenance mode
 

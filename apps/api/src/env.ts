@@ -49,7 +49,7 @@ export const env = createEnv(
 			.default(false),
 		BETTER_AUTH_SECRET: z.string(),
 		BETTER_AUTH_URL: z.string(),
-		ALLOW_SEED_SIGNUP: z
+		RUN_AUTH_SEED: z
 			.string()
 			.optional()
 			.transform((value) => value === 'true')
