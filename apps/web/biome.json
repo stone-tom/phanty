@@ -18,7 +18,11 @@
 	},
 	"overrides": [
 		{
-			"includes": ["src/routeTree.gen.ts"],
+			"includes": [
+				"src/routeTree.gen.ts",
+				"src/i18n/locales/**/messages.po",
+				"src/i18n/locales/**/messages.ts"
+			],
 			"linter": {
 				"enabled": false
 			},

@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Trans } from '@lingui/react/macro';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import z from 'zod';
@@ -56,9 +57,11 @@ export function LoginForm() {
 		<div className="flex flex-col gap-6">
 			<Card>
 				<CardHeader>
-					<CardTitle>Login to phanty</CardTitle>
+					<CardTitle>
+						<Trans>Login to phanty</Trans>
+					</CardTitle>
 					<CardDescription>
-						Enter your email below to login to your account
+						<Trans>Enter your email below to login to your account</Trans>
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
@@ -69,11 +72,14 @@ export function LoginForm() {
 								name="email"
 								render={({ field, fieldState }) => (
 									<Field>
-										<FieldLabel htmlFor={field.name}>E-Mail</FieldLabel>
+										<FieldLabel htmlFor={field.name}>
+											<Trans>Email</Trans>
+										</FieldLabel>
 										<Input
 											{...field}
 											id={field.name}
 											aria-invalid={fieldState.invalid}
+											autoComplete="email"
 										/>
 										{fieldState.invalid && (
 											<FieldError errors={[fieldState.error]} />
@@ -87,13 +93,16 @@ export function LoginForm() {
 								render={({ field, fieldState }) => (
 									<Field>
 										<div className="flex items-center">
-											<FieldLabel htmlFor={field.name}>Password</FieldLabel>
+											<FieldLabel htmlFor={field.name}>
+												<Trans>Password</Trans>
+											</FieldLabel>
 										</div>
 										<Input
 											{...field}
 											id={field.name}
 											type="password"
 											aria-invalid={fieldState.invalid}
+											autoComplete="current-password"
 										/>
 										{fieldState.invalid && (
 											<FieldError errors={[fieldState.error]} />
@@ -104,14 +113,14 @@ export function LoginForm() {
 
 							<Field className="mb-3">
 								<LoadingButton type="submit" loading={loading}>
-									Login
+									<Trans>Login</Trans>
 								</LoadingButton>
 							</Field>
 						</FieldGroup>
 
 						<div className="flex justify-center">
 							<Button variant="link" size="sm">
-								Forgot your password?
+								<Trans>Forgot your password?</Trans>
 							</Button>
 						</div>
 					</form>
