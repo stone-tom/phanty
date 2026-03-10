@@ -8,6 +8,7 @@
 		"auth:seed": "bun run src/seed/auth.seed.ts"
 	},
 	"dependencies": {
+		"@elysiajs/cors": "^1.4.1",
 		"@elysiajs/openapi": "^1.4.14",
 		"@repo/db": "workspace:*",
 		"better-auth": "^1.5.4",

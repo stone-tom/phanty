@@ -21,6 +21,16 @@ pnpm --filter @repo/web dev
 
 Default Vite URL: `http://localhost:5173`
 
+Create local env file:
+
+```bash
+cp apps/web/.env.example apps/web/.env
+```
+
+Required variables:
+
+- `VITE_BACKEND_URL` - backend origin used by auth client (example: `http://localhost:4000`)
+
 ## Scripts
 
 Run from repository root:

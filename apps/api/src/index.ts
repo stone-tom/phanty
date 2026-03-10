@@ -1,3 +1,4 @@
+import { cors } from '@elysiajs/cors';
 import openapi from '@elysiajs/openapi';
 import { Elysia } from 'elysia';
 
@@ -8,6 +9,14 @@ import { healthcheck } from './plugins/healthcheck';
 import { maintenance } from './plugins/maintenance';
 
 const app = new Elysia()
+	.use(
+		cors({
+			origin: env.CORS_ORIGINS,
+			credentials: true,
+			methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+			allowedHeaders: ['Content-Type', 'Authorization'],
+		}),
+	)
 	.use(maintenance)
 	.use(
 		openapi({

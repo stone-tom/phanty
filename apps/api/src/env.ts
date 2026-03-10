@@ -19,6 +19,16 @@ export const env = createEnv(
 	z.object({
 		API_PORT: z.coerce.number().default(3000),
 		DATABASE_URL: z.string(),
+		CORS_ORIGINS: z
+			.string()
+			.optional()
+			.transform((value) =>
+				value
+					?.split(',')
+					.map((origin) => origin.trim())
+					.filter(Boolean),
+			)
+			.default(['http://localhost:5173']),
 		NODE_ENV: z
 			.enum(['development', 'production', 'test'])
 			.default('development'),
