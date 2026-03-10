@@ -1,5 +1,3 @@
-import { user } from '@repo/db';
-import { eq } from 'drizzle-orm';
 import { env } from '../env';
 import { auth } from '../lib/auth';
 import { db } from '../lib/db';
@@ -12,7 +10,7 @@ const seedUser = {
 
 async function main() {
 	const existingUser = await db.query.user.findFirst({
-		where: eq(user.email, seedUser.email),
+		where: (user, { eq }) => eq(user.email, seedUser.email),
 	});
 
 	if (existingUser) {

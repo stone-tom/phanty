@@ -47,7 +47,8 @@ Run from repository root:
 
 - Path alias `@` points to `src` (configured in `vite.config.ts` + TS config).
 - Theme handling is wired through `ThemeProvider` in `src/main.tsx`.
-- Tailwind and React-specific Biome rules are enabled via root `biome.json` overrides for `apps/web/**`.
+- Biome config for this app lives in [`biome.json`](./biome.json) and extends root settings from [`/biome.json`](../../biome.json).
+- `src/routeTree.gen.ts` is generated and intentionally excluded from Biome lint/format/assist checks.
 
 ## UI Components
 
