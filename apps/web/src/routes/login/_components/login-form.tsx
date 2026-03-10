@@ -1,8 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
+import { CircleAlert } from 'lucide-react';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import z from 'zod';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
 	Card,
@@ -28,21 +31,49 @@ const schema = z.object({
 
 export type LoginFormValues = z.infer<typeof schema>;
 
+type LoginError = {
+	title: string;
+	message: string;
+};
+
 export function LoginForm() {
 	const [loading, setLoading] = useState(false);
+	const [loginError, setLoginError] = useState<LoginError | null>(null);
 
 	const handleLogin = async (values: LoginFormValues) => {
 		setLoading(true);
-		const response = await authClient.signIn.email({
-			email: values.email,
-			password: values.password,
-			callbackURL: '/',
-		});
+		setLoginError(null);
 
-		if (response.error) {
-			console.log('Login error:', response.error);
+		try {
+			const response = await authClient.signIn.email({
+				email: values.email,
+				password: values.password,
+				callbackURL: '/',
+			});
+
+			if (response.error) {
+				const { code } = response.error as { code?: string };
+
+				if (code === 'INVALID_EMAIL_OR_PASSWORD') {
+					setLoginError({
+						title: t`Login failed`,
+						message: t`Invalid email or password`,
+					});
+				} else {
+					setLoginError({
+						title: t`Something went wrong`,
+						message: t`Please try again later`,
+					});
+				}
+			}
+		} catch {
+			setLoginError({
+				title: t`Something went wrong`,
+				message: t`Please try again later`,
+			});
+		} finally {
+			setLoading(false);
 		}
-		setLoading(false);
 	};
 
 	const form = useForm({
@@ -67,6 +98,13 @@ export function LoginForm() {
 				<CardContent>
 					<form onSubmit={form.handleSubmit(handleLogin)}>
 						<FieldGroup>
+							{loginError && (
+								<Alert variant="destructive" className="border-destructive">
+									<CircleAlert />
+									<AlertTitle>{loginError.title}</AlertTitle>
+									<AlertDescription>{loginError.message}</AlertDescription>
+								</Alert>
+							)}
 							<Controller
 								control={form.control}
 								name="email"
@@ -79,7 +117,6 @@ export function LoginForm() {
 											{...field}
 											id={field.name}
 											aria-invalid={fieldState.invalid}
-											autoComplete="email"
 										/>
 										{fieldState.invalid && (
 											<FieldError errors={[fieldState.error]} />
@@ -102,7 +139,6 @@ export function LoginForm() {
 											id={field.name}
 											type="password"
 											aria-invalid={fieldState.invalid}
-											autoComplete="current-password"
 										/>
 										{fieldState.invalid && (
 											<FieldError errors={[fieldState.error]} />

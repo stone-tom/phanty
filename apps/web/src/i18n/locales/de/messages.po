@@ -13,11 +13,11 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/routes/login/_components/login-form.tsx:76
+#: src/routes/login/_components/login-form.tsx:114
 msgid "Email"
 msgstr "E-Mail"
 
-#: src/routes/login/_components/login-form.tsx:64
+#: src/routes/login/_components/login-form.tsx:95
 msgid "Enter your email below to login to your account"
 msgstr "Gib deine E-Mail-Adresse ein, um dich in dein Konto einzuloggen"
 
@@ -27,18 +27,36 @@ msgstr "Gib deine E-Mail-Adresse ein, um dich in dein Konto einzuloggen"
 msgid "validation.required"
 msgstr "Feld ist ein Pflichtfeld"
 
-#: src/routes/login/_components/login-form.tsx:123
+#: src/routes/login/_components/login-form.tsx:159
 msgid "Forgot your password?"
 msgstr "Passwort vergessen?"
 
-#: src/routes/login/_components/login-form.tsx:116
+#: src/routes/login/_components/login-form.tsx:60
+msgid "Invalid email or password"
+msgstr "E-Mail oder Passwort falsch"
+
+#: src/routes/login/_components/login-form.tsx:152
 msgid "Login"
 msgstr "Anmelden"
 
-#: src/routes/login/_components/login-form.tsx:61
+#: src/routes/login/_components/login-form.tsx:59
+msgid "Login failed"
+msgstr "Login fehlgeschlagen"
+
+#: src/routes/login/_components/login-form.tsx:92
 msgid "Login to phanty"
 msgstr "Bei phanty anmelden"
 
-#: src/routes/login/_components/login-form.tsx:97
+#: src/routes/login/_components/login-form.tsx:134
 msgid "Password"
 msgstr "Passwort"
+
+#: src/routes/login/_components/login-form.tsx:65
+#: src/routes/login/_components/login-form.tsx:72
+msgid "Please try again later"
+msgstr "Bitte versuche es später erneut"
+
+#: src/routes/login/_components/login-form.tsx:64
+#: src/routes/login/_components/login-form.tsx:71
+msgid "Something went wrong"
+msgstr "Es ist etwas schiefgelaufen"
