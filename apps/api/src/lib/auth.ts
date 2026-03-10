@@ -15,7 +15,7 @@ export const auth = betterAuth({
 	trustedOrigins: env.CORS_ORIGINS,
 	emailAndPassword: {
 		enabled: true,
-		disableSignUp: true,
+		disableSignUp: !env.ALLOW_SEED_SIGNUP,
 	},
 });
 

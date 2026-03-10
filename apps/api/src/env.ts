@@ -49,6 +49,11 @@ export const env = createEnv(
 			.default(false),
 		BETTER_AUTH_SECRET: z.string(),
 		BETTER_AUTH_URL: z.string(),
+		ALLOW_SEED_SIGNUP: z
+			.string()
+			.optional()
+			.transform((value) => value === 'true')
+			.default(false),
 		SEED_AUTH_NAME: z.string().default('Admin'),
 		SEED_AUTH_EMAIL: z.email().default('admin@phanty.app'),
 		SEED_AUTH_PASSWORD: z.string().default('change-me-please'),

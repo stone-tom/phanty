@@ -28,6 +28,7 @@ Run from repository root:
 
 - `pnpm --filter @repo/api dev` - start API in watch mode using Bun
 - `pnpm --filter @repo/api typecheck` - run TypeScript type checking
+- `pnpm --filter @repo/api auth:seed` - seed admin auth user (temporarily enables signup for this command only)
 
 ## Environment Variables
 
@@ -37,6 +38,7 @@ Defined in [`.env.example`](./.env.example):
 - `API_PORT` - HTTP port (default: `3000`)
 - `NODE_ENV` - `development | production | test`
 - `CORS_ORIGINS` - comma-separated frontend origins allowed by CORS
+- `ALLOW_SEED_SIGNUP` - keep `false` in runtime; set `true` only for controlled seeding
 - `MAINTENANCE_MODE` - `true` to return `503` for most routes
 - `MAINTENANCE_IGNORE_IPS` - comma-separated allowlist for maintenance mode
 
