@@ -18,5 +18,7 @@ function createEnv<T extends ZodRawShape>(
 export const env = createEnv(
   z.object({
     DATABASE_URL: z.string(),
+    FRONTEND_URL: z.url(),
+    PASSWORD_PEPPER: z.string(),
   }),
 );

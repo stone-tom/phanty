@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link } from '@tanstack/react-router';
+import { Link, useRouter } from '@tanstack/react-router';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,9 @@ import {
   FieldLabel,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { authClient } from '@/lib/auth';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 const signUpSchema = z
   .object({
@@ -26,10 +29,9 @@ const signUpSchema = z
 
 type SignUpSchema = z.infer<typeof signUpSchema>;
 
-export function SignupForm({
-  className,
-  ...props
-}: React.ComponentProps<'div'>) {
+export function SignupForm() {
+  const router = useRouter();
+  const [loading, setLoading] = useState<boolean>(false);
   const form = useForm<SignUpSchema>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -40,8 +42,24 @@ export function SignupForm({
     },
   });
 
-  const onSubmit = (data: SignUpSchema) => {
-    console.log(data);
+  const onSubmit = async (input: SignUpSchema) => {
+    setLoading(true);
+
+    const { error } = await authClient.signUp.email({
+      email: input.email,
+      password: input.password,
+      name: input.name,
+      callbackURL: '/'
+    });
+    setLoading(false);
+
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success('Successfully signed up!');
+      form.reset();
+      router.navigate({ to: '/' });
+    }
   };
 
   return (
@@ -126,7 +144,7 @@ export function SignupForm({
           </FieldDescription>
         </Field>
         <Field>
-          <Button type="submit">Create Account</Button>
+          <Button disabled={loading} type="submit">Create Account</Button>
           <FieldDescription className="text-center">
             Already have an account? <Link to="/login">Sign in</Link>
           </FieldDescription>

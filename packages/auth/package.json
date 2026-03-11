@@ -11,6 +11,10 @@
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.24.0",
+  "exports": {
+    "./server": "./src/server.ts",
+    "./client": "./src/client.ts"
+  },
   "dependencies": {
     "auth": "^1.5.4",
     "better-auth": "^1.5.4",

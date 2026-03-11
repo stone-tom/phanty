@@ -27,7 +27,9 @@ export const env = createEnv(
     REDIS_PASSWORD: z.string().optional(),
     REDIS_USERNAME: z.string().optional(),
     BETTER_AUTH_SECRET: z.string(),
+    PASSWORD_PEPPER: z.string(),
     BETTER_AUTH_URL: z.url(),
+    FRONTEND_URL: z.url(),
     MAINTENANCE_IGNORE_IPS: z
       .string()
       .optional()

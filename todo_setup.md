@@ -1,5 +1,7 @@
 * better-auth (also better-auth ui?)
-  * different ids
+  * private routes
+  * sign in
+  * session handling
 * react-email -> sending first emails (probably start with better-auth stuff)
 * write a few endpoints and some frontend
 * first eden tests
@@ -15,4 +17,5 @@
 * testing
 * cronjobs???
 * am ende nochmal püber die biome und tsconfig drüberfahren
+* secret management
 * REMOVE TUBRO????
