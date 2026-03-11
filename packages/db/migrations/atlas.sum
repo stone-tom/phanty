@@ -1,3 +1,4 @@
-h1:d9QSW+fitIZ1oHj6fH5D30c0SnmXN7PEl7EaGw94BbY=
+h1:cDh3xHsUYIx7+TNumX6mizeCA4yY5VpvZ56KYcDW9aI=
 20260304130951_add_test_migration.sql h1:naZ8FCdSDQRfbAbsDnq7HYOUb52Giww4TKH3xLS8JRI=
 20260309210234_add_better_auth_initial_setup.sql h1:o/9IYerXxs2rmzdixjnvfVbU9OjrDvNCqmG21NtfSNg=
+20260311185805_removed_default_values.sql h1:u0aGZWUMAPXEj1OZe1Nu5aWiDs10ibXCsId+3VWBLcs=

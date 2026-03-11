@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "auth:generate": "auth generate --config ./src/server.ts --output ../../packages/db/src/schema/auth.ts --yes"
+    "auth:generate": "bun x --bun auth generate --config ./src/server.ts --output ../../packages/db/src/schema/auth.ts --yes"
   },
   "keywords": [],
   "author": "",

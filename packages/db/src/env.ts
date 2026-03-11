@@ -8,7 +8,7 @@ function createEnv<T extends ZodRawShape>(
 
   if (!parsed.success) {
     console.error('❌ Invalid environment variables:');
-    console.error(z.treeifyError(parsed.error).errors);
+    console.error(z.treeifyError(parsed.error));
     process.exit(1);
   }
 

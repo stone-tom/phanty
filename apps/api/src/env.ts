@@ -8,7 +8,7 @@ function createEnv<T extends ZodRawShape>(
 
   if (!parsed.success) {
     console.error('❌ Invalid environment variables:');
-    console.error(z.treeifyError(parsed.error).errors);
+    console.error(z.treeifyError(parsed.error));
     process.exit(1);
   }
 
@@ -26,7 +26,7 @@ export const env = createEnv(
     REDIS_PORT: z.coerce.number().default(6379),
     REDIS_PASSWORD: z.string().optional(),
     REDIS_USERNAME: z.string().optional(),
-    BETTER_AUTH_SECRET: z.string().max(32).min(32),
+    BETTER_AUTH_SECRET: z.string(),
     BETTER_AUTH_URL: z.url(),
     MAINTENANCE_IGNORE_IPS: z
       .string()

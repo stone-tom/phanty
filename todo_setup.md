@@ -1,4 +1,5 @@
 * better-auth (also better-auth ui?)
+  * different ids
 * react-email -> sending first emails (probably start with better-auth stuff)
 * write a few endpoints and some frontend
 * first eden tests
