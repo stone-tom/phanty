@@ -1,6 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useRouter } from '@tanstack/react-router';
+import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,8 +14,6 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { authClient } from '@/lib/auth';
-import { useState } from 'react';
-import { toast } from 'sonner';
 
 const signUpSchema = z
   .object({
@@ -49,7 +49,7 @@ export function SignupForm() {
       email: input.email,
       password: input.password,
       name: input.name,
-      callbackURL: '/'
+      callbackURL: '/',
     });
     setLoading(false);
 
@@ -144,7 +144,9 @@ export function SignupForm() {
           </FieldDescription>
         </Field>
         <Field>
-          <Button disabled={loading} type="submit">Create Account</Button>
+          <Button disabled={loading} type="submit">
+            Create Account
+          </Button>
           <FieldDescription className="text-center">
             Already have an account? <Link to="/login">Sign in</Link>
           </FieldDescription>

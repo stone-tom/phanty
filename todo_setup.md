@@ -1,7 +1,3 @@
-* better-auth (also better-auth ui?)
-  * private routes
-  * sign in
-  * session handling
 * react-email -> sending first emails (probably start with better-auth stuff)
 * write a few endpoints and some frontend
 * first eden tests
@@ -19,3 +15,4 @@
 * am ende nochmal püber die biome und tsconfig drüberfahren
 * secret management
 * REMOVE TUBRO????
+* add useQuery wrapper for better auth
