@@ -36,6 +36,9 @@ importers:
       '@repo/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@repo/emails':
+        specifier: workspace:*
+        version: link:../../packages/emails
       '@repo/logger':
         specifier: workspace:*
         version: link:../../packages/logger
@@ -209,6 +212,9 @@ importers:
       '@repo/db':
         specifier: workspace:*
         version: link:../db
+      '@repo/emails':
+        specifier: workspace:*
+        version: link:../emails
       '@repo/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig

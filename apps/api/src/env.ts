@@ -30,6 +30,34 @@ export const env = createEnv(
     PASSWORD_PEPPER: z.string(),
     BETTER_AUTH_URL: z.url(),
     FRONTEND_URL: z.url(),
+    SMTP_HOST: z.string().default('localhost').describe('SMTP server hostname'),
+    SMTP_PORT: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(1025)
+      .describe('SMTP server port (1025 for Mailpit, 587/465 for production)'),
+    SMTP_SECURE: z
+      .enum(['true', 'false'])
+      .default('false')
+      .transform((val) => val === 'true')
+      .describe('Use TLS (true for port 465, false for 587/1025)'),
+    SMTP_USER: z
+      .string()
+      .optional()
+      .describe('SMTP username (optional for local dev)'),
+    SMTP_PASS: z
+      .string()
+      .optional()
+      .describe('SMTP password (optional for local dev)'),
+    SMTP_FROM_NAME: z
+      .string()
+      .default('Your App')
+      .describe('Default sender name'),
+    SMTP_FROM_EMAIL: z
+      .email()
+      .default('noreply@localhost')
+      .describe('Default sender email address'),
     MAINTENANCE_IGNORE_IPS: z
       .string()
       .optional()

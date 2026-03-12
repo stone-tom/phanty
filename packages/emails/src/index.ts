@@ -44,7 +44,7 @@ enum MAIL_ERROR_CODES {
   FAILED_TO_SEND_MAIL = 'FAILED_TO_SEND_MAIL',
 }
 
-class Mailer {
+export class Mailer {
   private readonly transport: SmtpTransport;
 
   private readonly logger = createLogger('mailer', 'main');
@@ -103,7 +103,7 @@ class Mailer {
   }
 
   close() {
-    this.transport.closeAllConnections();
+    return this.transport.closeAllConnections();
   }
 }
 

@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "auth:generate": "bun x --bun auth generate --config ./src/server.ts --output ../../packages/db/src/schema/auth.ts --yes"
+    "auth:generate": "bun x --bun auth generate --config ./src/cli.ts --output ../../packages/db/src/schema/auth.ts --yes"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "@repo/db": "workspace:*",
-    "@repo/tsconfig": "workspace:*"
+    "@repo/tsconfig": "workspace:*",
+    "@repo/emails": "workspace:*"
   }
 }

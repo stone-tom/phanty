@@ -14,7 +14,13 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      # Web UI to view emails (e.g., http://localhost:8025)
+      - '8025:8025'
+      # SMTP server for your application to send mail to
+      - '1025:1025'
   adminer:
     image: adminer:latest
     depends_on:
