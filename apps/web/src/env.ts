@@ -22,5 +22,6 @@ function createEnv<T extends ZodRawShape>(
 export const env = createEnv(
   z.object({
     VITE_API_URL: z.url(),
+    VITE_BASE_URL: z.url(),
   }),
 );

@@ -17,6 +17,7 @@ export const initAuthServerClient = ({
   pepper,
   db,
   mailer,
+  fromEmail,
 }: InitAuthClientParams) =>
   betterAuth({
     database: drizzleAdapter(db, {
@@ -28,7 +29,7 @@ export const initAuthServerClient = ({
       sendResetPassword: async ({ user, url }) => {
         await mailer.sendMail({
           to: [user.email],
-          from: 'tobias.franel@bitminds.at', // temp
+          from: fromEmail,
           subject: 'Reset your password',
           type: 'forgot-password',
           params: {

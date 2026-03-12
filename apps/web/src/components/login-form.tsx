@@ -6,6 +6,14 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
   Field,
   FieldDescription,
   FieldError,
@@ -14,6 +22,7 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { authClient } from '@/lib/auth';
+import { ForgotPasswordForm } from './forgot-password-form';
 
 const loginSchema = z.object({
   email: z.email('Invalid email address').toLowerCase().trim(),
@@ -25,6 +34,7 @@ type LoginSchema = z.infer<typeof loginSchema>;
 export function LoginForm() {
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
+  const [onForgotPasswordOpen, setOnForgotPasswordOpen] = useState(false);
   const search = useSearch({ from: '/_auth/login' });
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
@@ -89,12 +99,25 @@ export function LoginForm() {
                   <FieldError errors={[fieldState.error]} />
                 )}
               </Field>
-              <a
-                href="#"
-                className="ml-auto text-sm underline-offset-4 hover:underline"
+              <Dialog
+                open={onForgotPasswordOpen}
+                onOpenChange={setOnForgotPasswordOpen}
               >
-                Forgot your password?
-              </a>
+                <DialogTrigger className="ml-auto text-sm underline-offset-4 hover:underline">
+                  Forgot your password?
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Forgot your password?</DialogTitle>
+                    <DialogDescription>
+                      Enter your email an we will send you a reset link.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <ForgotPasswordForm
+                    onClose={() => setOnForgotPasswordOpen(false)}
+                  />
+                </DialogContent>
+              </Dialog>
             </div>
           )}
         />
