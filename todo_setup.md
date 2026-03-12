@@ -1,4 +1,3 @@
-* react-email -> sending first emails (probably start with better-auth stuff)
 * write a few endpoints and some frontend
 * first eden tests
 * better-upload
@@ -16,3 +15,4 @@
 * secret management
 * REMOVE TUBRO????
 * add useQuery wrapper for better auth
+* finish forgot password flow
