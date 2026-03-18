@@ -10,7 +10,7 @@
   "keywords": [],
   "author": "",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./index.ts"
   },
   "license": "ISC",
   "packageManager": "pnpm@10.24.0",
