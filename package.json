@@ -13,6 +13,7 @@
     "atlas:diff": "turbo run atlas:diff --",
     "atlas:apply": "turbo run atlas:apply",
     "atlas:status": "turbo run atlas:status",
+    "atlas:rollback": "turbo run atlas:rollback",
     "atlas:rehash": "turbo run atlas:rehash",
     "cli": "pnpm --filter cli start --"
   },

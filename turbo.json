@@ -48,6 +48,13 @@
         ".env"
       ]
     },
+    "atlas:rollback": {
+      "cache": false,
+      "inputs": [
+        "src/**/*",
+        ".env"
+      ]
+    },
     "atlas:rehash": {
       "cache": false,
       "inputs": [

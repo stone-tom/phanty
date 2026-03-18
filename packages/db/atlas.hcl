@@ -19,9 +19,9 @@ locals {
 # command: pnpm --silent exec drizzle-kit export
 data "external_schema" "drizzle" {
   program = [
-    "pnpm",
+    "bunx",
+    "--bun",
     "--silent",
-    "exec",
     "drizzle-kit",
     "export",
   ]
