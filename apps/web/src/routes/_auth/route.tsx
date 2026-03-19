@@ -30,7 +30,7 @@ function AuthLayout() {
           <div className="flex size-16 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <CakeSlice className="size-12" />
           </div>
-          CONVERT EVERYTHING
+          EVAL LAB
         </a>
         <div className="flex flex-col gap-6">
           <Card>

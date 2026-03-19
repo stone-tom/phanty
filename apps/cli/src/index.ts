@@ -6,7 +6,7 @@ const program = new Command();
 
 program
   .name('cli')
-  .description('CLI for everything-conv operations')
+  .description('CLI for eval-lab operations')
   .version('1.0.0');
 
 program.addCommand(pingCommand);

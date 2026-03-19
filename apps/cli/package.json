@@ -1,7 +1,7 @@
 {
   "name": "@repo/cli",
   "version": "1.0.0",
-  "description": "CLI for everything-conv operations",
+  "description": "CLI for eval-lab operations",
   "type": "module",
   "bin": {
     "cli": "./src/index.ts"
