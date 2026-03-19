@@ -1,13 +1,14 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router';
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { Toaster } from '@/components/ui/sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { authClient } from '@/lib/auth';
 
 const RootLayout = () => (
   <>
-    <Outlet />
+    <TooltipProvider>
+      <Outlet />
+    </TooltipProvider>
     <Toaster />
-    <TanStackRouterDevtools />
   </>
 );
 
