@@ -1,6 +1,8 @@
-h1:814qW6u/rK7sHrH9Wj2IlD2Ko8b7jU2E9bIV+SZBlSU=
+h1:H+oRfuEQOz9R3nk62x8H79pvk5PlStBPe3TJAIvu3Ck=
 20260304130951_add_test_migration.sql h1:naZ8FCdSDQRfbAbsDnq7HYOUb52Giww4TKH3xLS8JRI=
 20260309210234_add_better_auth_initial_setup.sql h1:o/9IYerXxs2rmzdixjnvfVbU9OjrDvNCqmG21NtfSNg=
 20260311185805_removed_default_values.sql h1:u0aGZWUMAPXEj1OZe1Nu5aWiDs10ibXCsId+3VWBLcs=
 20260318194951_added_asset_table.sql h1:ujtw1lS3/CH16mqiBlOVgLJaxfoS6z+nARoTQSBxodk=
 20260320204557_added_organization.sql h1:h4S9l+ni8/Udt6mm3GH7q51y/esFb341yx7a9es1zh8=
+20260320213442_removed_test_table.sql h1:xrRkrxk5nOoYqmMa7d4ciCXWeGHJmom+uh0JwAWuKbo=
+20260320213715_added_project_table.sql h1:Z1NDG/9s/VTNpDXKYA5zGG9HHqZX1P9AEhDgfslglK8=
