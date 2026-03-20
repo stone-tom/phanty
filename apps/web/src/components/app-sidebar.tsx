@@ -34,7 +34,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     navMain: [
       {
         title: 'Projects',
-        url: '#',
+        url: '/projects',
         icon: <TerminalSquareIcon />,
         isActive: true,
       },
