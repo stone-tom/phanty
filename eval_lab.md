@@ -23,3 +23,8 @@ ValidationRun -> This is the specific test
   - PASS/FAIL
 Processor -> Configuraiton for some sort of  processor that can be combined with Validation
   - csv parser for very specific formats or whatever and ccan be appled to the validation
+
+
+Todos:
+
+* refactor the navigation and everything a bit

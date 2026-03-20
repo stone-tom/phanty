@@ -1,5 +1,4 @@
 import Elysia from 'elysia';
-import { assets } from './assets';
-import { test } from './test';
+import { projects } from './projects';
 
-export const v1 = new Elysia({ prefix: '/v1' }).use(test).use(assets);
+export const v1 = new Elysia({ prefix: '/v1' }).use(projects);
