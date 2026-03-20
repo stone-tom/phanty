@@ -2,6 +2,7 @@ import type { Database } from '@repo/db/client';
 import type { Mailer } from '@repo/emails';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { organization } from 'better-auth/plugins';
 import { randomUUIDv7 } from 'bun';
 
 interface InitAuthClientParams {
@@ -20,6 +21,7 @@ export const initAuthServerClient = ({
   fromEmail,
 }: InitAuthClientParams) =>
   betterAuth({
+    plugins: [organization()],
     database: drizzleAdapter(db, {
       provider: 'pg',
     }),

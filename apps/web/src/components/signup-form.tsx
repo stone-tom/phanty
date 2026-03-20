@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useRouter } from '@tanstack/react-router';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import slugify from 'slugify';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
@@ -18,6 +19,10 @@ import { authClient } from '@/lib/auth';
 const signUpSchema = z
   .object({
     name: z.string().min(2, 'Name must be atleast 2 characters').trim(),
+    workspaceName: z
+      .string()
+      .min(2, 'Name must be atleast 2 characters')
+      .trim(),
     email: z.email('Invalid email address').toLowerCase().trim(),
     password: z.string().min(8, 'Password must be at least 8 characters'),
     confirmPassword: z.string(),
@@ -37,6 +42,7 @@ export function SignupForm() {
     defaultValues: {
       email: '',
       name: '',
+      workspaceName: '',
       password: '',
       confirmPassword: '',
     },
@@ -51,10 +57,19 @@ export function SignupForm() {
       name: input.name,
       callbackURL: '/',
     });
-    setLoading(false);
-
     if (error) {
       toast.error(error.message);
+    }
+
+    const { error: orgCreateError } = await authClient.organization.create({
+      slug: slugify(input.workspaceName),
+      name: input.workspaceName,
+    });
+
+    setLoading(false);
+
+    if (orgCreateError) {
+      toast.error(orgCreateError.message);
     } else {
       toast.success('Successfully signed up!');
       form.reset();
@@ -76,6 +91,23 @@ export function SignupForm() {
                 id="name"
                 type="text"
                 placeholder="John Doe"
+                aria-invalid={fieldState.invalid}
+              />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+        <Controller
+          name="workspaceName"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor="workspaceName">Worspace Name</FieldLabel>
+              <Input
+                {...field}
+                id="workspaceName"
+                type="text"
+                placeholder="John Doe's Workspace"
                 aria-invalid={fieldState.invalid}
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}

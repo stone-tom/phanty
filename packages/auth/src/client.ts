@@ -1,3 +1,4 @@
+import { organizationClient } from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/react';
 
 interface InitAuthClientParams {
@@ -7,6 +8,6 @@ interface InitAuthClientParams {
 export const initAuthClient = ({ baseURL }: InitAuthClientParams) => {
   return createAuthClient({
     baseURL: baseURL,
-    plugins: [],
+    plugins: [organizationClient()],
   });
 };

@@ -4,7 +4,6 @@ import {
   BotIcon,
   SendIcon,
   Settings2Icon,
-  TerminalIcon,
   TerminalSquareIcon,
 } from 'lucide-react';
 import type * as React from 'react';
@@ -16,14 +15,14 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { useAuth } from '@/hooks/use-auth';
+import { authClient } from '@/lib/auth';
+import { TeamSwitcher } from './team-switcher';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const authData = useAuth();
+  const { data: organizations } = authClient.useListOrganizations();
 
   const data = {
     user: {
@@ -61,21 +60,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <a href="#">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <TerminalIcon className="size-4" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Acme Inc</span>
-                  <span className="truncate text-xs">Enterprise</span>
-                </div>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        {organizations && <TeamSwitcher teams={organizations} />}
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
