@@ -28,3 +28,4 @@ Processor -> Configuraiton for some sort of  processor that can be combined with
 Todos:
 
 * refactor the navigation and everything a bit
+* add better-auth middleware
