@@ -19,6 +19,7 @@ import {
 import { useAuth } from '@/hooks/use-auth';
 import { authClient } from '@/lib/auth';
 import { TeamSwitcher } from './team-switcher';
+import { Skeleton } from './ui/skeleton';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const authData = useAuth();
@@ -60,7 +61,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
-        {organizations && <TeamSwitcher teams={organizations} />}
+        {organizations ? (
+          <TeamSwitcher teams={organizations} />
+        ) : (
+          <Skeleton className="h-12 w-full" />
+        )}
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
