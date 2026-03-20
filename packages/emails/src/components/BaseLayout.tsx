@@ -33,8 +33,7 @@ export const BaseLayout = ({ children, previewText }: BaseLayoutProps) => {
             <Hr className="border-[#e6ebf1] my-5" />
             <Section className="px-8 text-center">
               <Text className="text-[#8898aa] text-xs leading-4">
-                &copy; {new Date().getFullYear()} EVAL LAB. All rights
-                reserved.
+                &copy; {new Date().getFullYear()} EVAL LAB. All rights reserved.
               </Text>
               <Text className="text-[#8898aa] text-xs leading-4">
                 If you have any questions, feel free to contact our support

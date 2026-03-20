@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  BookOpenIcon,
   BotIcon,
   SendIcon,
   Settings2Icon,
@@ -21,14 +20,15 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { useAuth } from '@/hooks/use-auth';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-
+  const authData = useAuth();
 
   const data = {
     user: {
-      name: 'shadcn',
-      email: 'm@example.com',
+      name: authData.user.name,
+      email: authData.user.email,
       avatar: '/avatars/shadcn.jpg',
     },
     navMain: [
@@ -43,7 +43,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         url: '#',
         icon: <BotIcon />,
       },
-
     ],
     navSecondary: [
       {
@@ -58,7 +57,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       },
     ],
   };
-
 
   return (
     <Sidebar variant="inset" {...props}>

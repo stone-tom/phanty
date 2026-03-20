@@ -16,7 +16,6 @@ export const Route = createRootRoute({
   component: RootLayout,
   beforeLoad: async () => {
     const { data } = await authClient.getSession();
-
     return {
       authData: data,
     };
