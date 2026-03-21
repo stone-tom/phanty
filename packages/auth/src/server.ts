@@ -1,9 +1,11 @@
 import type { Database } from '@repo/db/client';
+import { member } from '@repo/db/schema';
 import type { Mailer } from '@repo/emails';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { organization } from 'better-auth/plugins';
 import { randomUUIDv7 } from 'bun';
+import { and, asc, eq } from 'drizzle-orm';
 
 interface InitAuthClientParams {
   frontendURL: string;
@@ -25,6 +27,28 @@ export const initAuthServerClient = ({
     database: drizzleAdapter(db, {
       provider: 'pg',
     }),
+    databaseHooks: {
+      session: {
+        create: {
+          before: async (session) => {
+            const firstOwnerMembership = await db.query.member.findFirst({
+              where: and(
+                eq(member.userId, session.userId),
+                eq(member.role, 'owner'),
+              ),
+              orderBy: asc(member.createdAt),
+            });
+
+            return {
+              data: {
+                ...session,
+                activeOrganizationId: firstOwnerMembership?.organizationId,
+              },
+            };
+          },
+        },
+      },
+    },
     trustedOrigins: [frontendURL],
     emailAndPassword: {
       enabled: true,

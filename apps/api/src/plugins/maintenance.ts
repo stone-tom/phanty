@@ -21,6 +21,7 @@ export const maintenance = new Elysia({ name: 'maintenance' }).onBeforeHandle(
       set.headers['Retry-After'] = '3600';
       return {
         status: 503,
+        code: 'MAINTENANCE',
         message: 'Under maintenance.',
       };
     }

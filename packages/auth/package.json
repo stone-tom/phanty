@@ -18,7 +18,8 @@
   "dependencies": {
     "auth": "^1.5.4",
     "better-auth": "^1.5.4",
-    "zod": "^4.3.6"
+    "zod": "^4.3.6",
+    "drizzle-orm": "^0.45.1"
   },
   "devDependencies": {
     "@repo/db": "workspace:*",
