@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { Elysia } from 'elysia';
+import { Elysia, t } from 'elysia';
 import { db } from '../lib/db';
 import { redisClient } from '../lib/redis';
 import { withTimeout } from '../util/with-timeout';
@@ -23,16 +23,30 @@ const checkRedis = async () => {
 };
 
 export const healhcheck = new Elysia({ name: 'healhcheck' })
-  .get('/health', async ({ set }) => {
-    const [database, cache] = await Promise.all([checkDb(), checkRedis()]);
+  .get(
+    '/health',
+    async ({ set }) => {
+      const [database, cache] = await Promise.all([checkDb(), checkRedis()]);
 
-    const isHealthy = database.status === 'up' && cache.status === 'up';
+      const isHealthy = database.status === 'up' && cache.status === 'up';
 
-    if (!isHealthy) set.status = 503;
+      if (!isHealthy) set.status = 503;
 
-    return {
-      status: isHealthy ? 'ok' : 'degraded',
-      uptime: Math.floor(process.uptime()),
-    };
-  })
+      return {
+        status: isHealthy ? 'ok' : 'degraded',
+        uptime: Math.floor(process.uptime()),
+      };
+    },
+    {
+      response: t.Object({
+        status: t.String({
+          description:
+            'If the api is currently available and can serve requests',
+        }),
+        uptime: t.Number({
+          description: 'How long is this server already running',
+        }),
+      }),
+    },
+  )
   .listen(3000);

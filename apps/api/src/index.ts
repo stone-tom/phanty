@@ -8,6 +8,7 @@ import { db } from './lib/db';
 import { mailer } from './lib/mailer';
 import { redisClient } from './lib/redis';
 import { v1 } from './modules/v1';
+import { errorPlugin } from './plugins/error-handler';
 import { healhcheck } from './plugins/healtcheck';
 import { logPLugin } from './plugins/logger';
 import { maintenance } from './plugins/maintenance';
@@ -29,6 +30,7 @@ const app = new Elysia()
   .use(maintenance)
   .use(openapi())
   .use(logPLugin)
+  .use(errorPlugin)
   .use(healhcheck)
   .use(v1)
   .listen(env.API_PORT);

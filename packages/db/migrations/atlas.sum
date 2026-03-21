@@ -1,4 +1,4 @@
-h1:ywB+M1g3MqwCcP4XwdL7Wd20msBExcKnU/PzWGqW4dU=
+h1:EhffDoRhb+N/30/Y0Z7WZyY47m/QE8ORaZqp7JDgEaE=
 20260304130951_add_test_migration.sql h1:naZ8FCdSDQRfbAbsDnq7HYOUb52Giww4TKH3xLS8JRI=
 20260309210234_add_better_auth_initial_setup.sql h1:o/9IYerXxs2rmzdixjnvfVbU9OjrDvNCqmG21NtfSNg=
 20260311185805_removed_default_values.sql h1:u0aGZWUMAPXEj1OZe1Nu5aWiDs10ibXCsId+3VWBLcs=
@@ -7,3 +7,4 @@ h1:ywB+M1g3MqwCcP4XwdL7Wd20msBExcKnU/PzWGqW4dU=
 20260320213442_removed_test_table.sql h1:xrRkrxk5nOoYqmMa7d4ciCXWeGHJmom+uh0JwAWuKbo=
 20260320215424_added_project_table.sql h1:DF5R96xaint1dHHSXENuTANAXf56ICa0rnQTdjJe7pw=
 20260320220412_removed_asset_table.sql h1:FpptDOAWIaBq8rA/b5J8aM2OJ4faEo6be4DEZ7jSLps=
+20260321120832_changed_user_relation_to_member.sql h1:PTkH0sIkc7pPgzLSnmLYhCb6aBdoKIBceLF7D1zet6k=

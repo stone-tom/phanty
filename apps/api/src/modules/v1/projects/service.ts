@@ -7,30 +7,46 @@ export interface CreateProjectPayload {
   name: string;
   description?: string;
   organizationId: string;
-  createdBy: string;
+  createdById: string;
 }
 
 export interface UpdateProjectPayload
   extends Partial<Omit<CreateProjectPayload, 'organizationId' | 'createdBy'>> {}
 
 export class ProjectService {
+  private readonly with = {
+    createdBy: {
+      with: {
+        user: true,
+      },
+    },
+  } as const;
+
   async findAll(organizationId: string) {
     return db.query.project.findMany({
       where: eq(project.organizationId, organizationId),
+      with: this.with,
     });
   }
 
   async findById(id: string, organizationId: string) {
-    return db.query.project.findMany({
+    return db.query.project.findFirst({
       where: and(
         eq(project.id, id),
         eq(project.organizationId, organizationId),
       ),
+      with: this.with,
     });
   }
 
   async create(input: CreateProjectPayload) {
-    return db.insert(project).values(input).returning();
+    const [createdProject] = await db.insert(project).values(input).returning();
+
+    if (!createdProject) {
+      throw new Error('Was not able to create a new project');
+    }
+
+    return this.findById(createdProject.id, input.organizationId);
   }
 
   async update(
@@ -38,13 +54,19 @@ export class ProjectService {
     input: UpdateProjectPayload,
     organizationId: string,
   ) {
-    return db
+    const [updatedProject] = await db
       .update(project)
       .set(input)
       .where(
         and(eq(project.id, id), eq(project.organizationId, organizationId)),
       )
       .returning();
+
+    if (!updatedProject) {
+      throw new Error('Was not able to update a new project');
+    }
+
+    return this.findById(updatedProject.id, organizationId);
   }
 }
 
