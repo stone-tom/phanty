@@ -5,7 +5,7 @@ import { db } from '../../../lib/db';
 
 export interface CreateProjectPayload {
   name: string;
-  description?: string;
+  description?: string | null;
   organizationId: string;
   createdById: string;
 }
@@ -13,6 +13,8 @@ export interface CreateProjectPayload {
 export interface UpdateProjectPayload
   extends Partial<Omit<CreateProjectPayload, 'organizationId' | 'createdBy'>> {}
 
+// TODO: optimize: i dont like these wierd checks in create and update
+// should we connect by user id or member id????
 export class ProjectService {
   private readonly with = {
     createdBy: {
@@ -46,7 +48,16 @@ export class ProjectService {
       throw new Error('Was not able to create a new project');
     }
 
-    return this.findById(createdProject.id, input.organizationId);
+    const currentProject = await this.findById(
+      createdProject.id,
+      input.organizationId,
+    );
+
+    if (!currentProject) {
+      throw new Error('Was not able to create a new project');
+    }
+
+    return currentProject;
   }
 
   async update(
@@ -63,10 +74,29 @@ export class ProjectService {
       .returning();
 
     if (!updatedProject) {
-      throw new Error('Was not able to update a new project');
+      throw new Error('Was not able to update the project');
     }
 
-    return this.findById(updatedProject.id, organizationId);
+    const currentProject = await this.findById(
+      updatedProject.id,
+      organizationId,
+    );
+
+    if (!currentProject) {
+      throw new Error('Was not able to update the project');
+    }
+
+    return currentProject;
+  }
+
+  async delete(id: string, organizationId: string) {
+    await db
+      .delete(project)
+      .where(
+        and(eq(project.id, id), eq(project.organizationId, organizationId)),
+      );
+
+    return null;
   }
 }
 

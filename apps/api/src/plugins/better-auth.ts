@@ -1,9 +1,10 @@
-import { organization } from '@repo/db/schema';
-import { eq } from 'drizzle-orm';
+import { member, organization } from '@repo/db/schema';
+import { and, eq } from 'drizzle-orm';
 import Elysia from 'elysia';
 import { auth } from '../lib/auth';
 import { db } from '../lib/db';
 
+// TODO optimize: I dont like these much queries tbh return status kinda wierd lets maybe figure something out
 export const betterAuth = new Elysia({ name: 'better-auth' }).macro({
   auth: {
     async resolve({ status, request: { headers } }) {
@@ -31,10 +32,26 @@ export const betterAuth = new Elysia({ name: 'better-auth' }).macro({
         });
       }
 
+      const activeMember = await db.query.member.findFirst({
+        where: and(
+          eq(member.organizationId, activeOrganization.id),
+          eq(member.userId, session.user.id),
+        ),
+      });
+
+      if (!activeMember) {
+        return status(401, {
+          status: 401,
+          code: 'NOT_AUTHORIZED',
+          message: 'Not authorized.',
+        });
+      }
+
       return {
         user: session.user,
         session: session.session,
         organization: activeOrganization,
+        member: activeMember,
       };
     },
   },

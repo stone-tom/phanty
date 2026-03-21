@@ -17,3 +17,21 @@ export const ProjectOutput = t.Object({
     description: 'Timestamp when the resource was last updated',
   }),
 });
+
+export const CreateProjectInput = t.Object({
+  name: t.String({
+    minLength: 1,
+    description: 'Project name',
+  }),
+  description: t.Union([t.String(), t.Null()]),
+});
+
+export const UpdateProjectInput = t.Object({
+  name: t.Optional(
+    t.String({
+      minLength: 1,
+      description: 'Project name',
+    }),
+  ),
+  description: t.Optional(t.Union([t.String(), t.Null()])),
+});
