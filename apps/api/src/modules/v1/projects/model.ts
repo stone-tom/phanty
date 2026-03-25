@@ -23,7 +23,7 @@ export const CreateProjectInput = t.Object({
     minLength: 1,
     description: 'Project name',
   }),
-  description: t.Union([t.String(), t.Null()]),
+  description: t.Optional(t.Union([t.String(), t.Null()])),
 });
 
 export const UpdateProjectInput = t.Object({
