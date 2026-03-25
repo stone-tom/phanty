@@ -1,8 +1,8 @@
 import Elysia, { NotFoundError, t } from 'elysia';
 import { betterAuth } from '../../../plugins/better-auth';
+import { ErrorOutput } from '../../../plugins/error-handler';
 import { CreateProjectInput, ProjectOutput, UpdateProjectInput } from './model';
 import { projectService } from './service';
-import { ErrorOutput } from '../../../plugins/error-handler';
 
 export const projects = new Elysia({ prefix: '/projects' })
   .use(betterAuth)
@@ -17,8 +17,8 @@ export const projects = new Elysia({ prefix: '/projects' })
       response: {
         200: t.Array(ProjectOutput),
         401: ErrorOutput,
-        422: ErrorOutput
-      }
+        422: ErrorOutput,
+      },
     },
   )
   .get(
@@ -38,8 +38,8 @@ export const projects = new Elysia({ prefix: '/projects' })
         200: ProjectOutput,
         404: ErrorOutput,
         401: ErrorOutput,
-        422: ErrorOutput
-      }
+        422: ErrorOutput,
+      },
     },
   )
   .post(
@@ -56,7 +56,7 @@ export const projects = new Elysia({ prefix: '/projects' })
       response: {
         200: ProjectOutput,
         401: ErrorOutput,
-        422: ErrorOutput
+        422: ErrorOutput,
       },
       body: CreateProjectInput,
     },
@@ -77,9 +77,9 @@ export const projects = new Elysia({ prefix: '/projects' })
         200: ProjectOutput,
         404: ErrorOutput,
         401: ErrorOutput,
-        422: ErrorOutput
+        422: ErrorOutput,
       },
-      body: UpdateProjectInput
+      body: UpdateProjectInput,
     },
   )
   .delete(
@@ -101,7 +101,7 @@ export const projects = new Elysia({ prefix: '/projects' })
         204: t.Null(),
         404: ErrorOutput,
         401: ErrorOutput,
-        422: ErrorOutput
+        422: ErrorOutput,
       },
     },
   );
