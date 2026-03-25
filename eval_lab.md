@@ -29,3 +29,6 @@ Todos:
 
 * refactor the navigation and everything a bit
 * add better-auth middleware
+* add bearer token for better auth
+
+https://github.com/lukemorales/query-key-factory

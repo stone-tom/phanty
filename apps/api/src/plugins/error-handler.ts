@@ -1,4 +1,4 @@
-import Elysia from 'elysia';
+import Elysia, { t } from 'elysia';
 import { env } from '../env';
 
 export const errorPlugin = new Elysia({ name: 'error' }).onError(
@@ -17,3 +17,10 @@ export const errorPlugin = new Elysia({ name: 'error' }).onError(
     });
   },
 );
+
+export const ErrorOutput = t.Object({
+  code: t.String(),
+  method: t.String(),
+  part: t.String(),
+  error: t.String(),
+});
