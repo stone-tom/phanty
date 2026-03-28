@@ -3,6 +3,6 @@
   "root": false,
   "extends": "//",
   "files": {
-    "includes": ["!src/schema/auth.ts"]
+    "includes": ["**", "!src/schema/auth.ts"]
   }
 }
