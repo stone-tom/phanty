@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "auth:generate": "bun x --bun auth generate --config ./src/cli.ts --output ../../packages/db/src/schema/auth.ts --yes"
+    "auth:generate": "bun x --bun auth generate --config ./src/cli.ts --output ../../packages/db/src/schema/auth.ts --yes",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",

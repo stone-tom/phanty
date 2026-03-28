@@ -10,6 +10,9 @@
       "cache": false
     },
     "check": {},
+    "typecheck": {
+      "cache": false
+    },
     "db:seed": {
       "cache": false,
       "inputs": ["src/**/*", ".env"]

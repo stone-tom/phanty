@@ -8,7 +8,8 @@
     "atlas:rehash": "CI=true atlas migrate hash --env prod",
     "atlas:apply": "CI=true atlas migrate apply --allow-dirty --env prod",
     "atlas:rollback": "CI=true atlas migrate down --env prod",
-    "atlas:status": "CI=true atlas migrate status --env prod"
+    "atlas:status": "CI=true atlas migrate status --env prod",
+    "typecheck": "tsc --noEmit"
   },
   "exports": {
     "./client.node": "./src/client.node.ts",

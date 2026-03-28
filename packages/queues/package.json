@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "Queue definitions and types for BullMQ",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
   "keywords": [],
   "author": "",
   "exports": {

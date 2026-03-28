@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
+    "typecheck": "turbo run typecheck",
     "dev": "turbo run dev --ui tui",
     "db:seed": "turbo run db:seed",
     "auth:generate": "turbo run auth:generate",

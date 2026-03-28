@@ -1,4 +1,3 @@
 {
-  "extends": "@repo/tsconfig/server.json",
-  "include": ["src"]
+  "extends": "@repo/tsconfig/server.json"
 }
