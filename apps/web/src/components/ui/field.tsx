@@ -191,6 +191,7 @@ function FieldError({
       ...new Map(errors.map((error) => [error?.message, error])).values(),
     ];
 
+    //biome-ignore lint/suspicious/noDoubleEquals: seems to be fine - shadcn imported file
     if (uniqueErrors?.length == 1) {
       return uniqueErrors[0]?.message;
     }
@@ -199,6 +200,7 @@ function FieldError({
       <ul className="ml-4 flex list-disc flex-col gap-1">
         {uniqueErrors.map(
           (error, index) =>
+            //biome-ignore lint/suspicious/noArrayIndexKey: seems to be fine - shadcn imported file
             error?.message && <li key={index}>{error.message}</li>,
         )}
       </ul>
@@ -223,13 +225,13 @@ function FieldError({
 
 export {
   Field,
-  FieldLabel,
+  FieldContent,
   FieldDescription,
   FieldError,
   FieldGroup,
+  FieldLabel,
   FieldLegend,
   FieldSeparator,
   FieldSet,
-  FieldContent,
   FieldTitle,
 };

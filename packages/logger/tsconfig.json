@@ -1,4 +1,4 @@
 {
   "extends": "@repo/tsconfig/server.json",
-  "include": ["env.ts", "index.ts"],
+  "include": ["env.ts", "index.ts"]
 }

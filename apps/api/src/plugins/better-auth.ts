@@ -12,7 +12,7 @@ export const betterAuth = new Elysia({ name: 'better-auth' }).macro({
         headers,
       });
 
-      if (!session || !session.session.activeOrganizationId) {
+      if (!session?.session.activeOrganizationId) {
         return status(401, {
           status: 401,
           code: 'NOT_AUTHORIZED',
