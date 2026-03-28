@@ -24,8 +24,8 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "composite": true,
-    "incremental": true,
+
+    "incremental": false,
 
     "skipLibCheck": true
   }
