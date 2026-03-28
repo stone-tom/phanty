@@ -1,6 +1,37 @@
 {
-  "extends": ["../../biome.json"],
-  "files": {
-    "includes": ["src/**/*", "!src/routeTree.gen.ts", "!src/components/ui/**/*"]
-  }
+  "$schema": "https://biomejs.dev/schemas/2.4.9/schema.json",
+  "root": false,
+  "extends": "//",
+  "linter": {
+    "domains": {
+      "react": "recommended",
+      "tailwind": "recommended"
+    }
+  },
+  "javascript": {
+    "jsxRuntime": "transparent"
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
+  "overrides": [
+    {
+      "includes": [
+        "src/routeTree.gen.ts",
+        "src/i18n/locales/**/messages.po",
+        "src/i18n/locales/**/messages.ts"
+      ],
+      "linter": {
+        "enabled": false
+      },
+      "formatter": {
+        "enabled": false
+      },
+      "assist": {
+        "enabled": false
+      }
+    }
+  ]
 }

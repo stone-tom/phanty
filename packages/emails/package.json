@@ -4,8 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "lint": "biome check .",
-    "lint:fix": "biome check . --write",
     "dev": "email dev --dir ./src/emails --port 3010"
   },
   "keywords": [],

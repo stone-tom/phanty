@@ -3,10 +3,7 @@
   "version": "1.0.0",
   "description": "Queue definitions and types for BullMQ",
   "main": "index.js",
-  "scripts": {
-    "lint": "biome check .",
-    "lint:fix": "biome check . --write"
-  },
+  "scripts": {},
   "keywords": [],
   "author": "",
   "exports": {

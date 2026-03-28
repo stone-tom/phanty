@@ -5,69 +5,38 @@
       "cache": false,
       "persistent": true
     },
-    "lint": {
-      "inputs": [
-        "src/**/*.{ts,tsx,js,jsx}",
-        "biome.json",
-        "../../biome.json"
-      ],
-      "outputs": []
+    "lint": {},
+    "lint:fix": {
+      "cache": false
     },
+    "check": {},
     "db:seed": {
       "cache": false,
-      "inputs": [
-        "src/**/*",
-        ".env"
-      ]
+      "inputs": ["src/**/*", ".env"]
     },
     "auth:generate": {
       "cache": false,
-      "inputs": [
-        "src/**/*",
-        ".env"
-      ]
+      "inputs": ["src/**/*", ".env"]
     },
     "atlas:diff": {
       "cache": false,
-      "inputs": [
-        "src/**/*",
-        ".env"
-      ]
+      "inputs": ["src/**/*", ".env"]
     },
     "atlas:apply": {
       "cache": false,
-      "inputs": [
-        "src/**/*",
-        ".env"
-      ]
+      "inputs": ["src/**/*", ".env"]
     },
     "atlas:status": {
       "cache": false,
-      "inputs": [
-        "src/**/*",
-        ".env"
-      ]
+      "inputs": ["src/**/*", ".env"]
     },
     "atlas:rollback": {
       "cache": false,
-      "inputs": [
-        "src/**/*",
-        ".env"
-      ]
+      "inputs": ["src/**/*", ".env"]
     },
     "atlas:rehash": {
       "cache": false,
-      "inputs": [
-        "src/**/*",
-        ".env"
-      ]
-    },
-    "lint:fix": {
-      "cache": false,
-      "inputs": [
-        "src/**/*.{ts,tsx,js,jsx}",
-        "biome.json"
-      ]
+      "inputs": ["src/**/*", ".env"]
     }
   }
 }

@@ -3,8 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "lint": "biome check .",
-    "lint:fix": "biome check . --write",
     "db:seed": "bun run src/seed/index.ts",
     "atlas:diff": "CI=true atlas migrate diff --env prod",
     "atlas:rehash": "CI=true atlas migrate hash --env prod",

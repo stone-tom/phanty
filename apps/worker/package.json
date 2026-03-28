@@ -2,9 +2,7 @@
   "name": "@repo/worker",
   "version": "1.0.0",
   "scripts": {
-    "dev": "bun run --watch src/index.ts",
-    "lint": "biome check .",
-    "lint:fix": "biome check . --write"
+    "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {
     "@repo/logger": "workspace:*",

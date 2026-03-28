@@ -7,9 +7,7 @@
     "cli": "./src/index.ts"
   },
   "scripts": {
-    "start": "bun run ./src/index.ts",
-    "lint": "biome check .",
-    "lint:fix": "biome check . --write"
+    "start": "bun run ./src/index.ts"
   },
   "keywords": [],
   "author": "",
