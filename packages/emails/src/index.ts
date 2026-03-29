@@ -39,10 +39,10 @@ const templates: {
   'forgot-password': forgotPasswordRenderer,
 };
 
-enum MAIL_ERROR_CODES {
-  RENDERER_NOT_FOUND = 'RENDERER_NOT_FOUND',
-  FAILED_TO_SEND_MAIL = 'FAILED_TO_SEND_MAIL',
-}
+const MAIL_ERROR_CODES = {
+  RENDERER_NOT_FOUND: 'RENDERER_NOT_FOUND',
+  FAILED_TO_SEND_MAIL: 'FAILED_TO_SEND_MAIL',
+} as const;
 
 export class Mailer {
   private readonly transport: SmtpTransport;
