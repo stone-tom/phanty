@@ -1,7 +1,7 @@
 {
   "name": "@repo/cli",
   "version": "1.0.0",
-  "description": "CLI for eval-lab operations",
+  "description": "CLI for phanty operations",
   "type": "module",
   "bin": {
     "cli": "./src/index.ts"
