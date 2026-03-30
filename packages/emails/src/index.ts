@@ -5,6 +5,10 @@ import {
   type ForgotPasswordEmailProps,
   forgotPasswordRenderer,
 } from './emails/ForgotPassword';
+import {
+  type MagicLinkEmailProps,
+  magicLinkRenderer,
+} from './emails/MagicLink';
 
 export interface BaseMailingData {
   from: string;
@@ -22,8 +26,14 @@ export interface ForgotPasswordMail extends BaseMailingData {
   params: ForgotPasswordEmailProps;
 }
 
+export interface MagicLinkLoginMail extends BaseMailingData {
+  type: 'magic-link-login';
+  params: MagicLinkEmailProps;
+}
+
 type MailParamsMap = {
   'forgot-password': ForgotPasswordEmailProps;
+  'magic-link-login': MagicLinkEmailProps;
 };
 
 type MailData<K extends keyof MailParamsMap = keyof MailParamsMap> = {
@@ -37,6 +47,7 @@ const templates: {
   };
 } = {
   'forgot-password': forgotPasswordRenderer,
+  'magic-link-login': magicLinkRenderer,
 };
 
 const MAIL_ERROR_CODES = {

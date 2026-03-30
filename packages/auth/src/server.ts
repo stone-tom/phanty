@@ -3,7 +3,7 @@ import { member } from '@repo/db/schema';
 import type { Mailer } from '@repo/emails';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { organization } from 'better-auth/plugins';
+import { magicLink, organization } from 'better-auth/plugins';
 import { randomUUIDv7 } from 'bun';
 import { and, asc, eq } from 'drizzle-orm';
 
@@ -23,7 +23,25 @@ export const initAuthServerClient = ({
   fromEmail,
 }: InitAuthClientParams) =>
   betterAuth({
-    plugins: [organization()],
+    plugins: [
+      organization(),
+      magicLink({
+        disableSignUp: true,
+        sendMagicLink: async ({ email, url, token }) => {
+          await mailer.sendMail({
+            to: [email],
+            from: fromEmail,
+            subject: 'Log in to phanty',
+            type: 'magic-link-login',
+            params: {
+              email,
+              url,
+              token,
+            },
+          });
+        },
+      }),
+    ],
     database: drizzleAdapter(db, {
       provider: 'pg',
     }),

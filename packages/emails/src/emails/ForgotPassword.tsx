@@ -7,14 +7,14 @@ export interface ForgotPasswordEmailProps {
   resetPasswordLink?: string;
 }
 
-export const ForgotPasswordEmail = ({
+export default function ForgotPasswordEmail({
   name = 'there',
   resetPasswordLink = 'https://example.com/reset-password',
-}: ForgotPasswordEmailProps) => {
+}: ForgotPasswordEmailProps) {
   return (
     <BaseLayout previewText="Reset your password">
       <Section>
-        <Text className="text-[#333] text-xl font-bold p-0 my-[30px]">
+        <Text className="text-[#333] text-xl font-bold uppercase p-0 my-7.5">
           Hi {name},
         </Text>
         <Text className="text-[#333] text-sm leading-6">
@@ -41,7 +41,7 @@ export const ForgotPasswordEmail = ({
       </Section>
     </BaseLayout>
   );
-};
+}
 
 export const forgotPasswordRenderer = {
   html: (params: ForgotPasswordEmailProps) =>

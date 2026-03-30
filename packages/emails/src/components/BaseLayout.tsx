@@ -26,14 +26,14 @@ export const BaseLayout = ({ children, previewText }: BaseLayoutProps) => {
           <Container className="bg-white mx-auto pt-5 pb-12 mb-16">
             <Section className="p-8 text-center">
               <Text className="text-2xl font-bold text-black tracking-widest m-0">
-                EVAL LAB
+                phanty
               </Text>
             </Section>
             <Section className="px-8">{children}</Section>
             <Hr className="border-[#e6ebf1] my-5" />
             <Section className="px-8 text-center">
               <Text className="text-[#8898aa] text-xs leading-4">
-                &copy; {new Date().getFullYear()} EVAL LAB. All rights reserved.
+                &copy; {new Date().getFullYear()} phanty. All rights reserved.
               </Text>
               <Text className="text-[#8898aa] text-xs leading-4">
                 If you have any questions, feel free to contact our support
