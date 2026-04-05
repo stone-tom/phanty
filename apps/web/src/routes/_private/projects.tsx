@@ -1,5 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
+import { PageContent } from '@/components/page-content';
+import { PageHeader } from '@/components/page-header';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+} from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { useEdenQuery } from '@/hooks/use-eden-query';
 import { api } from '@/lib/api';
@@ -25,14 +33,25 @@ function RouteComponent() {
   };
 
   return (
-    <div>
-      Hello "/_private/projects"! {data?.length} {error?.status}
-      <ul>
-        {data?.map((item) => (
-          <li key={item.id}>{item.name}</li>
-        ))}
-      </ul>
-      <Button onClick={test}>create</Button>
-    </div>
+    <>
+      <PageHeader>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink>Home</BreadcrumbLink>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </PageHeader>
+      <PageContent>
+        Hello "/_private/projects"! {data?.length} {error?.status}
+        <ul>
+          {data?.map((item) => (
+            <li key={item.id}>{item.name}</li>
+          ))}
+        </ul>
+        <Button onClick={test}>create</Button>
+      </PageContent>
+    </>
   );
 }

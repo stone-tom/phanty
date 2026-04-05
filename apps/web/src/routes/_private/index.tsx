@@ -1,13 +1,30 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { PageContent } from '@/components/page-content';
+import { PageHeader } from '@/components/page-header';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+} from '@/components/ui/breadcrumb';
 
 export const Route = createFileRoute('/_private/')({
-  component: Index,
+  component: HomePage,
 });
 
-function Index() {
+function HomePage() {
   return (
-    <div className="p-2">
-      <h3>Welcome Home!</h3>
-    </div>
+    <>
+      <PageHeader>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink>Home</BreadcrumbLink>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </PageHeader>
+      <PageContent>Welcome Home!</PageContent>
+    </>
   );
 }

@@ -1,4 +1,6 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
+import { AppSidebar } from '@/components/app-sidebar';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 
 export const Route = createFileRoute('/_private')({
   component: PrivateRoute,
@@ -17,8 +19,12 @@ export const Route = createFileRoute('/_private')({
 function PrivateRoute() {
   return (
     <div>
-      PRIVATE ROUTE
-      <Outlet />
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>
+          <Outlet />
+        </SidebarInset>
+      </SidebarProvider>
     </div>
   );
 }
