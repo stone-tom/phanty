@@ -17,12 +17,7 @@ import {
 } from '@/components/ui/sidebar';
 import { useAuth } from '@/hooks/use-auth';
 import { authClient } from '@/lib/auth';
-
-const getInitials = (name: string) => {
-  const names = name.split(' ');
-  const initials = names.map((n) => n[0]).join('');
-  return initials.toUpperCase();
-};
+import { getInitials } from '@/util/get-initials';
 
 export function NavUser() {
   const { isMobile } = useSidebar();
