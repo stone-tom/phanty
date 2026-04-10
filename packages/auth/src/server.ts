@@ -26,7 +26,7 @@ export const initAuthServerClient = ({
     plugins: [
       organization(),
       magicLink({
-        disableSignUp: true,
+        disableSignUp: false,
         sendMagicLink: async ({ email, url, token }) => {
           await mailer.sendMail({
             to: [email],

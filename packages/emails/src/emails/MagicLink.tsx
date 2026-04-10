@@ -29,9 +29,8 @@ export default function MagicLinkEmail({
           </Button>
         </Section>
         <Text className="text-[#333] text-sm leading-6">
-          This link and code will
-          only be valid for the next 5 minutes. If the link does not work, you
-          can use the login verification code directly:
+          This link and code will only be valid for the next 5 minutes. If the
+          link does not work, you can use the login verification code directly:
         </Text>
         <CodeInline className="bg-gray-200 p-1.5 rounded text-2xl">
           {token}

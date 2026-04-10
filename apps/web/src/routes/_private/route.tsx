@@ -13,6 +13,18 @@ export const Route = createFileRoute('/_private')({
         },
       });
     }
+
+    if (!context.authData.user.name) {
+      throw redirect({
+        to: '/setup-account',
+      });
+    }
+
+    if (!context.authData.session.activeOrganizationId) {
+      throw redirect({
+        to: '/setup-org',
+      });
+    }
   },
 });
 

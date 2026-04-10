@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as PrivateRouteRouteImport } from './routes/_private/route'
 import { Route as PrivateIndexRouteImport } from './routes/_private/index'
 import { Route as PrivateProjectsRouteImport } from './routes/_private/projects'
+import { Route as AuthSetupOrgRouteImport } from './routes/_auth/setup-org'
+import { Route as AuthSetupAccountRouteImport } from './routes/_auth/setup-account'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 
 const PrivateRouteRoute = PrivateRouteRouteImport.update({
@@ -28,6 +30,16 @@ const PrivateProjectsRoute = PrivateProjectsRouteImport.update({
   path: '/projects',
   getParentRoute: () => PrivateRouteRoute,
 } as any)
+const AuthSetupOrgRoute = AuthSetupOrgRouteImport.update({
+  id: '/_auth/setup-org',
+  path: '/setup-org',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthSetupAccountRoute = AuthSetupAccountRouteImport.update({
+  id: '/_auth/setup-account',
+  path: '/setup-account',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
   id: '/_auth/login',
   path: '/login',
@@ -37,10 +49,14 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof PrivateIndexRoute
   '/login': typeof AuthLoginRoute
+  '/setup-account': typeof AuthSetupAccountRoute
+  '/setup-org': typeof AuthSetupOrgRoute
   '/projects': typeof PrivateProjectsRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof AuthLoginRoute
+  '/setup-account': typeof AuthSetupAccountRoute
+  '/setup-org': typeof AuthSetupOrgRoute
   '/projects': typeof PrivateProjectsRoute
   '/': typeof PrivateIndexRoute
 }
@@ -48,18 +64,22 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_private': typeof PrivateRouteRouteWithChildren
   '/_auth/login': typeof AuthLoginRoute
+  '/_auth/setup-account': typeof AuthSetupAccountRoute
+  '/_auth/setup-org': typeof AuthSetupOrgRoute
   '/_private/projects': typeof PrivateProjectsRoute
   '/_private/': typeof PrivateIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/projects'
+  fullPaths: '/' | '/login' | '/setup-account' | '/setup-org' | '/projects'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/projects' | '/'
+  to: '/login' | '/setup-account' | '/setup-org' | '/projects' | '/'
   id:
     | '__root__'
     | '/_private'
     | '/_auth/login'
+    | '/_auth/setup-account'
+    | '/_auth/setup-org'
     | '/_private/projects'
     | '/_private/'
   fileRoutesById: FileRoutesById
@@ -67,6 +87,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   PrivateRouteRoute: typeof PrivateRouteRouteWithChildren
   AuthLoginRoute: typeof AuthLoginRoute
+  AuthSetupAccountRoute: typeof AuthSetupAccountRoute
+  AuthSetupOrgRoute: typeof AuthSetupOrgRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -91,6 +113,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/projects'
       preLoaderRoute: typeof PrivateProjectsRouteImport
       parentRoute: typeof PrivateRouteRoute
+    }
+    '/_auth/setup-org': {
+      id: '/_auth/setup-org'
+      path: '/setup-org'
+      fullPath: '/setup-org'
+      preLoaderRoute: typeof AuthSetupOrgRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_auth/setup-account': {
+      id: '/_auth/setup-account'
+      path: '/setup-account'
+      fullPath: '/setup-account'
+      preLoaderRoute: typeof AuthSetupAccountRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_auth/login': {
       id: '/_auth/login'
@@ -119,6 +155,8 @@ const PrivateRouteRouteWithChildren = PrivateRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   PrivateRouteRoute: PrivateRouteRouteWithChildren,
   AuthLoginRoute: AuthLoginRoute,
+  AuthSetupAccountRoute: AuthSetupAccountRoute,
+  AuthSetupOrgRoute: AuthSetupOrgRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
