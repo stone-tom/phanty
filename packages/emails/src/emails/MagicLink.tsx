@@ -29,7 +29,7 @@ export default function MagicLinkEmail({
           </Button>
         </Section>
         <Text className="text-[#333] text-sm leading-6">
-          Your login code for Linear Login to Linear This link and code will
+          This link and code will
           only be valid for the next 5 minutes. If the link does not work, you
           can use the login verification code directly:
         </Text>
