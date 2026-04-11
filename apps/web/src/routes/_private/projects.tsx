@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { PageContent } from '@/components/page-content';
 import { PageHeader } from '@/components/page-header';
@@ -9,6 +9,7 @@ import {
   BreadcrumbList,
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
+import { useEdenMutation } from '@/hooks/use-eden-mutation';
 import { useEdenQuery } from '@/hooks/use-eden-query';
 import { api } from '@/lib/api';
 import { projects } from '@/queries/projects';
@@ -21,12 +22,18 @@ function RouteComponent() {
   const { data, error } = useEdenQuery(projects.list);
   const queryClient = useQueryClient();
 
-  const { mutate } = useMutation({
-    mutationFn: (input: { name: string }) => api.v1.projects.post(input),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: projects._def });
+  const { mutate } = useEdenMutation(
+    (input: { name: string }) => api.v1.projects.post(input),
+    {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: projects._def });
+        console.log('Success trigger.');
+      },
+      onError: (error) => {
+        console.log('Error trigger.', error);
+      },
     },
-  });
+  );
 
   const test = () => {
     mutate({ name: 'test' });
