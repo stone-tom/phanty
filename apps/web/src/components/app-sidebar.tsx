@@ -27,6 +27,13 @@ const navItems = [
         },
       },
       {
+        title: 'Form Templates',
+        url: '/form-templates',
+        activeOptions: {
+          fuzzy: true,
+        },
+      },
+      {
         title: 'Projects',
         url: '/projects',
         activeOptions: {

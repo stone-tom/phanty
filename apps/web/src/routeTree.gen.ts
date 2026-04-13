@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as PrivateRouteRouteImport } from './routes/_private/route'
 import { Route as PrivateIndexRouteImport } from './routes/_private/index'
 import { Route as PrivateProjectsRouteImport } from './routes/_private/projects'
+import { Route as PrivateFormTemplatesRouteImport } from './routes/_private/form-templates'
 import { Route as AuthSetupOrgRouteImport } from './routes/_auth/setup-org'
 import { Route as AuthSetupAccountRouteImport } from './routes/_auth/setup-account'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
@@ -28,6 +29,11 @@ const PrivateIndexRoute = PrivateIndexRouteImport.update({
 const PrivateProjectsRoute = PrivateProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
+  getParentRoute: () => PrivateRouteRoute,
+} as any)
+const PrivateFormTemplatesRoute = PrivateFormTemplatesRouteImport.update({
+  id: '/form-templates',
+  path: '/form-templates',
   getParentRoute: () => PrivateRouteRoute,
 } as any)
 const AuthSetupOrgRoute = AuthSetupOrgRouteImport.update({
@@ -51,12 +57,14 @@ export interface FileRoutesByFullPath {
   '/login': typeof AuthLoginRoute
   '/setup-account': typeof AuthSetupAccountRoute
   '/setup-org': typeof AuthSetupOrgRoute
+  '/form-templates': typeof PrivateFormTemplatesRoute
   '/projects': typeof PrivateProjectsRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof AuthLoginRoute
   '/setup-account': typeof AuthSetupAccountRoute
   '/setup-org': typeof AuthSetupOrgRoute
+  '/form-templates': typeof PrivateFormTemplatesRoute
   '/projects': typeof PrivateProjectsRoute
   '/': typeof PrivateIndexRoute
 }
@@ -66,20 +74,34 @@ export interface FileRoutesById {
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/setup-account': typeof AuthSetupAccountRoute
   '/_auth/setup-org': typeof AuthSetupOrgRoute
+  '/_private/form-templates': typeof PrivateFormTemplatesRoute
   '/_private/projects': typeof PrivateProjectsRoute
   '/_private/': typeof PrivateIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/setup-account' | '/setup-org' | '/projects'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/setup-account'
+    | '/setup-org'
+    | '/form-templates'
+    | '/projects'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/setup-account' | '/setup-org' | '/projects' | '/'
+  to:
+    | '/login'
+    | '/setup-account'
+    | '/setup-org'
+    | '/form-templates'
+    | '/projects'
+    | '/'
   id:
     | '__root__'
     | '/_private'
     | '/_auth/login'
     | '/_auth/setup-account'
     | '/_auth/setup-org'
+    | '/_private/form-templates'
     | '/_private/projects'
     | '/_private/'
   fileRoutesById: FileRoutesById
@@ -114,6 +136,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivateProjectsRouteImport
       parentRoute: typeof PrivateRouteRoute
     }
+    '/_private/form-templates': {
+      id: '/_private/form-templates'
+      path: '/form-templates'
+      fullPath: '/form-templates'
+      preLoaderRoute: typeof PrivateFormTemplatesRouteImport
+      parentRoute: typeof PrivateRouteRoute
+    }
     '/_auth/setup-org': {
       id: '/_auth/setup-org'
       path: '/setup-org'
@@ -139,11 +168,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface PrivateRouteRouteChildren {
+  PrivateFormTemplatesRoute: typeof PrivateFormTemplatesRoute
   PrivateProjectsRoute: typeof PrivateProjectsRoute
   PrivateIndexRoute: typeof PrivateIndexRoute
 }
 
 const PrivateRouteRouteChildren: PrivateRouteRouteChildren = {
+  PrivateFormTemplatesRoute: PrivateFormTemplatesRoute,
   PrivateProjectsRoute: PrivateProjectsRoute,
   PrivateIndexRoute: PrivateIndexRoute,
 }
