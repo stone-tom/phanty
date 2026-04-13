@@ -10,3 +10,33 @@ export const auth = initAuthServerClient({
   pepper: env.PASSWORD_PEPPER,
   fromEmail: `${env.SMTP_FROM_NAME} <${env.SMTP_FROM_EMAIL}>`,
 });
+
+let _schema: ReturnType<typeof auth.api.generateOpenAPISchema>;
+const getSchema = async () => (_schema ??= auth.api.generateOpenAPISchema());
+
+export const OpenAPI = {
+  getPaths: (prefix = '/api/auth') =>
+    getSchema().then(({ paths }) => {
+      const reference: typeof paths = Object.create(null);
+
+      for (const path of Object.keys(paths)) {
+        const pathItem = paths[path];
+        if (!pathItem) continue;
+
+        const key = prefix + path;
+        reference[key] = pathItem;
+
+        for (const method of Object.keys(pathItem)) {
+          // biome-ignore lint: suspicious/noExplicitAny
+          const operation = (reference[key] as any)[method];
+
+          operation.tags = ['Better Auth'];
+        }
+      }
+
+      return reference;
+      // biome-ignore lint: suspicious/noExplicitAny
+    }) as Promise<any>,
+  // biome-ignore lint: suspicious/noExplicitAny
+  components: getSchema().then(({ components }) => components) as Promise<any>,
+} as const;

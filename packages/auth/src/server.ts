@@ -3,7 +3,7 @@ import { member } from '@repo/db/schema';
 import type { Mailer } from '@repo/emails';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { magicLink, organization } from 'better-auth/plugins';
+import { magicLink, openAPI, organization } from 'better-auth/plugins';
 import { randomUUIDv7 } from 'bun';
 import { and, asc, eq } from 'drizzle-orm';
 
@@ -41,6 +41,7 @@ export const initAuthServerClient = ({
           });
         },
       }),
+      openAPI(),
     ],
     database: drizzleAdapter(db, {
       provider: 'pg',

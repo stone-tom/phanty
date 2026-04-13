@@ -3,7 +3,7 @@ import openapi from '@elysiajs/openapi';
 import { createLogger } from '@repo/logger';
 import { Elysia } from 'elysia';
 import { env } from './env';
-import { auth } from './lib/auth';
+import { auth, OpenAPI } from './lib/auth';
 import { db } from './lib/db';
 import { mailer } from './lib/mailer';
 import { redisClient } from './lib/redis';
@@ -28,7 +28,14 @@ const app = new Elysia()
   )
   .mount(auth.handler)
   .use(maintenance)
-  .use(openapi())
+  .use(
+    openapi({
+      documentation: {
+        components: await OpenAPI.components,
+        paths: await OpenAPI.getPaths(),
+      },
+    }),
+  )
   .use(logPLugin)
   .use(errorPlugin)
   .use(healhcheck)
