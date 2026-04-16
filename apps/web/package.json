@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --build --noEmit",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -19,6 +19,7 @@
     "@tanstack/react-query": "^5.95.2",
     "@tanstack/react-router": "^1.166.4",
     "@tanstack/react-router-devtools": "^1.166.4",
+    "@tanstack/react-table": "^8.21.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lodash": "^4.17.23",

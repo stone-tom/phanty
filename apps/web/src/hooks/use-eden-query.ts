@@ -5,6 +5,23 @@ import {
   useQuery,
 } from '@tanstack/react-query';
 
+type EdenQueryFn = (
+  ...args: any[]
+) =>
+  | Treaty.TreatyResponse<Record<number, unknown>>
+  | Promise<Treaty.TreatyResponse<Record<number, unknown>>>;
+
+export type EdenQueryData<TQuery> =
+  TQuery extends (...args: any[]) => { queryFn: infer TQueryFn }
+    ? TQueryFn extends EdenQueryFn
+      ? Treaty.Data<TQueryFn>
+      : never
+    : TQuery extends { queryFn: infer TQueryFn }
+      ? TQueryFn extends EdenQueryFn
+        ? Treaty.Data<TQueryFn>
+        : never
+    : never;
+
 export function useEdenQuery<
   T extends Record<number, unknown>,
   K extends readonly unknown[],

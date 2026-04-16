@@ -30,13 +30,11 @@ export const Route = createFileRoute('/_private')({
 
 function PrivateRoute() {
   return (
-    <div>
-      <SidebarProvider>
-        <AppSidebar />
-        <SidebarInset>
-          <Outlet />
-        </SidebarInset>
-      </SidebarProvider>
-    </div>
+    <SidebarProvider className="h-svh overflow-hidden">
+      <AppSidebar />
+      <SidebarInset className="min-h-0 overflow-hidden">
+        <Outlet />
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
