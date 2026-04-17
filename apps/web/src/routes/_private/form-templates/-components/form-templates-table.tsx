@@ -36,7 +36,6 @@ function getPinnedColumnStyles<TData extends RowData>(
     left: pinned === 'left' ? `${column.getStart('left')}px` : undefined,
     right: pinned === 'right' ? `${column.getAfter('right')}px` : undefined,
     width: column.getSize(),
-    zIndex: 1,
   };
 }
 
@@ -54,7 +53,7 @@ export function FormTemplatesTable<TData extends RowData>(
 
   return (
     <Table containerClassName="rounded-md border">
-      <TableHeader className="bg-muted sticky top-0">
+      <TableHeader className="bg-muted sticky top-0 z-10">
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
@@ -67,7 +66,6 @@ export function FormTemplatesTable<TData extends RowData>(
                   style={{
                     ...getPinnedColumnStyles(header.column),
                     top: 0,
-                    zIndex: pinned ? 2 : 1,
                   }}
                 >
                   {header.isPlaceholder
