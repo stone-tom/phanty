@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { createColumnHelper } from '@tanstack/react-table';
-import { EditIcon, EllipsisVertical, Trash2 } from 'lucide-react';
+import { EditIcon, EllipsisVertical, Plus, Trash2 } from 'lucide-react';
 import { useMemo } from 'react';
 import { PageContent } from '@/components/page-content';
 import { PageHeader } from '@/components/page-header';
@@ -12,6 +12,14 @@ import {
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -19,9 +27,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { LoadingButton } from '@/components/ui/loading-button';
+import { useBooleanState } from '@/hooks/use-boolean-state';
 import { type EdenQueryData, useEdenQuery } from '@/hooks/use-eden-query';
 import { useFormatDate } from '@/hooks/use-format-date';
 import { formTemplates } from '@/queries/form-templates';
+import { CreateFormTemplateAction } from './-components/create-form-template-action';
 import { FormTemplatesTable } from './-components/form-templates-table';
 
 export const Route = createFileRoute('/_private/form-templates/')({
@@ -68,7 +79,7 @@ function FormTemplatesPage() {
             <div className="flex justify-end">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button type="button" variant="outline" size="icon">
+                  <Button type="button" variant="outline" size="icon-sm">
                     <EllipsisVertical />
                   </Button>
                 </DropdownMenuTrigger>
@@ -93,6 +104,9 @@ function FormTemplatesPage() {
     [columnHelper, formatDate],
   );
 
+  const [isCreateDialogOpen, openCreateDialog, closeCreateDialog] =
+    useBooleanState();
+
   return (
     <>
       <PageHeader>
@@ -105,7 +119,13 @@ function FormTemplatesPage() {
         </Breadcrumb>
       </PageHeader>
       <PageContent>
-        <h1 className="text-xl font-semibold mt-1 mb-2">Form templates</h1>
+        <div className="flex items-center justify-between mt-1 mb-2">
+          <h1 className="text-xl font-semibold mt-1 mb-2">Form templates</h1>
+          <Button type="button" onClick={openCreateDialog}>
+            <Plus />
+            Create form template
+          </Button>
+        </div>
         <FormTemplatesTable
           columns={columns}
           data={data ?? []}
@@ -116,6 +136,27 @@ function FormTemplatesPage() {
           }}
         />
       </PageContent>
+      <Dialog open={isCreateDialogOpen} onOpenChange={closeCreateDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create form template</DialogTitle>
+          </DialogHeader>
+          <CreateFormTemplateAction onSuccess={closeCreateDialog}>
+            {({ formId, isPending }) => (
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="outline" disabled={isPending}>
+                    Cancel
+                  </Button>
+                </DialogClose>
+                <LoadingButton type="submit" form={formId} loading={isPending}>
+                  Create
+                </LoadingButton>
+              </DialogFooter>
+            )}
+          </CreateFormTemplateAction>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

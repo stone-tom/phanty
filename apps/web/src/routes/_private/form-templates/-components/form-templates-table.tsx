@@ -55,11 +55,15 @@ const PINNED_LEFT_EDGE_CLASS =
 const PINNED_RIGHT_EDGE_CLASS =
   'before:pointer-events-none before:absolute before:top-0 before:left-0 before:z-[1] before:h-full before:w-3 before:-translate-x-full before:border-r before:border-border before:bg-gradient-to-l before:from-black/3 before:to-transparent';
 
-function usePinnedEdgeVisibility(containerRef: RefObject<HTMLDivElement | null>) {
-  const [pinEdgeVisibility, setPinEdgeVisibility] = useState<PinEdgeVisibility>({
-    showLeftEdge: false,
-    showRightEdge: false,
-  });
+function usePinnedEdgeVisibility(
+  containerRef: RefObject<HTMLDivElement | null>,
+) {
+  const [pinEdgeVisibility, setPinEdgeVisibility] = useState<PinEdgeVisibility>(
+    {
+      showLeftEdge: false,
+      showRightEdge: false,
+    },
+  );
 
   useEffect(() => {
     const container = containerRef.current;
