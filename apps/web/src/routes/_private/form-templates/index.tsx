@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { createColumnHelper } from '@tanstack/react-table';
+import { type CellContext, createColumnHelper } from '@tanstack/react-table';
 import { EditIcon, EllipsisVertical, Plus, Trash2 } from 'lucide-react';
 import { useMemo } from 'react';
 import { PageContent } from '@/components/page-content';
@@ -34,6 +34,7 @@ import { useFormatDate } from '@/hooks/use-format-date';
 import { formTemplates } from '@/queries/form-templates';
 import { CreateFormTemplateAction } from './-components/create-form-template-action';
 import { FormTemplatesTable } from './-components/form-templates-table';
+import { UpdateFormTemplateAction } from './-components/update-form-template-action';
 
 export const Route = createFileRoute('/_private/form-templates/')({
   component: FormTemplatesPage,
@@ -71,31 +72,7 @@ function FormTemplatesPage() {
       columnHelper.display({
         id: 'actions',
         header: () => <div className="text-right">Actions</div>,
-        cell: () => {
-          return (
-            <div className="flex justify-end">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button type="button" variant="outline" size="icon-sm">
-                    <EllipsisVertical />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <EditIcon />
-                    Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Trash2 />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          );
-        },
+        cell: ActionCell,
       }),
     ],
     [columnHelper, formatDate],
@@ -154,6 +131,69 @@ function FormTemplatesPage() {
           </CreateFormTemplateAction>
         </DialogContent>
       </Dialog>
+    </>
+  );
+}
+
+function ActionCell(props: CellContext<FormTemplate, unknown>) {
+  const formTemplate = props.row.original;
+  const [isUpdateDialogOpen, openUpdateDialog, closeUpdateDialog] =
+    useBooleanState();
+
+  return (
+    <>
+      <div className="flex justify-end">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button type="button" variant="outline" size="icon-sm">
+              <EllipsisVertical />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={openUpdateDialog}>
+              <EditIcon />
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Trash2 />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {isUpdateDialogOpen && (
+        <Dialog open={isUpdateDialogOpen} onOpenChange={closeUpdateDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit form template</DialogTitle>
+            </DialogHeader>
+            <UpdateFormTemplateAction
+              formTemplate={formTemplate}
+              onSuccess={closeUpdateDialog}
+            >
+              {({ formId, isPending }) => (
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button variant="outline" disabled={isPending}>
+                      Cancel
+                    </Button>
+                  </DialogClose>
+                  <LoadingButton
+                    type="submit"
+                    form={formId}
+                    loading={isPending}
+                  >
+                    Update
+                  </LoadingButton>
+                </DialogFooter>
+              )}
+            </UpdateFormTemplateAction>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 }
