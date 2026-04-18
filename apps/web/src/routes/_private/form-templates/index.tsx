@@ -71,9 +71,6 @@ function FormTemplatesPage() {
       columnHelper.display({
         id: 'actions',
         header: () => <div className="text-right">Actions</div>,
-        size: 64,
-        minSize: 64,
-        maxSize: 64,
         cell: () => {
           return (
             <div className="flex justify-end">
