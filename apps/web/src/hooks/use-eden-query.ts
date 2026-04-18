@@ -6,20 +6,23 @@ import {
 } from '@tanstack/react-query';
 
 type EdenQueryFn = (
+  // biome-ignore lint/suspicious/noExplicitAny: This is a generic type for any query function, we can't type it more strictly
   ...args: any[]
 ) =>
   | Treaty.TreatyResponse<Record<number, unknown>>
   | Promise<Treaty.TreatyResponse<Record<number, unknown>>>;
 
-export type EdenQueryData<TQuery> =
-  TQuery extends (...args: any[]) => { queryFn: infer TQueryFn }
+// biome-ignore lint/suspicious/noExplicitAny: This is a generic type for any query function, we can't type it more strictly
+export type EdenQueryData<TQuery> = TQuery extends (...args: any[]) => {
+  queryFn: infer TQueryFn;
+}
+  ? TQueryFn extends EdenQueryFn
+    ? Treaty.Data<TQueryFn>
+    : never
+  : TQuery extends { queryFn: infer TQueryFn }
     ? TQueryFn extends EdenQueryFn
       ? Treaty.Data<TQueryFn>
       : never
-    : TQuery extends { queryFn: infer TQueryFn }
-      ? TQueryFn extends EdenQueryFn
-        ? Treaty.Data<TQueryFn>
-        : never
     : never;
 
 export function useEdenQuery<

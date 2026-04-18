@@ -9,7 +9,7 @@ export function useFormatDate(config: UseFormatDateConfig = {}) {
   const locale =
     typeof navigator === 'undefined'
       ? undefined
-      : navigator.languages?.[0] ?? navigator.language;
+      : (navigator.languages?.[0] ?? navigator.language);
   console.log('Using locale:', locale);
   return useMemo(
     () =>
