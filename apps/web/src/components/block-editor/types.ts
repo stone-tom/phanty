@@ -22,7 +22,6 @@ export interface TemplateSettings {
 
 export interface BaseBlock {
   id: string;
-  parentId: string | null;
   category: BlockCategory;
   type: BlockType;
 }
@@ -36,7 +35,6 @@ export type AnyBlock = ParentBlock | LeafBlock;
 export type LayoutBlock = ContainerLayoutBlock;
 
 export interface ContainerLayoutBlock extends BaseBlock {
-  parentId: string | null;
   category: 'layout';
   type: 'container';
   childIds: string[];
