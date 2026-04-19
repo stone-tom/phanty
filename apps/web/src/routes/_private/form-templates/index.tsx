@@ -1,9 +1,20 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { type CellContext, createColumnHelper } from '@tanstack/react-table';
 import { EditIcon, EllipsisVertical, Plus, Trash2 } from 'lucide-react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { PageContent } from '@/components/page-content';
 import { PageHeader } from '@/components/page-header';
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -29,8 +40,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { LoadingButton } from '@/components/ui/loading-button';
 import { useBooleanState } from '@/hooks/use-boolean-state';
+import { useEdenMutation } from '@/hooks/use-eden-mutation';
 import { type EdenQueryData, useEdenQuery } from '@/hooks/use-eden-query';
 import { useFormatDate } from '@/hooks/use-format-date';
+import { api } from '@/lib/api';
 import { formTemplates } from '@/queries/form-templates';
 import { CreateFormTemplateAction } from './-components/create-form-template-action';
 import { FormTemplatesTable } from './-components/form-templates-table';
@@ -45,6 +58,31 @@ type FormTemplate = EdenQueryData<typeof formTemplates.list>[number];
 function FormTemplatesPage() {
   const { data } = useEdenQuery(formTemplates.list('all'));
   const formatDate = useFormatDate();
+
+  const [action, setAction] = useState<{
+    type: 'update' | 'delete';
+    target: FormTemplate;
+  } | null>(null);
+
+  const resetAction = () => setAction(null);
+
+  const queryClient = useQueryClient();
+
+  const { mutate: deleteFormTemplate, isPending: isDeletePending } =
+    useEdenMutation(
+      (formTemplateId: string) =>
+        api.v1.forms.templates({ id: formTemplateId }).delete(),
+      {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({ queryKey: formTemplates._def });
+          toast.success('Form template archived');
+          resetAction();
+        },
+        onError: () => {
+          toast.error('Something went wrong');
+        },
+      },
+    );
 
   const columnHelper = createColumnHelper<FormTemplate>();
   const columns = useMemo(
@@ -72,7 +110,17 @@ function FormTemplatesPage() {
       columnHelper.display({
         id: 'actions',
         header: () => <div className="text-right">Actions</div>,
-        cell: ActionCell,
+        cell: (props) => (
+          <ActionCell
+            {...props}
+            onDeleteClick={(formTemplate) =>
+              setAction({ type: 'delete', target: formTemplate })
+            }
+            onEditClick={(formTemplate) =>
+              setAction({ type: 'update', target: formTemplate })
+            }
+          />
+        ),
       }),
     ],
     [columnHelper, formatDate],
@@ -131,48 +179,49 @@ function FormTemplatesPage() {
           </CreateFormTemplateAction>
         </DialogContent>
       </Dialog>
-    </>
-  );
-}
 
-function ActionCell(props: CellContext<FormTemplate, unknown>) {
-  const formTemplate = props.row.original;
-  const [isUpdateDialogOpen, openUpdateDialog, closeUpdateDialog] =
-    useBooleanState();
-
-  return (
-    <>
-      <div className="flex justify-end">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button type="button" variant="outline" size="icon-sm">
-              <EllipsisVertical />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={openUpdateDialog}>
-              <EditIcon />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Trash2 />
+      <AlertDialog
+        open={action?.type === 'delete'}
+        onOpenChange={() => setAction(null)}
+      >
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete form template?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will archive <strong>{action?.target?.name}</strong> and
+              remove it from the active list.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeletePending}>
+              Cancel
+            </AlertDialogCancel>
+            <LoadingButton
+              type="button"
+              variant="destructive"
+              loading={isDeletePending}
+              onClick={() => {
+                if (!action?.target) {
+                  return;
+                }
+                deleteFormTemplate(action.target.id);
+              }}
+            >
               Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+            </LoadingButton>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-      {isUpdateDialogOpen && (
-        <Dialog open={isUpdateDialogOpen} onOpenChange={closeUpdateDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Edit form template</DialogTitle>
-            </DialogHeader>
+      <Dialog open={action?.type === 'update'} onOpenChange={resetAction}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit form template</DialogTitle>
+          </DialogHeader>
+          {action?.target && (
             <UpdateFormTemplateAction
-              formTemplate={formTemplate}
-              onSuccess={closeUpdateDialog}
+              formTemplate={action.target}
+              onSuccess={resetAction}
             >
               {({ formId, isPending }) => (
                 <DialogFooter>
@@ -191,9 +240,42 @@ function ActionCell(props: CellContext<FormTemplate, unknown>) {
                 </DialogFooter>
               )}
             </UpdateFormTemplateAction>
-          </DialogContent>
-        </Dialog>
-      )}
+          )}
+        </DialogContent>
+      </Dialog>
     </>
+  );
+}
+
+interface ActionCellProps extends CellContext<FormTemplate, unknown> {
+  onDeleteClick: (formTemplate: FormTemplate) => void;
+  onEditClick: (formTemplate: FormTemplate) => void;
+}
+
+function ActionCell(props: ActionCellProps) {
+  const formTemplate = props.row.original;
+
+  return (
+    <div className="flex justify-end">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button type="button" variant="outline" size="icon-sm">
+            <EllipsisVertical />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => props.onEditClick(formTemplate)}>
+            <EditIcon />
+            Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => props.onDeleteClick(formTemplate)}>
+            <Trash2 />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 }
