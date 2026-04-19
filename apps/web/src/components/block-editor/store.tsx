@@ -1,305 +1,162 @@
 import {
   createContext,
-  type PropsWithChildren,
   useContext,
-  useRef,
+  useState,
 } from 'react';
+import type { PartialDeep, SimplifyDeep } from 'type-fest';
 import { useStore } from 'zustand';
-import { createStore, type StoreApi } from 'zustand/vanilla';
+import { createStore, type StateCreator, type StoreApi } from 'zustand/vanilla';
 import {
   type AnyBlock,
-  BLOCK_EDITOR_DOCUMENT_VERSION,
   type BlockEditorDocument,
-  type ParentBlock,
-  type TemplateType,
+  type BlockType
 } from './types';
 
-type StructuralBlockKey = 'id' | 'parentId' | 'category' | 'type' | 'childIds';
 
-export type EditableBlockPatch<TBlock extends AnyBlock = AnyBlock> =
-  TBlock extends AnyBlock ? Partial<Omit<TBlock, StructuralBlockKey>> : never;
+type GetBlock<TType extends BlockType> = Extract<
+  AnyBlock,
+  { type: TType }
+>;
 
-export interface AddBlockInput {
-  block: AnyBlock;
-  parentId?: string | null;
-  index?: number;
-  select?: boolean;
-}
+type GetBlockChanges<TType extends BlockType> = SimplifyDeep<
+  PartialDeep<Omit<GetBlock<TType>, 'id' | 'type' | 'category'>>
+>;
+
+type AssertedBlock<TParams> = TParams extends { assertType: infer TType extends BlockType }
+  ? GetBlock<TType>
+  : AnyBlock;
+
 
 export interface BlockEditorStoreState {
   document: BlockEditorDocument;
-  selectedBlockId: string | null;
-  isDirty: boolean;
-  setDocument: (document: BlockEditorDocument) => void;
-  selectBlock: (blockId: string | null) => void;
-  addBlock: (input: AddBlockInput) => void;
-  deleteBlock: (blockId: string) => void;
-  updateBlock: <TBlock extends AnyBlock>(
-    blockId: string,
-    patch: EditableBlockPatch<TBlock>,
-  ) => void;
-}
+  selectedBlock: AnyBlock['id'] | null;
 
-export type BlockEditorStoreApi = StoreApi<BlockEditorStoreState>;
+  actions: {
+    addBlock: (input: {
+      block: AnyBlock;
+      index: number;
+      select: boolean;
+    }) => void;
+    deleteBlock: (id: string) => void;
+    updateBlock: <TType extends BlockType>(
+      id: string,
+      changes: GetBlockChanges<TType>,
+    ) => void;
 
-export interface BlockEditorStoreProviderProps {
-  document?: BlockEditorDocument;
-}
-
-export function createEmptyBlockEditorDocument(
-  templateType: TemplateType = 'form',
-): BlockEditorDocument {
-  return {
-    version: BLOCK_EDITOR_DOCUMENT_VERSION,
-    templateType,
-    rootBlockIds: [],
-    blocks: {},
-  };
-}
-
-export function createBlockEditorStore(
-  initialDocument: BlockEditorDocument = createEmptyBlockEditorDocument(),
-): BlockEditorStoreApi {
-  return createStore<BlockEditorStoreState>()((set) => ({
-    document: initialDocument,
-    selectedBlockId: null,
-    isDirty: false,
-    setDocument: (document) =>
-      set({
-        document,
-        selectedBlockId: null,
-        isDirty: false,
-      }),
-    selectBlock: (blockId) =>
-      set((state) => ({
-        selectedBlockId:
-          blockId === null || state.document.blocks[blockId] ? blockId : null,
-      })),
-    addBlock: (input) =>
-      set((state) => {
-        const nextDocument = addBlockToDocument(state.document, input);
-
-        if (nextDocument === state.document) {
-          return state;
-        }
-
-        return {
-          document: nextDocument,
-          selectedBlockId:
-            (input.select ?? true) ? input.block.id : state.selectedBlockId,
-          isDirty: true,
-        };
-      }),
-    deleteBlock: (blockId) =>
-      set((state) => {
-        const deletedBlockIds = getBlockTreeIds(state.document, blockId);
-
-        if (deletedBlockIds.size === 0) {
-          return state;
-        }
-
-        return {
-          document: deleteBlocksFromDocument(state.document, deletedBlockIds),
-          selectedBlockId:
-            state.selectedBlockId && deletedBlockIds.has(state.selectedBlockId)
-              ? null
-              : state.selectedBlockId,
-          isDirty: true,
-        };
-      }),
-    updateBlock: (blockId, patch) =>
-      set((state) => {
-        const nextDocument = updateBlockInDocument(
-          state.document,
-          blockId,
-          patch,
-        );
-
-        if (nextDocument === state.document) {
-          return state;
-        }
-
-        return {
-          document: nextDocument,
-          isDirty: true,
-        };
-      }),
-  }));
-}
-
-const BlockEditorStoreContext = createContext<BlockEditorStoreApi | null>(null);
-
-export function BlockEditorStoreProvider(
-  props: PropsWithChildren<BlockEditorStoreProviderProps>,
-) {
-  const storeRef = useRef<BlockEditorStoreApi | null>(null);
-
-  if (!storeRef.current) {
-    storeRef.current = createBlockEditorStore(props.document);
+    selectBlock: (blockId: string | null) => void;
   }
-
-  return (
-    <BlockEditorStoreContext.Provider value={storeRef.current}>
-      {props.children}
-    </BlockEditorStoreContext.Provider>
-  );
 }
 
-export function useBlockEditorStore<TSelection>(
-  selector: (state: BlockEditorStoreState) => TSelection,
-): TSelection {
+type StateInitializer = (initialDocument: BlockEditorDocument) => StateCreator<BlockEditorStoreState>;
+
+const createBlockEditorState: StateInitializer = (initialDocument) => () => ({
+  document: initialDocument,
+  selectedBlock: null,
+
+  actions: {
+    addBlock: () => {
+      /**
+       * PATH 1. Add block to root
+       * - only container blocks can be added to root
+       * - add block to blocks
+       * - add block id to rootBlockIds (at the defined index)
+       *
+       * PATH 2. Add block as child of another block
+       * - only form blocks can be added as children
+       * - use the form block's parentId to find the parent container
+       * - add block to blocks
+       * - add block id to parent block's childIds (at the defined index)
+       * 
+       * FINALLY:
+       * - if select is true, set selectedBlock to the new block id
+       */
+    },
+    deleteBlock: () => {
+      /**
+       * PATH 1. Delete block from root
+       * - if the block is a container, also delete all child blocks
+       * - remove deleted blocks from blocks
+       * - remove block id from rootBlockIds
+       *
+       * PATH 2. Delete block from parent block
+       * - remove block from blocks
+       * - remove block id from parent block's childIds
+       * 
+       * FINALLY:
+       * - if the deleted block or one of its deleted children is currently selected, set selectedBlock to null
+       * 
+       * */
+    },
+    updateBlock: () => {
+      /**
+       * - find block in blocks by id
+       * - update block with changes 
+       */
+    },
+    selectBlock: () => {
+      /** 
+       * - set selectedBlock to blockId (can be null to deselect)
+       * - only set selectedBlock when block exists
+       */
+    },
+  }
+});
+
+export const useCreateBlockEditorStore = (initialDocument: BlockEditorDocument): StoreApi<BlockEditorStoreState> => {
+  const [store] = useState(() => createStore(createBlockEditorState(initialDocument)));
+  return store;
+};
+
+export const BlockEditorStoreContext = createContext<StoreApi<BlockEditorStoreState> | undefined>(
+  undefined,
+);
+
+export const useBlockEditorStore = (): StoreApi<BlockEditorStoreState> => {
   const store = useContext(BlockEditorStoreContext);
 
   if (!store) {
-    throw new Error(
-      'useBlockEditorStore must be used within BlockEditorStoreProvider',
-    );
+    throw new Error('useBlockEditorStore must be used within BlockEditorStoreContext');
   }
+
+  return store;
+};
+
+export function useBlockEditorState<TSelectorResult>(
+  selector: (state: BlockEditorStoreState) => TSelectorResult,
+): TSelectorResult {
+  const store = useBlockEditorStore();
 
   return useStore(store, selector);
 }
 
-export function isParentBlock(block: AnyBlock): block is ParentBlock {
-  return 'childIds' in block;
-}
+export const useBlockEditorActions = () => useBlockEditorState((state) => state.actions);
 
-export function getBlock(
-  document: BlockEditorDocument,
-  blockId: string,
-): AnyBlock | null {
-  return document.blocks[blockId] ?? null;
-}
+export function useBlockEditorBlock<
+  TParams extends {
+    id: string;
+    assertType?: BlockType;
+  },
+  TSelectorReturn = AssertedBlock<TParams>,
+>(
+  params: TParams,
+  selector?: (block: AssertedBlock<TParams>) => TSelectorReturn,
+): TSelectorReturn {
+  return useBlockEditorState((state) => {
+    const block = state.document.blocks[params.id];
 
-export function addBlockToDocument(
-  document: BlockEditorDocument,
-  input: AddBlockInput,
-): BlockEditorDocument {
-  if (document.blocks[input.block.id]) {
-    return document;
-  }
-
-  const parentId = input.parentId ?? input.block.parentId;
-  const block = {
-    ...input.block,
-    parentId,
-  } as AnyBlock;
-
-  if (parentId === null) {
-    return {
-      ...document,
-      rootBlockIds: insertId(document.rootBlockIds, block.id, input.index),
-      blocks: {
-        ...document.blocks,
-        [block.id]: block,
-      },
-    };
-  }
-
-  const parentBlock = document.blocks[parentId];
-
-  if (!parentBlock || !isParentBlock(parentBlock)) {
-    return document;
-  }
-
-  return {
-    ...document,
-    blocks: {
-      ...document.blocks,
-      [block.id]: block,
-      [parentBlock.id]: {
-        ...parentBlock,
-        childIds: insertId(parentBlock.childIds, block.id, input.index),
-      },
-    },
-  };
-}
-
-export function deleteBlocksFromDocument(
-  document: BlockEditorDocument,
-  blockIds: Set<string>,
-): BlockEditorDocument {
-  const blocks = { ...document.blocks };
-
-  for (const blockId of blockIds) {
-    delete blocks[blockId];
-  }
-
-  for (const block of Object.values(blocks)) {
-    if (!isParentBlock(block)) {
-      continue;
+    if (!block) {
+      throw new Error(`Block "${params.id}" not found`);
     }
 
-    const childIds = block.childIds.filter((childId) => !blockIds.has(childId));
-
-    if (childIds.length !== block.childIds.length) {
-      blocks[block.id] = {
-        ...block,
-        childIds,
-      };
+    if (params.assertType !== undefined) {
+      if (block.type !== params.assertType) {
+        throw new Error(
+          `Block "${params.id}" is not of type "${params.assertType}". Given: "${block.type}"`,
+        );
+      }
     }
-  }
 
-  return {
-    ...document,
-    rootBlockIds: document.rootBlockIds.filter(
-      (blockId) => !blockIds.has(blockId),
-    ),
-    blocks,
-  };
-}
-
-export function updateBlockInDocument<TBlock extends AnyBlock>(
-  document: BlockEditorDocument,
-  blockId: string,
-  patch: EditableBlockPatch<TBlock>,
-): BlockEditorDocument {
-  const block = document.blocks[blockId];
-
-  if (!block) {
-    return document;
-  }
-
-  return {
-    ...document,
-    blocks: {
-      ...document.blocks,
-      [blockId]: {
-        ...block,
-        ...patch,
-      } as AnyBlock,
-    },
-  };
-}
-
-function getBlockTreeIds(
-  document: BlockEditorDocument,
-  blockId: string,
-  blockIds = new Set<string>(),
-): Set<string> {
-  const block = document.blocks[blockId];
-
-  if (!block || blockIds.has(block.id)) {
-    return blockIds;
-  }
-
-  blockIds.add(block.id);
-
-  if (isParentBlock(block)) {
-    for (const childId of block.childIds) {
-      getBlockTreeIds(document, childId, blockIds);
-    }
-  }
-
-  return blockIds;
-}
-
-function insertId(ids: string[], id: string, index = ids.length): string[] {
-  const idsWithoutTarget = ids.filter((currentId) => currentId !== id);
-  const nextIndex = Math.min(Math.max(index, 0), idsWithoutTarget.length);
-
-  return [
-    ...idsWithoutTarget.slice(0, nextIndex),
-    id,
-    ...idsWithoutTarget.slice(nextIndex),
-  ];
+    const assertedBlock = block as AssertedBlock<TParams>;
+    return selector ? selector(assertedBlock) : (assertedBlock as TSelectorReturn);
+  });
 }
