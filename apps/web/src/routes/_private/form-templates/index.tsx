@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { type CellContext, createColumnHelper } from '@tanstack/react-table';
-import { EditIcon, EllipsisVertical, Plus, Trash2 } from 'lucide-react';
+import { Archive, EditIcon, EllipsisVertical, Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { PageContent } from '@/components/page-content';
@@ -271,8 +271,8 @@ function ActionCell(props: ActionCellProps) {
             Edit
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => props.onDeleteClick(formTemplate)}>
-            <Trash2 />
-            Delete
+            <Archive />
+            Archive
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
