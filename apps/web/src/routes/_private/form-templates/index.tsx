@@ -1,7 +1,13 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import { type CellContext, createColumnHelper } from '@tanstack/react-table';
-import { Archive, EditIcon, EllipsisVertical, Plus } from 'lucide-react';
+import {
+  Archive,
+  EditIcon,
+  EllipsisVertical,
+  PencilRuler,
+  Plus,
+} from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { PageContent } from '@/components/page-content';
@@ -141,8 +147,8 @@ function FormTemplatesPage() {
         </Breadcrumb>
       </PageHeader>
       <PageContent>
-        <div className="flex items-center justify-between mt-1 mb-2">
-          <h1 className="text-xl font-semibold mt-1 mb-2">Form templates</h1>
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-xl font-semibold">Form templates</h1>
           <Button type="button" onClick={openCreateDialog}>
             <Plus />
             Create form template
@@ -266,6 +272,15 @@ function ActionCell(props: ActionCellProps) {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
+          <DropdownMenuItem asChild>
+            <Link
+              to={`/form-templates/$id/editor`}
+              params={{ id: formTemplate.id }}
+            >
+              <PencilRuler />
+              Editor
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => props.onEditClick(formTemplate)}>
             <EditIcon />
             Edit

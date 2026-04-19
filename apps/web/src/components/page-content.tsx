@@ -6,7 +6,7 @@ export function PageContent(props: ComponentProps<'div'>) {
     <div
       {...props}
       className={cn(
-        'flex flex-1 flex-col p-4 pt-2 overflow-y-auto',
+        'flex flex-1 flex-col p-4 overflow-y-auto',
         props.className,
       )}
     />
