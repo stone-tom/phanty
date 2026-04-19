@@ -54,6 +54,7 @@ export const Route = createFileRoute('/_private/form-templates/')({
 });
 
 type FormTemplate = EdenQueryData<typeof formTemplates.list>[number];
+const columnHelper = createColumnHelper<FormTemplate>();
 
 function FormTemplatesPage() {
   const { data } = useEdenQuery(formTemplates.list('all'));
@@ -84,7 +85,6 @@ function FormTemplatesPage() {
       },
     );
 
-  const columnHelper = createColumnHelper<FormTemplate>();
   const columns = useMemo(
     () => [
       columnHelper.accessor('name', {
@@ -123,7 +123,7 @@ function FormTemplatesPage() {
         ),
       }),
     ],
-    [columnHelper, formatDate],
+    [formatDate],
   );
 
   const [isCreateDialogOpen, openCreateDialog, closeCreateDialog] =
