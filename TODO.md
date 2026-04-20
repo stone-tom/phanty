@@ -13,4 +13,9 @@
 - Error boundaries (dialogs)
 - Dialog medias (icons in dialogs)
 
+## block editor
+- prefill with data from the system (placeholder)
+- reuse layout components with inner content (e.g. base data selction can be pasted into another one)
+- confitions for everything
+
 

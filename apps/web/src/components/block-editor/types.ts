@@ -11,8 +11,10 @@ export type BlockType = LayoutBlockType | FormBlockType;
 export interface BlockEditorDocument {
   version: typeof BLOCK_EDITOR_DOCUMENT_VERSION;
   templateType: TemplateType;
-  rootBlockIds: string[];
-  blocks: Record<AnyBlock['id'], AnyBlock>;
+  blocks: {
+    root: AnyBlock[];
+    [blockId: string]: AnyBlock[];
+  };
   settings?: TemplateSettings;
 }
 
@@ -24,6 +26,8 @@ export interface BaseBlock {
   id: string;
   category: BlockCategory;
   type: BlockType;
+  parentId: string | null;
+  sortIndex: number;
 }
 
 // Future allowedBlocks / allowedChildren config should decide placement rules.
@@ -32,36 +36,44 @@ export type ParentBlock = LayoutBlock;
 export type LeafBlock = FormBlock;
 export type AnyBlock = ParentBlock | LeafBlock;
 
+export function isParentBlock(block: AnyBlock): block is ParentBlock {
+  return block.category === 'layout';
+}
+
+export function isLeafBlock(block: AnyBlock): block is LeafBlock {
+  return block.category === 'form';
+}
+
 export type LayoutBlock = ContainerLayoutBlock;
 
 export interface ContainerLayoutBlock extends BaseBlock {
   category: 'layout';
   type: 'container';
-  childIds: string[];
+  parentId: null;
 }
 
 export type FormBlock = TextFormBlock;
 
 export interface BaseFormBlock extends BaseBlock {
-  parentId: string | null;
+  parentId: string;
   category: 'form';
   type: FormBlockType;
-  field: FormFieldDefinition;
+  schema: FormFieldSchema;
 }
 
 export interface TextFormBlock extends BaseFormBlock {
   type: 'text';
-  field: TextFieldDefinition;
+  schema: TextFieldSchema;
 }
 
-export interface FormFieldDefinition {
+export interface FormFieldSchema {
   name: string;
   label: string;
   description?: string;
   required?: boolean;
 }
 
-export interface TextFieldDefinition extends FormFieldDefinition {
+export interface TextFieldSchema extends FormFieldSchema {
   placeholder?: string;
 }
 

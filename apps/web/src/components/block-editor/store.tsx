@@ -1,19 +1,32 @@
+import { arrayMove } from '@dnd-kit/helpers';
 import { mergeWith } from 'lodash';
 import { createContext, useContext, useState } from 'react';
 import type { PartialDeep, SimplifyDeep } from 'type-fest';
-import { useStore } from 'zustand';
 import { createStore, type StateCreator, type StoreApi } from 'zustand/vanilla';
-import type { AnyBlock, BlockEditorDocument, BlockType } from './types';
+import {
+  type AnyBlock,
+  type BlockEditorDocument,
+  type BlockType,
+  isLeafBlock,
+  isParentBlock,
+} from './types';
+import { buildIndex } from './utils';
+
+export interface BlockIndex {
+  byId: Map<string, AnyBlock>;
+  listKeyById: Map<string, string>; // "root" or parent blockId
+  childIdsById: Map<string, string[]>; // for quick child access
+}
 
 type GetBlock<TType extends BlockType> = Extract<AnyBlock, { type: TType }>;
 
-type StructuralBlockKey = 'id' | 'type' | 'category' | 'parentId' | 'childIds';
+type StructuralBlockKey = 'id' | 'type' | 'category' | 'parentId';
 
 type GetBlockChanges<TType extends BlockType> = SimplifyDeep<
   PartialDeep<Omit<GetBlock<TType>, StructuralBlockKey>>
 >;
 
-type AssertedBlock<TParams> = TParams extends {
+export type AssertedBlock<TParams> = TParams extends {
   assertType: infer TType extends BlockType;
 }
   ? GetBlock<TType>
@@ -22,19 +35,28 @@ type AssertedBlock<TParams> = TParams extends {
 export interface BlockEditorStoreState {
   document: BlockEditorDocument;
   selectedBlock: AnyBlock['id'] | null;
+  index: BlockIndex;
 
   actions: {
+    replaceBlocks: (blocks: BlockEditorDocument['blocks']) => void;
+    replaceDocument: (document: BlockEditorDocument) => void;
     addBlock: (input: {
       block: AnyBlock;
+      parentId: string | null;
       index: number;
-      select: boolean;
+      select?: boolean;
     }) => void;
     deleteBlock: (id: string) => void;
     updateBlock: <TType extends BlockType>(
       id: string,
       changes: GetBlockChanges<TType>,
     ) => void;
-
+    moveBlock: (input: {
+      id: string;
+      toParentId: string | null;
+      toIndex: number;
+    }) => void;
+    reorderBlock: (input: { id: string; newIndex: number }) => void;
     selectBlock: (blockId: string | null) => void;
   };
 }
@@ -43,203 +65,267 @@ type StateInitializer = (
   initialDocument: BlockEditorDocument,
 ) => StateCreator<BlockEditorStoreState>;
 
-const insertId = (ids: string[], id: string, index: number): string[] => {
-  const nextIndex = Math.min(Math.max(index, 0), ids.length);
-  const idsBefore = ids.slice(0, nextIndex);
-  const idsAfter = ids.slice(nextIndex);
-
-  return [...idsBefore, id, ...idsAfter];
-};
-
 const createBlockEditorState: StateInitializer =
   (initialDocument) => (set) => ({
     document: initialDocument,
     selectedBlock: null,
+    index: buildIndex(initialDocument.blocks),
 
     actions: {
+      replaceBlocks: (blocks) => {
+        set((state) => {
+          if (!isValidBlockPlacement(blocks)) {
+            return state;
+          }
+
+          const normalizedBlocks = normalizeBlockParents(blocks);
+
+          return {
+            document: { ...state.document, blocks: normalizedBlocks },
+            index: buildIndex(normalizedBlocks),
+          };
+        });
+      },
+
+      replaceDocument: (document) => {
+        if (!isValidBlockPlacement(document.blocks)) {
+          throw new Error('Invalid block editor document');
+        }
+
+        const normalizedBlocks = normalizeBlockParents(document.blocks);
+
+        set({
+          document: { ...document, blocks: normalizedBlocks },
+          index: buildIndex(normalizedBlocks),
+        });
+      },
+
       addBlock: (input) => {
-        /**
-         * PATH 1. Add block to root
-         * - only container blocks can be added to root
-         * - add block to blocks
-         * - add block id to rootBlockIds (at the defined index)
-         *
-         * PATH 2. Add block as child of another block
-         * - only form blocks can be added as children
-         * - use the form block's parentId to find the parent container
-         * - add block to blocks
-         * - add block id to parent block's childIds (at the defined index)
-         *
-         * FINALLY:
-         * - if select is true, set selectedBlock to the new block id
-         */
+        const { block, parentId, index, select = false } = input;
+        const listKey = parentId ?? 'root';
+
         set((state) => {
-          if (state.document.blocks[input.block.id]) {
-            return state;
+          let blockToInsert: AnyBlock;
+          if (parentId === null && isParentBlock(block)) {
+            blockToInsert = { ...block, parentId: null };
+          } else if (parentId !== null && isLeafBlock(block)) {
+            blockToInsert = { ...block, parentId };
+          } else {
+            throw new Error(`Invalid block placement`);
           }
 
-          if (input.block.category === 'layout') {
-            return {
-              document: {
-                ...state.document,
-                rootBlockIds: insertId(
-                  state.document.rootBlockIds,
-                  input.block.id,
-                  input.index,
-                ),
-                blocks: {
-                  ...state.document.blocks,
-                  [input.block.id]: input.block,
-                },
-              },
-              selectedBlock: input.select
-                ? input.block.id
-                : state.selectedBlock,
-            };
-          }
+          const currentList = state.document.blocks[listKey] ?? [];
+          const newList = [...currentList];
+          newList.splice(index, 0, blockToInsert);
 
-          if (input.block.parentId === null) {
-            return state;
-          }
-
-          const parentBlock = state.document.blocks[input.block.parentId];
-
-          if (parentBlock?.category !== 'layout') {
-            return state;
-          }
+          const newBlocks = {
+            ...state.document.blocks,
+            [listKey]: newList,
+          };
 
           return {
-            document: {
-              ...state.document,
-              blocks: {
-                ...state.document.blocks,
-                [input.block.id]: input.block,
-                [parentBlock.id]: {
-                  ...parentBlock,
-                  childIds: insertId(
-                    parentBlock.childIds,
-                    input.block.id,
-                    input.index,
-                  ),
-                },
-              },
-            },
-            selectedBlock: input.select ? input.block.id : state.selectedBlock,
+            document: { ...state.document, blocks: newBlocks },
+            index: buildIndex(newBlocks),
+            selectedBlock: select ? blockToInsert.id : state.selectedBlock,
           };
         });
       },
+
       deleteBlock: (id) => {
-        /**
-         * PATH 1. Delete block from root
-         * - if the block is a container, also delete all child blocks
-         * - remove deleted blocks from blocks
-         * - remove block id from rootBlockIds
-         *
-         * PATH 2. Delete block from parent block
-         * - remove block from blocks
-         * - remove block id from parent block's childIds
-         *
-         * FINALLY:
-         * - if the deleted block or one of its deleted children is currently selected, set selectedBlock to null
-         *
-         * */
         set((state) => {
-          const block = state.document.blocks[id];
-
-          if (!block) {
+          const listKey = state.index.listKeyById.get(id);
+          if (listKey === undefined) {
+            console.error(`Block "${id}" not found`);
             return state;
           }
 
-          const deletedBlockIds = new Set(
-            block.category === 'layout' ? [block.id, ...block.childIds] : [id],
-          );
-          const blocks = { ...state.document.blocks };
+          const list = state.document.blocks[listKey];
+          const newList = list.filter((b) => b.id !== id);
 
-          for (const deletedBlockId of deletedBlockIds) {
-            delete blocks[deletedBlockId];
-          }
+          const newBlocks = { ...state.document.blocks };
+          newBlocks[listKey] = newList;
 
-          for (const remainingBlock of Object.values(blocks)) {
-            if (remainingBlock.category !== 'layout') {
-              continue;
-            }
+          // Also delete this block's children list if exists
+          delete newBlocks[id];
 
-            blocks[remainingBlock.id] = {
-              ...remainingBlock,
-              childIds: remainingBlock.childIds.filter(
-                (childId) => !deletedBlockIds.has(childId),
-              ),
-            };
+          // Recursively delete children
+          const children = state.index.childIdsById.get(id) ?? [];
+          for (const childId of children) {
+            delete newBlocks[childId];
           }
 
           return {
-            document: {
-              ...state.document,
-              rootBlockIds: state.document.rootBlockIds.filter(
-                (rootBlockId) => !deletedBlockIds.has(rootBlockId),
-              ),
-              blocks,
-            },
+            document: { ...state.document, blocks: newBlocks },
+            index: buildIndex(newBlocks),
             selectedBlock:
-              state.selectedBlock && deletedBlockIds.has(state.selectedBlock)
-                ? null
-                : state.selectedBlock,
+              state.selectedBlock === id ? null : state.selectedBlock,
           };
         });
       },
-      updateBlock: (id, changes) => {
-        /**
-         * - find block in blocks by id
-         * - update block with changes
-         * - reordering will be done in a separate action
-         */
-        set((state) => {
-          const block = state.document.blocks[id];
 
-          if (!block) {
+      updateBlock: (id, changes) => {
+        set((state) => {
+          const listKey = state.index.listKeyById.get(id);
+          if (listKey === undefined) {
+            console.error(`Block "${id}" not found`);
             return state;
           }
 
+          const list = state.document.blocks[listKey];
+          const newList = list.map((b) =>
+            b.id === id
+              ? mergeWith({}, b, changes, (_: unknown, src: unknown) =>
+                  Array.isArray(src) ? src : undefined,
+                )
+              : b,
+          );
+
+          const newBlocks = { ...state.document.blocks, [listKey]: newList };
+
           return {
-            document: {
-              ...state.document,
-              blocks: {
-                ...state.document.blocks,
-                [id]: mergeWith(
-                  {},
-                  block,
-                  changes,
-                  (_targetValue, sourceValue) =>
-                    Array.isArray(sourceValue) ? sourceValue : undefined,
-                ),
-              },
-            },
+            document: { ...state.document, blocks: newBlocks },
+            index: buildIndex(newBlocks),
+          };
+        });
+      },
+
+      // Same container reorder — for dnd-kit sort
+      reorderBlock: ({ id, newIndex }) => {
+        set((state) => {
+          const listKey = state.index.listKeyById.get(id);
+          if (listKey === undefined) return state;
+
+          const list = state.document.blocks[listKey];
+          const oldIndex = list.findIndex((b) => b.id === id);
+          if (oldIndex === -1) return state;
+
+          const newList = arrayMove(list, oldIndex, newIndex);
+          const newBlocks = { ...state.document.blocks, [listKey]: newList };
+
+          return {
+            document: { ...state.document, blocks: newBlocks },
+            index: buildIndex(newBlocks),
+          };
+        });
+      },
+
+      // Cross-container move — for dnd-kit between containers
+      moveBlock: ({ id, toParentId, toIndex }) => {
+        set((state) => {
+          const fromListKey = state.index.listKeyById.get(id);
+          if (fromListKey === undefined) {
+            console.error(`Block "${id}" not found`);
+            return state;
+          }
+
+          const toListKey = toParentId ?? 'root';
+          const block = state.index.byId.get(id);
+
+          if (!block) {
+            console.error(`Block "${id}" not found in index`);
+            return state;
+          }
+
+          // Parent blocks (layout) can only be at root
+          if (toParentId === null && !isParentBlock(block)) {
+            throw new Error(`Only parent blocks can be at root level`);
+          }
+
+          // Leaf blocks (form) must have a parent
+          if (toParentId !== null && !isLeafBlock(block)) {
+            throw new Error(`Leaf blocks must have a parent`);
+          }
+
+          const fromList = state.document.blocks[fromListKey].filter(
+            (b) => b.id !== id,
+          );
+
+          const toList = [...(state.document.blocks[toListKey] ?? [])];
+
+          if (toParentId === null && isParentBlock(block)) {
+            toList.splice(toIndex, 0, { ...block, parentId: null });
+          } else if (toParentId !== null && isLeafBlock(block)) {
+            toList.splice(toIndex, 0, { ...block, parentId: toParentId });
+          } else {
+            throw new Error(`Invalid block move`);
+          }
+
+          const newBlocks = {
+            ...state.document.blocks,
+            [fromListKey]: fromList,
+            [toListKey]: toList,
+          };
+
+          return {
+            document: { ...state.document, blocks: newBlocks },
+            index: buildIndex(newBlocks),
           };
         });
       },
       selectBlock: (blockId) => {
-        /**
-         * - set selectedBlock to blockId (can be null to deselect)
-         * - only set selectedBlock when block exists
-         */
-        set((state) => {
-          if (blockId === null) {
-            return {
-              selectedBlock: null,
-            };
-          }
-
-          if (!state.document.blocks[blockId]) {
-            return state;
-          }
-
-          return {
-            selectedBlock: blockId,
-          };
-        });
+        set({ selectedBlock: blockId });
       },
     },
   });
+
+function normalizeBlockParents(
+  blocks: BlockEditorDocument['blocks'],
+): BlockEditorDocument['blocks'] {
+  const normalizedBlocks: BlockEditorDocument['blocks'] = {
+    ...blocks,
+    root: [],
+  };
+
+  for (const [listKey, list] of Object.entries(blocks)) {
+    let didChangeList = false;
+
+    const normalizedList = list.map((block) => {
+      if (
+        listKey !== 'root' &&
+        isLeafBlock(block) &&
+        block.parentId !== listKey
+      ) {
+        didChangeList = true;
+        return { ...block, parentId: listKey };
+      }
+
+      return block;
+    });
+
+    normalizedBlocks[listKey] = didChangeList ? normalizedList : list;
+  }
+
+  return normalizedBlocks;
+}
+
+function isValidBlockPlacement(blocks: BlockEditorDocument['blocks']): boolean {
+  const rootBlocks = blocks.root;
+  const rootBlockIds = new Set(rootBlocks.map((block) => block.id));
+
+  for (const block of rootBlocks) {
+    if (!isParentBlock(block)) {
+      return false;
+    }
+  }
+
+  for (const [listKey, list] of Object.entries(blocks)) {
+    if (listKey === 'root') {
+      continue;
+    }
+
+    if (!rootBlockIds.has(listKey)) {
+      return false;
+    }
+
+    for (const block of list) {
+      if (!isLeafBlock(block)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
 
 export const useCreateBlockEditorStore = (
   initialDocument: BlockEditorDocument,
@@ -265,46 +351,3 @@ export const useBlockEditorStore = (): StoreApi<BlockEditorStoreState> => {
 
   return store;
 };
-
-export function useBlockEditorState<TSelectorResult>(
-  selector: (state: BlockEditorStoreState) => TSelectorResult,
-): TSelectorResult {
-  const store = useBlockEditorStore();
-
-  return useStore(store, selector);
-}
-
-export const useBlockEditorActions = () =>
-  useBlockEditorState((state) => state.actions);
-
-export function useBlockEditorBlock<
-  TParams extends {
-    id: string;
-    assertType?: BlockType;
-  },
-  TSelectorReturn = AssertedBlock<TParams>,
->(
-  params: TParams,
-  selector?: (block: AssertedBlock<TParams>) => TSelectorReturn,
-): TSelectorReturn {
-  return useBlockEditorState((state) => {
-    const block = state.document.blocks[params.id];
-
-    if (!block) {
-      throw new Error(`Block "${params.id}" not found`);
-    }
-
-    if (params.assertType !== undefined) {
-      if (block.type !== params.assertType) {
-        throw new Error(
-          `Block "${params.id}" is not of type "${params.assertType}". Given: "${block.type}"`,
-        );
-      }
-    }
-
-    const assertedBlock = block as AssertedBlock<TParams>;
-    return selector
-      ? selector(assertedBlock)
-      : (assertedBlock as TSelectorReturn);
-  });
-}
