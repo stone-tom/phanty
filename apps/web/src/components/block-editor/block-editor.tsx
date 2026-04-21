@@ -1,4 +1,9 @@
-import { CollisionPriority } from '@dnd-kit/abstract';
+import { cn } from '@/lib/utils';
+import {
+  CollisionPriority,
+  type DragOperation,
+  Modifier,
+} from '@dnd-kit/abstract';
 import { Feedback, KeyboardSensor, PointerSensor } from '@dnd-kit/dom';
 import { move } from '@dnd-kit/helpers';
 import {
@@ -6,12 +11,10 @@ import {
   DragDropProvider,
   type DragEndEvent,
   type DragOverEvent,
-  type DragStartEvent,
 } from '@dnd-kit/react';
 import { useSortable } from '@dnd-kit/react/sortable';
 import { GripVertical } from 'lucide-react';
-import { memo, useCallback, useRef } from 'react';
-import { cn } from '@/lib/utils';
+import { memo, useCallback, useRef, useState } from 'react';
 import { Button } from '../ui/button';
 import {
   useBlockEditorActions,
@@ -23,7 +26,29 @@ import type { AnyBlock, BlockEditorDocument } from './types';
 
 const COLUMN_TYPE = 'column';
 const ITEM_TYPE = 'item';
+
+class SnapCenterToCursor extends Modifier {
+  apply({ shape, position, transform }: DragOperation) {
+    if (!position.initial || !shape) {
+      return transform;
+    }
+
+    const { current, initial } = shape;
+    const { left, top } = initial.boundingRectangle;
+    const { height, width } = current.boundingRectangle;
+    const offsetX = position.initial.x - left;
+    const offsetY = position.initial.y - top;
+
+    return {
+      ...transform,
+      x: transform.x + offsetX - width / 2,
+      y: transform.y + offsetY - height / 2,
+    };
+  }
+}
+
 const ITEM_PLUGINS = [Feedback.configure({ feedback: 'clone' })];
+const COLUMN_MODIFIERS = [SnapCenterToCursor];
 
 const sensors = [
   PointerSensor.configure({
@@ -37,12 +62,16 @@ const sensors = [
 export function BlockEditor() {
   const store = useBlockEditorStore();
   const previousDocumentRef = useRef<BlockEditorDocument | null>(null);
+  const [areColumnsCollapsed, setAreColumnsCollapsed] = useState(false);
   const { replaceBlocks, replaceDocument } = useBlockEditorActions();
   const columnIds = useBlockIds(null);
 
-  const handleDragStart = useCallback<DragDropEventHandlers['onDragStart']>(
-    (_event: DragStartEvent) => {
+  const handleBeforeDragStart = useCallback<
+    DragDropEventHandlers['onBeforeDragStart']
+  >(
+    (event) => {
       previousDocumentRef.current = cloneDocument(store.getState().document);
+      setAreColumnsCollapsed(event.operation.source?.type === COLUMN_TYPE);
     },
     [store],
   );
@@ -52,7 +81,7 @@ export function BlockEditor() {
       const { source } = event.operation;
 
       if (source?.type === COLUMN_TYPE) {
-        //We can rely on optimistic sorting for columns.
+        // We can rely on optimistic sorting for columns.
         return;
       }
 
@@ -71,6 +100,7 @@ export function BlockEditor() {
     (event: DragEndEvent) => {
       const previousDocument = previousDocumentRef.current;
       previousDocumentRef.current = null;
+      setAreColumnsCollapsed(false);
 
       if (event.canceled) {
         if (previousDocument) {
@@ -88,11 +118,14 @@ export function BlockEditor() {
 
       <DragDropProvider
         sensors={sensors}
-        onDragStart={handleDragStart}
+        onBeforeDragStart={handleBeforeDragStart}
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex flex-col gap-2">
+        <div
+          className="group/block-editor flex flex-col gap-2"
+          data-columns-collapsed={areColumnsCollapsed}
+        >
           {columnIds.map((columnId, index) => (
             <SortableColumn key={columnId} id={columnId} index={index} />
           ))}
@@ -114,6 +147,7 @@ const SortableColumn = memo(function SortableColumn(props: {
     accept: [COLUMN_TYPE, ITEM_TYPE],
     collisionPriority: CollisionPriority.Low,
     type: COLUMN_TYPE,
+    modifiers: COLUMN_MODIFIERS,
     index: props.index,
     data: { block },
   });
@@ -131,6 +165,9 @@ const SortableColumn = memo(function SortableColumn(props: {
         <span className="min-w-0 flex-1 truncate text-sm">
           {block.type} ({block.id})
         </span>
+        <span className="hidden shrink-0 text-muted-foreground text-xs tabular-nums group-data-[columns-collapsed=true]/block-editor:inline">
+          {itemIds.length}
+        </span>
         <Button type="button" variant="ghost" size="icon-sm" ref={handleRef}>
           <GripVertical data-icon="inline-start" />
         </Button>
@@ -138,7 +175,7 @@ const SortableColumn = memo(function SortableColumn(props: {
 
       <div
         className={cn(
-          'flex min-h-10 flex-col gap-2 rounded-md',
+          'flex min-h-10 flex-col gap-2 rounded-md group-data-[columns-collapsed=true]/block-editor:hidden',
           itemIds.length === 0 && 'border border-dashed',
         )}
       >
