@@ -16,6 +16,14 @@
 ## block editor
 - prefill with data from the system (placeholder)
 - reuse layout components with inner content (e.g. base data selction can be pasted into another one)
-- confitions for everything
+- conditions for every block (usage should be very simple)
+
+## the table
+- pagination
+- column pinning (dynamic)
+- column sorting
+- hide columns
+- persist table state
+- single column grid sort
 
 
