@@ -4,24 +4,29 @@ import type {
   ParentBlock,
 } from '@/components/block-editor/types';
 
-const CONTAINER_COUNT = 10;
-const FIELDS_PER_CONTAINER = 20;
+const CONTAINER_COUNT = 5;
+const FIELDS_PER_CONTAINER = 5;
 
-const root = Array.from({ length: CONTAINER_COUNT }, (_, containerIndex) => {
-  const containerNumber = containerIndex + 1;
+const containers = Array.from(
+  { length: CONTAINER_COUNT },
+  (_, containerIndex) => {
+    const containerNumber = containerIndex + 1;
 
-  return {
-    id: `container-${containerNumber}`,
-    category: 'layout',
-    type: 'container',
-    parentId: null,
-    sortIndex: containerIndex,
-  } satisfies ParentBlock;
-});
+    return {
+      id: `container-${containerNumber}`,
+      category: 'layout',
+      type: 'container',
+      parentId: null,
+      sortIndex: containerIndex + 1,
+    } satisfies ParentBlock;
+  },
+);
 
-const blocks = root.reduce<BlockEditorDocument['blocks']>(
+const blocks = containers.reduce<BlockEditorDocument['blocks']>(
   (accumulator, container) => {
-    accumulator[container.id] = Array.from(
+    accumulator[container.id] = container;
+
+    for (const field of Array.from(
       { length: FIELDS_PER_CONTAINER },
       (_, fieldIndex) => {
         const fieldNumber = fieldIndex + 1;
@@ -38,11 +43,13 @@ const blocks = root.reduce<BlockEditorDocument['blocks']>(
           },
         } satisfies FormBlock;
       },
-    );
+    )) {
+      accumulator[field.id] = field;
+    }
 
     return accumulator;
   },
-  { root },
+  {},
 );
 
 export const largeEditorDocument = {

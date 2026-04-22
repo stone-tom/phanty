@@ -31,7 +31,19 @@ function FormTemplateEditorPage() {
   const { id: formTemplateId } = Route.useParams();
   const { data, isPending } = useEdenQuery(formTemplates.get(formTemplateId));
 
-  const store = useCreateBlockEditorStore(largeEditorDocument);
+  const store = useCreateBlockEditorStore({
+    ...largeEditorDocument,
+    blocks: {
+      ...largeEditorDocument.blocks,
+      'container-empty': {
+        id: `container-empty`,
+        category: 'layout',
+        type: 'container',
+        parentId: null,
+        sortIndex: 0,
+      },
+    },
+  });
 
   return (
     <>

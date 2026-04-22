@@ -11,10 +11,7 @@ export type BlockType = LayoutBlockType | FormBlockType;
 export interface BlockEditorDocument {
   version: typeof BLOCK_EDITOR_DOCUMENT_VERSION;
   templateType: TemplateType;
-  blocks: {
-    root: AnyBlock[];
-    [blockId: string]: AnyBlock[];
-  };
+  blocks: Record<string, AnyBlock>;
   settings?: TemplateSettings;
 }
 
@@ -27,7 +24,7 @@ export interface BaseBlock {
   category: BlockCategory;
   type: BlockType;
   parentId: string | null;
-  sortIndex: number;
+  sortIndex: number; // defines sort order among siblings
 }
 
 // Future allowedBlocks / allowedChildren config should decide placement rules.
