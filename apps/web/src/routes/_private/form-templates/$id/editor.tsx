@@ -4,7 +4,6 @@ import {
   BlockEditorStoreContext,
   useCreateBlockEditorStore,
 } from '@/components/block-editor/store';
-import { PageContent } from '@/components/page-content';
 import { PageHeader } from '@/components/page-header';
 import {
   Breadcrumb,
@@ -66,24 +65,24 @@ function FormTemplateEditorPage() {
           </BreadcrumbList>
         </Breadcrumb>
       </PageHeader>
-      <PageContent>
-        <BlockEditorStoreContext value={store}>
-          <ResizablePanelGroup
-            orientation="horizontal"
-            className="rounded-lg border"
+      <BlockEditorStoreContext value={store}>
+        <ResizablePanelGroup orientation="horizontal">
+          <ResizablePanel
+            defaultSize="30%"
+            minSize={300}
+            maxSize={500}
+            className="overflow-hidden!"
           >
-            <ResizablePanel defaultSize="30%" minSize={300} maxSize={500}>
-              <BlockEditor />
-            </ResizablePanel>
-            <ResizableHandle withHandle />
-            <ResizablePanel defaultSize="70%" minSize={300}>
-              <div className="flex h-full items-center justify-center p-6">
-                <span className="font-semibold">Preview</span>
-              </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
-        </BlockEditorStoreContext>
-      </PageContent>
+            <BlockEditor />
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel defaultSize="70%" minSize={300}>
+            <div className="flex h-full items-center justify-center p-6">
+              <span className="font-semibold">Preview</span>
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </BlockEditorStoreContext>
     </>
   );
 }
