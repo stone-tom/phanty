@@ -13,19 +13,9 @@ export function BlockEditor() {
         </div>
 
         <div className="w-full px-3 pb-3 border-b">
-          <TabsList className="w-full bg-primary/10 border-primary border">
-            <TabsTrigger
-              value="layout"
-              className=" data-active:text-primary data-active:hover:text-primary  data-active:border-primary/60"
-            >
-              Layout
-            </TabsTrigger>
-            <TabsTrigger
-              value="content"
-              className=" data-active:text-primary data-active:hover:text-primary  data-active:border-primary/60"
-            >
-              Content
-            </TabsTrigger>
+          <TabsList className="w-full">
+            <TabsTrigger value="layout">Layout</TabsTrigger>
+            <TabsTrigger value="content">Content</TabsTrigger>
           </TabsList>
         </div>
 
