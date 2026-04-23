@@ -13,16 +13,16 @@ export function BlockEditor() {
         </div>
 
         <div className="w-full px-3 pb-3 border-b">
-          <TabsList className="w-full bg-primary/10">
+          <TabsList className="w-full bg-primary/10 border-primary border">
             <TabsTrigger
               value="layout"
-              className="text-primary/80 hover:text-primary data-active:text-foreground/80 data-active:hover:text-foreground"
+              className=" data-active:text-primary data-active:hover:text-primary  data-active:border-primary/60"
             >
               Layout
             </TabsTrigger>
             <TabsTrigger
               value="content"
-              className="text-primary/80 hover:text-primary data-active:text-foreground/80 data-active:hover:text-foreground"
+              className=" data-active:text-primary data-active:hover:text-primary  data-active:border-primary/60"
             >
               Content
             </TabsTrigger>
