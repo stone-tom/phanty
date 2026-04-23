@@ -3,7 +3,7 @@ import { Feedback } from '@dnd-kit/dom';
 import { move } from '@dnd-kit/helpers';
 import { DragDropProvider, useDroppable } from '@dnd-kit/react';
 import { useSortable } from '@dnd-kit/react/sortable';
-import { GripVertical } from 'lucide-react';
+import { GripVertical, Plus } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import {
@@ -12,7 +12,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '../ui/accordion';
-import { buttonVariants } from '../ui/button';
+import { Button, buttonVariants } from '../ui/button';
 import { Separator } from '../ui/separator';
 import { useBlockEditorActions, useBlockEditorBlock } from './hooks';
 import { useBlockEditorStore } from './store';
@@ -96,6 +96,17 @@ export function ContentBlockList() {
                 onClick={() => selectBlock(leafId)}
               />
             ))}
+            {leafIds.length === 0 && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="m-2 border-dashed border-primary/60"
+              >
+                <Plus />
+                Add Block
+              </Button>
+            )}
           </ParentItem>
         ))}
       </Accordion>
