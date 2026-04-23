@@ -12,9 +12,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '../ui/accordion';
-import { Button } from '../ui/button';
+import { buttonVariants } from '../ui/button';
 import { Separator } from '../ui/separator';
-import { useBlockEditorBlock } from './hooks';
+import { useBlockEditorActions, useBlockEditorBlock } from './hooks';
 import { useBlockEditorStore } from './store';
 import type { AnyBlock, BlockEditorDocument } from './types';
 
@@ -26,6 +26,7 @@ const OPEN_ON_DROP_TARGET_DELAY_MS = 600;
 
 export function ContentBlockList() {
   const store = useBlockEditorStore();
+  const { selectBlock } = useBlockEditorActions();
   const [groupedBlockIds, setGroupedBlockIds] = useState<GroupedBlockIds>(() =>
     groupBlockIds(store.getState().document.blocks),
   );
@@ -46,6 +47,8 @@ export function ContentBlockList() {
         prevGroupedBlockIds.current = structuredClone(groupedBlockIds);
       }}
       onDragOver={(event) => {
+        // TODO: port this logic (we already have the data object that can be
+        // used to get the ids we search for).
         const sourceId = event.operation.source?.id;
         const targetId = event.operation.target?.id;
 
@@ -90,6 +93,7 @@ export function ContentBlockList() {
                 id={leafId}
                 index={index}
                 parentId={parentId}
+                onClick={() => selectBlock(leafId)}
               />
             ))}
           </ParentItem>
@@ -102,17 +106,16 @@ export function ContentBlockList() {
 interface ParentItemProps {
   id: AnyBlock['id'];
   children: React.ReactNode;
-  onAction?: (id: AnyBlock['id']) => void;
   onDropTarget: (id: AnyBlock['id']) => void;
 }
 
 function ParentItem(props: ParentItemProps) {
-  const { id, children, onAction, onDropTarget } = props;
-  const openTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { id, children, onDropTarget } = props;
   const block = useBlockEditorBlock({
     id,
   });
 
+  const openTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { ref, isDropTarget } = useDroppable({
     id,
     type: 'parent',
@@ -147,25 +150,16 @@ function ParentItem(props: ParentItemProps) {
       value={id}
       className="group overflow-hidden rounded-lg border border-primary bg-background"
     >
-      <div
+      <AccordionTrigger
         className={cn(
-          'flex items-center justify-between p-2',
-          'text-primary bg-primary/10 hover:bg-primary/13',
+          'flex items-center justify-between p-2 rounded-none ',
+          'text-primary bg-primary/10 ',
+          'hover:bg-primary/13 hover:no-underline',
           isDropTarget && 'group-data-[state="closed"]:bg-primary/25',
         )}
       >
-        <Button
-          type="button"
-          variant="ghost"
-          className="h-auto min-w-0 flex-1 justify-start rounded-sm px-3 py-1 text-primary hover:bg-transparent hover:text-primary"
-          onClick={() => {
-            onAction?.(id);
-          }}
-        >
-          <span className="truncate capitalize font-medium">{block.type}</span>
-        </Button>
-        <AccordionTrigger className="hover:bg-primary/10 hover:no-underline size-7 p-0 flex items-center justify-center [&_svg]:ml-0!" />
-      </div>
+        <span className="capitalize font-medium">{block.type}</span>
+      </AccordionTrigger>
       <AccordionContent className="pb-0">
         <Separator className="bg-primary" />
         <div className="flex min-h-10 flex-col">{children}</div>
@@ -178,10 +172,11 @@ interface LeafItemProps {
   id: AnyBlock['id'];
   index: number;
   parentId: AnyBlock['id'];
+  onClick?: () => void;
 }
 
 function LeafItem(props: LeafItemProps) {
-  const { id, index, parentId } = props;
+  const { id, index, parentId, onClick } = props;
 
   const { ref, handleRef, isDragging } = useSortable({
     id,
@@ -193,9 +188,11 @@ function LeafItem(props: LeafItemProps) {
   });
 
   return (
-    <div
+    <button
+      type="button"
       ref={ref}
       data-dragging={isDragging}
+      onClick={onClick}
       className={cn(
         'flex gap-1 items-center bg-background ',
         'py-3 px-1.5',
@@ -206,18 +203,19 @@ function LeafItem(props: LeafItemProps) {
           'border data-[dnd-placeholder=clone]:border-x-0 data-[dnd-placeholder=clone]:border-t-0',
       )}
     >
-      <Button
+      <span
         ref={handleRef}
-        variant="ghost"
-        size="icon-sm"
-        className="cursor-move"
+        className={cn(
+          'cursor-move',
+          buttonVariants({ variant: 'ghost', size: 'icon-sm' }),
+        )}
       >
         <GripVertical />
-      </Button>
+      </span>
       <div>
         {props.id} (index: {props.index})
       </div>
-    </div>
+    </button>
   );
 }
 
