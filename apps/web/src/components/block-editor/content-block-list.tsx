@@ -22,7 +22,7 @@ type GroupedBlockIds = {
   [parentId: string]: AnyBlock['id'][];
 };
 
-const OPEN_ON_DROP_TARGET_DELAY_MS = 600;
+const OPEN_ON_DROP_TARGET_DELAY_MS = 500;
 
 export function ContentBlockList() {
   const store = useBlockEditorStore();
