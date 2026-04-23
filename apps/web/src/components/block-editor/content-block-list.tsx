@@ -3,7 +3,7 @@ import { Feedback } from '@dnd-kit/dom';
 import { move } from '@dnd-kit/helpers';
 import { DragDropProvider, useDroppable } from '@dnd-kit/react';
 import { useSortable } from '@dnd-kit/react/sortable';
-import { GripVertical } from 'lucide-react';
+import { ChevronDown, GripVertical } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import {
@@ -102,11 +102,12 @@ export function ContentBlockList() {
 interface ParentItemProps {
   id: AnyBlock['id'];
   children: React.ReactNode;
+  onAction?: (id: AnyBlock['id']) => void;
   onDropTarget: (id: AnyBlock['id']) => void;
 }
 
 function ParentItem(props: ParentItemProps) {
-  const { id, children, onDropTarget } = props;
+  const { id, children, onAction, onDropTarget } = props;
   const openTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const block = useBlockEditorBlock({
     id,
@@ -144,18 +145,27 @@ function ParentItem(props: ParentItemProps) {
     <AccordionItem
       ref={ref}
       value={id}
-      className="overflow-hidden rounded-lg border border-primary bg-background"
+      className="group overflow-hidden rounded-lg border border-primary bg-background"
     >
-      <AccordionTrigger
+      <div
         className={cn(
-          'px-3 py-1 hover:no-underline',
+          'flex items-center justify-between p-2',
           'text-primary bg-primary/10 hover:bg-primary/13',
-          'rounded-none',
-          isDropTarget && 'bg-primary/25',
+          isDropTarget && 'group-data-[state="closed"]:bg-primary/25',
         )}
       >
-        <span className="capitalize font-medium">{block.type}</span>
-      </AccordionTrigger>
+        <Button
+          type="button"
+          variant="ghost"
+          className="h-auto min-w-0 flex-1 justify-start rounded-sm px-3 py-1 text-primary hover:bg-transparent hover:text-primary"
+          onClick={() => {
+            onAction?.(id);
+          }}
+        >
+          <span className="truncate capitalize font-medium">{block.type}</span>
+        </Button>
+        <AccordionTrigger className="hover:bg-primary/10 hover:no-underline size-7 p-0 flex items-center justify-center [&_svg]:ml-0!" />
+      </div>
       <AccordionContent className="pb-0">
         <Separator className="bg-primary" />
         <div className="flex min-h-10 flex-col">{children}</div>
