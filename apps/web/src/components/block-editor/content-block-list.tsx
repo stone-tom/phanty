@@ -47,8 +47,6 @@ export function ContentBlockList() {
         prevGroupedBlockIds.current = structuredClone(groupedBlockIds);
       }}
       onDragOver={(event) => {
-        // TODO: port this logic (we already have the data object that can be
-        // used to get the ids we search for).
         const sourceId = event.operation.source?.id;
         const targetId = event.operation.target?.id;
 
