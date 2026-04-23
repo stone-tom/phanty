@@ -3,9 +3,15 @@ import { Feedback } from '@dnd-kit/dom';
 import { move } from '@dnd-kit/helpers';
 import { DragDropProvider, useDroppable } from '@dnd-kit/react';
 import { useSortable } from '@dnd-kit/react/sortable';
-import { ChevronDown, GripVertical } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { GripVertical } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '../ui/accordion';
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
 import { useBlockEditorBlock } from './hooks';
@@ -16,12 +22,23 @@ type GroupedBlockIds = {
   [parentId: string]: AnyBlock['id'][];
 };
 
+const OPEN_ON_DROP_TARGET_DELAY_MS = 600;
+
 export function ContentBlockList() {
   const store = useBlockEditorStore();
   const [groupedBlockIds, setGroupedBlockIds] = useState<GroupedBlockIds>(() =>
     groupBlockIds(store.getState().document.blocks),
   );
+  const [openParentIds, setOpenParentIds] = useState<AnyBlock['id'][]>(() =>
+    Object.keys(groupedBlockIds),
+  );
   const prevGroupedBlockIds = useRef(groupedBlockIds);
+
+  const openParent = useCallback((parentId: AnyBlock['id']) => {
+    setOpenParentIds((prev) =>
+      prev.includes(parentId) ? prev : [...prev, parentId],
+    );
+  }, []);
 
   return (
     <DragDropProvider
@@ -29,6 +46,27 @@ export function ContentBlockList() {
         prevGroupedBlockIds.current = structuredClone(groupedBlockIds);
       }}
       onDragOver={(event) => {
+        const sourceId = event.operation.source?.id;
+        const targetId = event.operation.target?.id;
+
+        if (!sourceId || !targetId) {
+          event.preventDefault();
+          return;
+        }
+
+        const sourceParentId = findParentId(groupedBlockIds, sourceId);
+        const targetParentId = findParentId(groupedBlockIds, targetId);
+
+        if (
+          sourceParentId &&
+          targetParentId &&
+          sourceParentId !== targetParentId &&
+          !openParentIds.includes(targetParentId)
+        ) {
+          event.preventDefault();
+          return;
+        }
+
         setGroupedBlockIds((prev) => move(prev, event));
       }}
       onDragEnd={(event) => {
@@ -38,9 +76,14 @@ export function ContentBlockList() {
         }
       }}
     >
-      <div className="flex flex-col gap-2">
+      <Accordion
+        type="multiple"
+        value={openParentIds}
+        onValueChange={setOpenParentIds}
+        className="gap-2"
+      >
         {Object.entries(groupedBlockIds).map(([parentId, leafIds]) => (
-          <ParentItem key={parentId} id={parentId}>
+          <ParentItem key={parentId} id={parentId} onDropTarget={openParent}>
             {leafIds.map((leafId, index) => (
               <LeafItem
                 key={leafId}
@@ -51,7 +94,7 @@ export function ContentBlockList() {
             ))}
           </ParentItem>
         ))}
-      </div>
+      </Accordion>
     </DragDropProvider>
   );
 }
@@ -59,42 +102,65 @@ export function ContentBlockList() {
 interface ParentItemProps {
   id: AnyBlock['id'];
   children: React.ReactNode;
+  onDropTarget: (id: AnyBlock['id']) => void;
 }
 
 function ParentItem(props: ParentItemProps) {
-  const { id, children } = props;
+  const { id, children, onDropTarget } = props;
+  const openTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const block = useBlockEditorBlock({
     id,
   });
 
-  const { ref } = useDroppable({
+  const { ref, isDropTarget } = useDroppable({
     id,
     type: 'parent',
     accept: 'leaf',
     collisionPriority: CollisionPriority.Low,
   });
 
+  useEffect(() => {
+    if (openTimeoutRef.current) {
+      clearTimeout(openTimeoutRef.current);
+      openTimeoutRef.current = null;
+    }
+
+    if (isDropTarget) {
+      openTimeoutRef.current = setTimeout(() => {
+        onDropTarget(id);
+        openTimeoutRef.current = null;
+      }, OPEN_ON_DROP_TARGET_DELAY_MS);
+    }
+
+    return () => {
+      if (openTimeoutRef.current) {
+        clearTimeout(openTimeoutRef.current);
+        openTimeoutRef.current = null;
+      }
+    };
+  }, [id, isDropTarget, onDropTarget]);
+
   return (
-    <div ref={ref} className="border border-primary overflow-hidden rounded-lg">
-      <div
+    <AccordionItem
+      ref={ref}
+      value={id}
+      className="overflow-hidden rounded-lg border border-primary bg-background"
+    >
+      <AccordionTrigger
         className={cn(
-          'py-1 pl-3 pr-2 flex justify-between items-center',
+          'px-3 py-1 hover:no-underline',
           'text-primary bg-primary/10 hover:bg-primary/13',
+          'rounded-none',
+          isDropTarget && 'bg-primary/25',
         )}
       >
         <span className="capitalize font-medium">{block.type}</span>
-        <Button
-          type="button"
-          size="icon-sm"
-          variant="ghost"
-          className="hover:bg-primary/10 hover:text-primary data-[state=open]:bg-primary/10"
-        >
-          <ChevronDown />
-        </Button>
-      </div>
-      <Separator className="bg-primary" />
-      <div className="flex flex-col min-h-10">{children}</div>
-    </div>
+      </AccordionTrigger>
+      <AccordionContent className="pb-0">
+        <Separator className="bg-primary" />
+        <div className="flex min-h-10 flex-col">{children}</div>
+      </AccordionContent>
+    </AccordionItem>
   );
 }
 
@@ -172,6 +238,20 @@ function groupBlockIds(blocks: BlockEditorDocument['blocks']): GroupedBlockIds {
   }
 
   return groupedBlockIds;
+}
+
+function findParentId(groupedBlockIds: GroupedBlockIds, blockId: unknown) {
+  if (typeof blockId !== 'string') {
+    return undefined;
+  }
+
+  if (blockId in groupedBlockIds) {
+    return blockId;
+  }
+
+  return Object.entries(groupedBlockIds).find(([, blockIds]) =>
+    blockIds.includes(blockId),
+  )?.[0];
 }
 
 function compareBlocks(a: AnyBlock, b: AnyBlock) {

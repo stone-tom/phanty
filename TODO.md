@@ -14,6 +14,16 @@
 - Dialog medias (icons in dialogs)
 
 ## block editor
+### next up
+- accordion
+- layout-block-list
+- editblock overlay
+- base actions in store
+- add seperator content-block-list
+- first block form (text)
+- first block renderer (container + text)
+
+### later
 - prefill with data from the system (placeholder)
 - reuse layout components with inner content (e.g. base data selction can be pasted into another one)
 - conditions for every block (usage should be very simple)
