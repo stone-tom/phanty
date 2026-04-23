@@ -1,4 +1,3 @@
-import { cn } from '@/lib/utils';
 import { CollisionPriority } from '@dnd-kit/abstract';
 import { Feedback } from '@dnd-kit/dom';
 import { move } from '@dnd-kit/helpers';
@@ -6,6 +5,7 @@ import { DragDropProvider, useDroppable } from '@dnd-kit/react';
 import { useSortable } from '@dnd-kit/react/sortable';
 import { ChevronDown, GripVertical } from 'lucide-react';
 import { useRef, useState } from 'react';
+import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
 import { useBlockEditorBlock } from './hooks';
@@ -127,7 +127,7 @@ function LeafItem(props: LeafItemProps) {
         'data-[dnd-placeholder=clone]:opacity-50',
         'hover:bg-muted/50',
         isDragging &&
-        'border data-[dnd-placeholder=clone]:border-x-0 data-[dnd-placeholder=clone]:border-t-0',
+          'border data-[dnd-placeholder=clone]:border-x-0 data-[dnd-placeholder=clone]:border-t-0',
       )}
     >
       <Button
