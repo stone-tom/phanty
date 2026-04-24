@@ -1,15 +1,28 @@
 import { createContext, useContext, useState } from 'react';
 import type { PartialDeep, SimplifyDeep } from 'type-fest';
 import { createStore, type StateCreator, type StoreApi } from 'zustand/vanilla';
+import {
+  buildChildBlockOrder,
+  buildRootBlockOrder,
+  type GroupedChildBlockIds,
+} from './ordering';
 import type { AnyBlock, BlockEditorDocument, BlockType } from './types';
 
 type GetBlock<TType extends BlockType> = Extract<AnyBlock, { type: TType }>;
 
-type StructuralBlockKey = 'id' | 'type' | 'category' | 'parentId';
+type StructuralBlockKey =
+  | 'id'
+  | 'type'
+  | 'category'
+  | 'parentId'
+  | 'sortIndex';
 
 type GetBlockChanges<TType extends BlockType> = SimplifyDeep<
   PartialDeep<Omit<GetBlock<TType>, StructuralBlockKey>>
 >;
+
+export type BlockEditorSaveState = 'idle' | 'saving' | 'error';
+export type BlockEditorHydrationState = 'idle' | 'hydrating' | 'hydrated';
 
 export type AssertedBlock<TParams> = TParams extends {
   assertType: infer TType extends BlockType;
@@ -19,21 +32,30 @@ export type AssertedBlock<TParams> = TParams extends {
 
 export interface BlockEditorStoreState {
   document: BlockEditorDocument;
-  selectedBlock: AnyBlock['id'] | null;
+  lastSavedDocument: BlockEditorDocument;
+  selectedBlockId: AnyBlock['id'] | null;
+  dirty: boolean;
+  saveState: BlockEditorSaveState;
+  saveError: string | null;
+  hydrationState: BlockEditorHydrationState;
 
   actions: {
-    addBlock: (input: {
-      block: AnyBlock;
-      parentId: string | null;
-      sortIndex: number;
-      select?: boolean;
-    }) => void;
-    deleteBlock: (id: string) => void;
+    reorderRootBlocks: (rootIds: AnyBlock['id'][]) => void;
+    reorderChildBlocks: (
+      groupedChildIdsByParent: GroupedChildBlockIds,
+    ) => void;
     updateBlock: <TType extends BlockType>(
       id: string,
       changes: GetBlockChanges<TType>,
     ) => void;
     selectBlock: (blockId: string | null) => void;
+    replaceDocument: (document: BlockEditorDocument) => void;
+    markSaved: (nextDocument?: BlockEditorDocument) => void;
+    resetToLastSaved: () => void;
+    setSaveState: (
+      saveState: BlockEditorSaveState,
+      saveError?: string | null,
+    ) => void;
   };
 }
 
@@ -41,36 +63,211 @@ type StateInitializer = (
   initialDocument: BlockEditorDocument,
 ) => StateCreator<BlockEditorStoreState>;
 
+function cloneDocument(document: BlockEditorDocument): BlockEditorDocument {
+  return structuredClone(document);
+}
+
+function getValidSelectedBlockId(
+  selectedBlockId: AnyBlock['id'] | null,
+  document: BlockEditorDocument,
+) {
+  if (!selectedBlockId) {
+    return null;
+  }
+
+  return document.blocks[selectedBlockId] ? selectedBlockId : null;
+}
+
 const createBlockEditorState: StateInitializer =
   (initialDocument) => (set) => ({
-    document: initialDocument,
-    selectedBlock: null,
+    document: cloneDocument(initialDocument),
+    lastSavedDocument: cloneDocument(initialDocument),
+    selectedBlockId: null,
+    dirty: false,
+    saveState: 'idle',
+    saveError: null,
+    hydrationState: 'idle',
 
     actions: {
-      addBlock: (input) => {
-        console.log('add block params', { input });
+      reorderRootBlocks: (rootIds) => {
         set((state) => {
-          return state;
+          const nextBlocks = { ...state.document.blocks };
+          let hasStructuralChanges = false;
+
+          for (const change of buildRootBlockOrder(rootIds)) {
+            const currentBlock = nextBlocks[change.id];
+
+            if (!currentBlock || currentBlock.parentId !== null) {
+              continue;
+            }
+
+            if (currentBlock.sortIndex === change.sortIndex) {
+              continue;
+            }
+
+            nextBlocks[change.id] = {
+              ...currentBlock,
+              sortIndex: change.sortIndex,
+            };
+            hasStructuralChanges = true;
+          }
+
+          if (!hasStructuralChanges) {
+            return state;
+          }
+
+          return {
+            ...state,
+            document: {
+              ...state.document,
+              blocks: nextBlocks,
+            },
+            dirty: true,
+            saveError: null,
+          };
         });
       },
 
-      deleteBlock: (id) => {
-        console.log('delete block params', { id });
+      reorderChildBlocks: (groupedChildIdsByParent) => {
         set((state) => {
-          return state;
+          const nextBlocks = { ...state.document.blocks };
+          let hasStructuralChanges = false;
+
+          for (const change of buildChildBlockOrder(groupedChildIdsByParent)) {
+            const currentBlock = nextBlocks[change.id];
+
+            if (!currentBlock || currentBlock.parentId === null) {
+              continue;
+            }
+
+            if (
+              currentBlock.parentId === change.parentId &&
+              currentBlock.sortIndex === change.sortIndex
+            ) {
+              continue;
+            }
+
+            nextBlocks[change.id] = {
+              ...currentBlock,
+              parentId: change.parentId ?? currentBlock.parentId,
+              sortIndex: change.sortIndex,
+            };
+            hasStructuralChanges = true;
+          }
+
+          if (!hasStructuralChanges) {
+            return state;
+          }
+
+          return {
+            ...state,
+            document: {
+              ...state.document,
+              blocks: nextBlocks,
+            },
+            dirty: true,
+            saveError: null,
+          };
         });
       },
 
       updateBlock: (id, changes) => {
-        console.log('update block params', { id, changes });
-
         set((state) => {
-          return state;
+          const currentBlock = state.document.blocks[id];
+
+          if (!currentBlock) {
+            return state;
+          }
+
+          const {
+            id: _id,
+            type: _type,
+            category: _category,
+            parentId: _parentId,
+            sortIndex: _sortIndex,
+            ...safeChanges
+          } = changes as GetBlockChanges<BlockType> &
+            Partial<Record<StructuralBlockKey, unknown>>;
+
+          return {
+            ...state,
+            document: {
+              ...state.document,
+              blocks: {
+                ...state.document.blocks,
+                [id]: {
+                  ...currentBlock,
+                  ...safeChanges,
+                },
+              },
+            },
+            dirty: true,
+            saveError: null,
+          };
         });
       },
 
       selectBlock: (blockId) => {
-        set({ selectedBlock: blockId });
+        set({ selectedBlockId: blockId });
+      },
+
+      replaceDocument: (document) => {
+        set((state) => ({
+          ...state,
+          document: cloneDocument(document),
+          selectedBlockId: getValidSelectedBlockId(
+            state.selectedBlockId,
+            document,
+          ),
+          dirty: false,
+          saveError: null,
+        }));
+      },
+
+      markSaved: (nextDocument) => {
+        set((state) => {
+          const document = nextDocument
+            ? cloneDocument(nextDocument)
+            : cloneDocument(state.document);
+
+          return {
+            ...state,
+            document,
+            lastSavedDocument: cloneDocument(document),
+            selectedBlockId: getValidSelectedBlockId(
+              state.selectedBlockId,
+              document,
+            ),
+            dirty: false,
+            saveState: 'idle',
+            saveError: null,
+          };
+        });
+      },
+
+      resetToLastSaved: () => {
+        set((state) => {
+          const document = cloneDocument(state.lastSavedDocument);
+
+          return {
+            ...state,
+            document,
+            selectedBlockId: getValidSelectedBlockId(
+              state.selectedBlockId,
+              document,
+            ),
+            dirty: false,
+            saveError: null,
+          };
+        });
+      },
+
+      setSaveState: (saveState, saveError = null) => {
+        set((state) => ({
+          ...state,
+          saveState,
+          saveError,
+        }));
       },
     },
   });

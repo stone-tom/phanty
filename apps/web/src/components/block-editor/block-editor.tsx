@@ -4,9 +4,10 @@ import { ScrollArea } from '../ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { ContentBlockList } from './content-block-list';
 import { useBlockEditorActions, useBlockEditorState } from './hooks';
+import { LayoutBlockList } from './layout-block-list';
 
 export function BlockEditor() {
-  const selectedBlock = useBlockEditorState((state) => state.selectedBlock);
+  const selectedBlockId = useBlockEditorState((state) => state.selectedBlockId);
   const { selectBlock } = useBlockEditorActions();
 
   return (
@@ -16,7 +17,7 @@ export function BlockEditor() {
         <Button type="button">Save</Button>
       </div>
 
-      {selectedBlock ? (
+      {selectedBlockId ? (
         <div className="px-3 pb-3 border-b">
           <Button
             type="button"
@@ -40,7 +41,7 @@ export function BlockEditor() {
           <div className="w-full min-h-0 flex-1 flex flex-col pr-0.5">
             <ScrollArea className="w-full min-h-0 flex-1 pl-3 pr-2.5">
               <TabsContent value="layout" className="py-3">
-                Layout TBA
+                <LayoutBlockList />
               </TabsContent>
               <TabsContent value="content" className="py-3">
                 <ContentBlockList />

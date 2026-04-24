@@ -4,8 +4,8 @@ import type {
   ParentBlock,
 } from '@/components/block-editor/types';
 
-const CONTAINER_COUNT = 5;
-const FIELDS_PER_CONTAINER = 5;
+const CONTAINER_COUNT = 10;
+const FIELDS_PER_CONTAINER = 10;
 
 const containers = Array.from(
   { length: CONTAINER_COUNT },

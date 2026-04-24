@@ -14,26 +14,28 @@ import {
 } from '../ui/accordion';
 import { Button, buttonVariants } from '../ui/button';
 import { Separator } from '../ui/separator';
-import { useBlockEditorActions, useBlockEditorBlock } from './hooks';
-import { useBlockEditorStore } from './store';
-import type { AnyBlock, BlockEditorDocument } from './types';
-
-type GroupedBlockIds = {
-  [parentId: string]: AnyBlock['id'][];
-};
+import {
+  useBlockEditorActions,
+  useBlockEditorBlock,
+  useBlockEditorState,
+} from './hooks';
+import { type GroupedChildBlockIds, groupChildBlockIds } from './ordering';
+import type { AnyBlock } from './types';
 
 const OPEN_ON_DROP_TARGET_DELAY_MS = 500;
 
 export function ContentBlockList() {
-  const store = useBlockEditorStore();
-  const { selectBlock } = useBlockEditorActions();
-  const [groupedBlockIds, setGroupedBlockIds] = useState<GroupedBlockIds>(() =>
-    groupBlockIds(store.getState().document.blocks),
-  );
+  const documentBlocks = useBlockEditorState((state) => state.document.blocks);
+  const { reorderChildBlocks, selectBlock } = useBlockEditorActions();
+
+  const [groupedChildBlockIds, setGroupedChildBlockIds] =
+    useState<GroupedChildBlockIds>(() => groupChildBlockIds(documentBlocks));
+  const prevGroupedChildBlockIds = useRef(groupedChildBlockIds);
+  const isDraggingRef = useRef(false);
+
   const [openParentIds, setOpenParentIds] = useState<AnyBlock['id'][]>(() =>
-    Object.keys(groupedBlockIds),
+    Object.keys(groupedChildBlockIds),
   );
-  const prevGroupedBlockIds = useRef(groupedBlockIds);
 
   const openParent = useCallback((parentId: AnyBlock['id']) => {
     setOpenParentIds((prev) =>
@@ -41,10 +43,21 @@ export function ContentBlockList() {
     );
   }, []);
 
+  // Keep groupedChildBlockIds in sync with store
+  useEffect(() => {
+    if (isDraggingRef.current) {
+      return;
+    }
+
+    setGroupedChildBlockIds(groupChildBlockIds(documentBlocks));
+  }, [documentBlocks]);
+
   return (
     <DragDropProvider
       onDragStart={() => {
-        prevGroupedBlockIds.current = structuredClone(groupedBlockIds);
+        isDraggingRef.current = true;
+        prevGroupedChildBlockIds.current =
+          structuredClone(groupedChildBlockIds);
       }}
       onDragOver={(event) => {
         const sourceId = event.operation.source?.id;
@@ -55,8 +68,8 @@ export function ContentBlockList() {
           return;
         }
 
-        const sourceParentId = findParentId(groupedBlockIds, sourceId);
-        const targetParentId = findParentId(groupedBlockIds, targetId);
+        const sourceParentId = findParentId(groupedChildBlockIds, sourceId);
+        const targetParentId = findParentId(groupedChildBlockIds, targetId);
 
         if (
           sourceParentId &&
@@ -68,13 +81,17 @@ export function ContentBlockList() {
           return;
         }
 
-        setGroupedBlockIds((prev) => move(prev, event));
+        setGroupedChildBlockIds((prev) => move(prev, event));
       }}
       onDragEnd={(event) => {
+        isDraggingRef.current = false;
+
         if (event.canceled) {
-          setGroupedBlockIds(prevGroupedBlockIds.current);
+          setGroupedChildBlockIds(prevGroupedChildBlockIds.current);
           return;
         }
+
+        reorderChildBlocks(groupedChildBlockIds);
       }}
     >
       <Accordion
@@ -83,7 +100,7 @@ export function ContentBlockList() {
         onValueChange={setOpenParentIds}
         className="gap-2"
       >
-        {Object.entries(groupedBlockIds).map(([parentId, leafIds]) => (
+        {Object.entries(groupedChildBlockIds).map(([parentId, leafIds]) => (
           <ParentItem key={parentId} id={parentId} onDropTarget={openParent}>
             {leafIds.map((leafId, index) => (
               <LeafItem
@@ -96,12 +113,7 @@ export function ContentBlockList() {
               />
             ))}
             {leafIds.length === 0 && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="m-2 border-dashed border-primary/60"
-              >
+              <Button type="button" variant="outline" size="sm" className="m-2">
                 <Plus />
                 Add Block
               </Button>
@@ -162,9 +174,10 @@ function ParentItem(props: ParentItemProps) {
     >
       <AccordionTrigger
         className={cn(
-          'rounded-none bg-primary/10 px-2 py-3 text-primary',
+          'rounded-lg bg-primary-soft px-2 py-3 text-primary-soft-foreground',
           'flex items-center justify-between',
           'hover:bg-primary/13 hover:no-underline',
+          'group-data-[state="open"]/parent:rounded-b-none',
           isDropTarget && 'group-data-[state="closed"]/parent:bg-primary/25',
         )}
       >
@@ -296,49 +309,19 @@ function InsertSeparator(props: InsertSeparatorProps) {
   );
 }
 
-function groupBlockIds(blocks: BlockEditorDocument['blocks']): GroupedBlockIds {
-  const groupedBlockIds: GroupedBlockIds = {};
-  const parentBlocks = Object.values(blocks)
-    .filter((block) => block.parentId === null)
-    .toSorted(compareBlocks);
-
-  for (const parentBlock of parentBlocks) {
-    groupedBlockIds[parentBlock.id] = [];
-  }
-
-  for (const block of Object.values(blocks)) {
-    if (block.parentId === null) {
-      continue;
-    }
-
-    const parentKey = block.parentId;
-    groupedBlockIds[parentKey] ??= [];
-    groupedBlockIds[parentKey].push(block.id);
-  }
-
-  for (const [parentKey, blockIds] of Object.entries(groupedBlockIds)) {
-    groupedBlockIds[parentKey] = blockIds.toSorted((a, b) =>
-      compareBlocks(blocks[a], blocks[b]),
-    );
-  }
-
-  return groupedBlockIds;
-}
-
-function findParentId(groupedBlockIds: GroupedBlockIds, blockId: unknown) {
+function findParentId(
+  groupedChildBlockIds: GroupedChildBlockIds,
+  blockId: unknown,
+) {
   if (typeof blockId !== 'string') {
     return undefined;
   }
 
-  if (blockId in groupedBlockIds) {
+  if (blockId in groupedChildBlockIds) {
     return blockId;
   }
 
-  return Object.entries(groupedBlockIds).find(([, blockIds]) =>
+  return Object.entries(groupedChildBlockIds).find(([, blockIds]) =>
     blockIds.includes(blockId),
   )?.[0];
-}
-
-function compareBlocks(a: AnyBlock, b: AnyBlock) {
-  return a.sortIndex - b.sortIndex || a.id.localeCompare(b.id);
 }

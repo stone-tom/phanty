@@ -15,14 +15,11 @@
 
 ## block editor
 ### next up
-- editblock overlay
-- layout-block-list
 - base actions in store
 - connect store actions, store local storage, check performance (stress test)
-- add seperator content-block-list
-- add seperator layout block list
 - first block form (text)
 - first block renderer (container + text)
+- layout-block-list
 
 ### later
 - prefill with data from the system (placeholder)
