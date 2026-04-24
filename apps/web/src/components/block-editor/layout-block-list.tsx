@@ -18,8 +18,8 @@ export function LayoutBlockList() {
   const documentBlocks = useBlockEditorState((state) => state.document.blocks);
   const { reorderRootBlocks, selectBlock } = useBlockEditorActions();
 
-  const [rootIds, setRootIds] = useState<AnyBlock['id'][]>(
-    () => getRootBlocks(documentBlocks).map((block) => block.id),
+  const [rootIds, setRootIds] = useState<AnyBlock['id'][]>(() =>
+    getRootBlocks(documentBlocks).map((block) => block.id),
   );
   const prevRootIds = useRef(rootIds);
   const isDraggingRef = useRef(false);
@@ -120,7 +120,9 @@ function RootItem(props: RootItemProps) {
       >
         <span className="capitalize font-medium">{block.type}</span>
         <br />
-        <span className="text-xs text-primary-soft-foreground/80">{block.id}</span>
+        <span className="text-xs text-primary-soft-foreground/80">
+          {block.id}
+        </span>
       </button>
     </div>
   );

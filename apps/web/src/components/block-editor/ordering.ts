@@ -45,7 +45,9 @@ export function groupChildBlockIds(
   return groupedChildIds;
 }
 
-export function buildRootBlockOrder(rootIds: AnyBlock['id'][]): BlockOrderChange[] {
+export function buildRootBlockOrder(
+  rootIds: AnyBlock['id'][],
+): BlockOrderChange[] {
   return rootIds.map((id, sortIndex) => ({
     id,
     parentId: null,

@@ -10,12 +10,7 @@ import type { AnyBlock, BlockEditorDocument, BlockType } from './types';
 
 type GetBlock<TType extends BlockType> = Extract<AnyBlock, { type: TType }>;
 
-type StructuralBlockKey =
-  | 'id'
-  | 'type'
-  | 'category'
-  | 'parentId'
-  | 'sortIndex';
+type StructuralBlockKey = 'id' | 'type' | 'category' | 'parentId' | 'sortIndex';
 
 type GetBlockChanges<TType extends BlockType> = SimplifyDeep<
   PartialDeep<Omit<GetBlock<TType>, StructuralBlockKey>>
@@ -41,9 +36,7 @@ export interface BlockEditorStoreState {
 
   actions: {
     reorderRootBlocks: (rootIds: AnyBlock['id'][]) => void;
-    reorderChildBlocks: (
-      groupedChildIdsByParent: GroupedChildBlockIds,
-    ) => void;
+    reorderChildBlocks: (groupedChildIdsByParent: GroupedChildBlockIds) => void;
     updateBlock: <TType extends BlockType>(
       id: string,
       changes: GetBlockChanges<TType>,
