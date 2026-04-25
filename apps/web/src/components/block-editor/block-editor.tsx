@@ -1,4 +1,5 @@
 import { ArrowLeft } from 'lucide-react';
+import { parseAsStringLiteral, useQueryState } from 'nuqs';
 import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
@@ -6,9 +7,15 @@ import { ContentBlockList } from './content-block-list';
 import { useBlockEditorActions, useBlockEditorState } from './hooks';
 import { LayoutBlockList } from './layout-block-list';
 
+const editorTabs = ['layout', 'content'] as const;
+
 export function BlockEditor() {
   const selectedBlockId = useBlockEditorState((state) => state.selectedBlockId);
   const { selectBlock } = useBlockEditorActions();
+  const [tab, setTab] = useQueryState(
+    'tab',
+    parseAsStringLiteral(editorTabs).withDefault('content'),
+  );
 
   return (
     <div className="h-full flex flex-col flex-1 min-h-0">
@@ -30,7 +37,13 @@ export function BlockEditor() {
           </Button>
         </div>
       ) : (
-        <Tabs defaultValue="content" className="min-h-0 flex-1 gap-0">
+        <Tabs
+          value={tab}
+          onValueChange={(nextValue) => {
+            void setTab(nextValue as (typeof editorTabs)[number]);
+          }}
+          className="min-h-0 flex-1 gap-0"
+        >
           <div className="w-full px-3 pb-3 border-b">
             <TabsList className="w-full">
               <TabsTrigger value="layout">Layout</TabsTrigger>

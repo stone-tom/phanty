@@ -1,4 +1,5 @@
 import { createRouter, RouterProvider } from '@tanstack/react-router';
+import { NuqsAdapter } from 'nuqs/adapters/tanstack-router';
 import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import '@/index.css';
@@ -18,9 +19,11 @@ if (rootElement) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
-      <ThemeProvider>
-        <RouterProvider router={router} />
-      </ThemeProvider>
+      <NuqsAdapter>
+        <ThemeProvider>
+          <RouterProvider router={router} />
+        </ThemeProvider>
+      </NuqsAdapter>
     </StrictMode>,
   );
 }
