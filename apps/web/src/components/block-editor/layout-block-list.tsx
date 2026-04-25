@@ -3,7 +3,6 @@ import { move } from '@dnd-kit/helpers';
 import { DragDropProvider } from '@dnd-kit/react';
 import { useSortable } from '@dnd-kit/react/sortable';
 import { GripVertical } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '../ui/button';
 import {
@@ -11,33 +10,24 @@ import {
   useBlockEditorBlock,
   useBlockEditorState,
 } from './hooks';
-import { getRootBlocks } from './ordering';
+import { getRootBlockIds } from './ordering';
 import type { AnyBlock } from './types';
+import { useSyncedSortableState } from './use-synced-sortable-state';
 
 export function LayoutBlockList() {
   const documentBlocks = useBlockEditorState((state) => state.document.blocks);
   const { reorderRootBlocks, selectBlock } = useBlockEditorActions();
 
-  const [rootIds, setRootIds] = useState<AnyBlock['id'][]>(() =>
-    getRootBlocks(documentBlocks).map((block) => block.id),
-  );
-  const prevRootIds = useRef(rootIds);
-  const isDraggingRef = useRef(false);
-
-  useEffect(() => {
-    if (isDraggingRef.current) {
-      return;
-    }
-
-    setRootIds(getRootBlocks(documentBlocks).map((block) => block.id));
-  }, [documentBlocks]);
+  const {
+    localState: rootIds,
+    setLocalState: setRootIds,
+    handleDragStart,
+    handleDragEnd,
+  } = useSyncedSortableState(documentBlocks, getRootBlockIds);
 
   return (
     <DragDropProvider
-      onDragStart={() => {
-        isDraggingRef.current = true;
-        prevRootIds.current = structuredClone(rootIds);
-      }}
+      onDragStart={handleDragStart}
       onDragOver={(event) => {
         const sourceId = event.operation.source?.id;
         const targetId = event.operation.target?.id;
@@ -50,10 +40,7 @@ export function LayoutBlockList() {
         setRootIds((prev) => move(prev, event));
       }}
       onDragEnd={(event) => {
-        isDraggingRef.current = false;
-
-        if (event.canceled) {
-          setRootIds(prevRootIds.current);
+        if (!handleDragEnd(event.canceled)) {
           return;
         }
 

@@ -56,6 +56,8 @@ type StateInitializer = (
   initialDocument: BlockEditorDocument,
 ) => StateCreator<BlockEditorStoreState>;
 
+type BlockMap = BlockEditorDocument['blocks'];
+
 function cloneDocument(document: BlockEditorDocument): BlockEditorDocument {
   return structuredClone(document);
 }
@@ -71,6 +73,28 @@ function getValidSelectedBlockId(
   return document.blocks[selectedBlockId] ? selectedBlockId : null;
 }
 
+function updateDocumentBlocks(
+  state: BlockEditorStoreState,
+  recipe: (nextBlocks: BlockMap) => boolean,
+) {
+  const nextBlocks = { ...state.document.blocks };
+  const hasChanges = recipe(nextBlocks);
+
+  if (!hasChanges) {
+    return state;
+  }
+
+  return {
+    ...state,
+    document: {
+      ...state.document,
+      blocks: nextBlocks,
+    },
+    dirty: true,
+    saveError: null,
+  };
+}
+
 const createBlockEditorState: StateInitializer =
   (initialDocument) => (set) => ({
     document: cloneDocument(initialDocument),
@@ -84,94 +108,66 @@ const createBlockEditorState: StateInitializer =
     actions: {
       reorderRootBlocks: (rootIds) => {
         set((state) => {
-          const nextBlocks = { ...state.document.blocks };
-          let hasStructuralChanges = false;
+          return updateDocumentBlocks(state, (nextBlocks) => {
+            let hasStructuralChanges = false;
 
-          for (const change of buildRootBlockOrder(rootIds)) {
-            const currentBlock = nextBlocks[change.id];
+            for (const change of buildRootBlockOrder(rootIds)) {
+              const currentBlock = nextBlocks[change.id];
 
-            if (!currentBlock || currentBlock.parentId !== null) {
-              continue;
+              if (!currentBlock || currentBlock.parentId !== null) {
+                continue;
+              }
+
+              if (currentBlock.sortIndex === change.sortIndex) {
+                continue;
+              }
+
+              nextBlocks[change.id] = {
+                ...currentBlock,
+                sortIndex: change.sortIndex,
+              };
+              hasStructuralChanges = true;
             }
 
-            if (currentBlock.sortIndex === change.sortIndex) {
-              continue;
-            }
-
-            nextBlocks[change.id] = {
-              ...currentBlock,
-              sortIndex: change.sortIndex,
-            };
-            hasStructuralChanges = true;
-          }
-
-          if (!hasStructuralChanges) {
-            return state;
-          }
-
-          return {
-            ...state,
-            document: {
-              ...state.document,
-              blocks: nextBlocks,
-            },
-            dirty: true,
-            saveError: null,
-          };
+            return hasStructuralChanges;
+          });
         });
       },
 
       reorderChildBlocks: (groupedChildIdsByParent) => {
         set((state) => {
-          const nextBlocks = { ...state.document.blocks };
-          let hasStructuralChanges = false;
+          return updateDocumentBlocks(state, (nextBlocks) => {
+            let hasStructuralChanges = false;
 
-          for (const change of buildChildBlockOrder(groupedChildIdsByParent)) {
-            const currentBlock = nextBlocks[change.id];
+            for (const change of buildChildBlockOrder(groupedChildIdsByParent)) {
+              const currentBlock = nextBlocks[change.id];
 
-            if (!currentBlock || currentBlock.parentId === null) {
-              continue;
+              if (!currentBlock || currentBlock.parentId === null) {
+                continue;
+              }
+
+              if (
+                currentBlock.parentId === change.parentId &&
+                currentBlock.sortIndex === change.sortIndex
+              ) {
+                continue;
+              }
+
+              nextBlocks[change.id] = {
+                ...currentBlock,
+                parentId: change.parentId ?? currentBlock.parentId,
+                sortIndex: change.sortIndex,
+              };
+              hasStructuralChanges = true;
             }
 
-            if (
-              currentBlock.parentId === change.parentId &&
-              currentBlock.sortIndex === change.sortIndex
-            ) {
-              continue;
-            }
-
-            nextBlocks[change.id] = {
-              ...currentBlock,
-              parentId: change.parentId ?? currentBlock.parentId,
-              sortIndex: change.sortIndex,
-            };
-            hasStructuralChanges = true;
-          }
-
-          if (!hasStructuralChanges) {
-            return state;
-          }
-
-          return {
-            ...state,
-            document: {
-              ...state.document,
-              blocks: nextBlocks,
-            },
-            dirty: true,
-            saveError: null,
-          };
+            return hasStructuralChanges;
+          });
         });
       },
 
       updateBlock: (id, changes) => {
         set((state) => {
-          const currentBlock = state.document.blocks[id];
-
-          if (!currentBlock) {
-            return state;
-          }
-
           const {
             id: _id,
             type: _type,
@@ -182,21 +178,20 @@ const createBlockEditorState: StateInitializer =
           } = changes as GetBlockChanges<BlockType> &
             Partial<Record<StructuralBlockKey, unknown>>;
 
-          return {
-            ...state,
-            document: {
-              ...state.document,
-              blocks: {
-                ...state.document.blocks,
-                [id]: {
-                  ...currentBlock,
-                  ...safeChanges,
-                },
-              },
-            },
-            dirty: true,
-            saveError: null,
-          };
+          return updateDocumentBlocks(state, (nextBlocks) => {
+            const currentBlock = nextBlocks[id];
+
+            if (!currentBlock) {
+              return false;
+            }
+
+            nextBlocks[id] = {
+              ...currentBlock,
+              ...safeChanges,
+            };
+
+            return true;
+          });
         });
       },
 

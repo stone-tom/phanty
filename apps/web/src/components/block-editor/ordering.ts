@@ -18,6 +18,10 @@ export function getRootBlocks(blocks: BlockEditorDocument['blocks']) {
     .toSorted(compareBlocks);
 }
 
+export function getRootBlockIds(blocks: BlockEditorDocument['blocks']) {
+  return getRootBlocks(blocks).map((block) => block.id);
+}
+
 export function getChildBlocks(
   blocks: BlockEditorDocument['blocks'],
   parentId: AnyBlock['id'],

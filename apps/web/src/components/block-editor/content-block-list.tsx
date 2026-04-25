@@ -21,17 +21,19 @@ import {
 } from './hooks';
 import { type GroupedChildBlockIds, groupChildBlockIds } from './ordering';
 import type { AnyBlock } from './types';
+import { useSyncedSortableState } from './use-synced-sortable-state';
 
 const OPEN_ON_DROP_TARGET_DELAY_MS = 500;
 
 export function ContentBlockList() {
   const documentBlocks = useBlockEditorState((state) => state.document.blocks);
   const { reorderChildBlocks, selectBlock } = useBlockEditorActions();
-
-  const [groupedChildBlockIds, setGroupedChildBlockIds] =
-    useState<GroupedChildBlockIds>(() => groupChildBlockIds(documentBlocks));
-  const prevGroupedChildBlockIds = useRef(groupedChildBlockIds);
-  const isDraggingRef = useRef(false);
+  const {
+    localState: groupedChildBlockIds,
+    setLocalState: setGroupedChildBlockIds,
+    handleDragStart,
+    handleDragEnd,
+  } = useSyncedSortableState(documentBlocks, groupChildBlockIds);
 
   const [openParentIds, setOpenParentIds] = useState<AnyBlock['id'][]>(() =>
     Object.keys(groupedChildBlockIds),
@@ -43,22 +45,9 @@ export function ContentBlockList() {
     );
   }, []);
 
-  // Keep groupedChildBlockIds in sync with store
-  useEffect(() => {
-    if (isDraggingRef.current) {
-      return;
-    }
-
-    setGroupedChildBlockIds(groupChildBlockIds(documentBlocks));
-  }, [documentBlocks]);
-
   return (
     <DragDropProvider
-      onDragStart={() => {
-        isDraggingRef.current = true;
-        prevGroupedChildBlockIds.current =
-          structuredClone(groupedChildBlockIds);
-      }}
+      onDragStart={handleDragStart}
       onDragOver={(event) => {
         const sourceId = event.operation.source?.id;
         const targetId = event.operation.target?.id;
@@ -84,10 +73,7 @@ export function ContentBlockList() {
         setGroupedChildBlockIds((prev) => move(prev, event));
       }}
       onDragEnd={(event) => {
-        isDraggingRef.current = false;
-
-        if (event.canceled) {
-          setGroupedChildBlockIds(prevGroupedChildBlockIds.current);
+        if (!handleDragEnd(event.canceled)) {
           return;
         }
 
