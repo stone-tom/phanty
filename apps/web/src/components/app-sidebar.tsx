@@ -1,4 +1,4 @@
-import { Link, useMatchRoute } from '@tanstack/react-router';
+import { Link } from '@tanstack/react-router';
 import { GalleryVerticalEnd } from 'lucide-react';
 import {
   Sidebar,
@@ -45,8 +45,6 @@ const navItems = [
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const matchRoute = useMatchRoute();
-
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -74,17 +72,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <SidebarMenu className="gap-1">
                 {item.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={Boolean(
-                        matchRoute({
-                          to: item.url,
-                          fuzzy: item.activeOptions.fuzzy,
-                        }),
-                      )}
+                    <Link
+                      to={item.url}
+                      activeOptions={{
+                        exact: !item.activeOptions.fuzzy,
+                        includeSearch: false,
+                      }}
                     >
-                      <Link to={item.url}>{item.title}</Link>
-                    </SidebarMenuButton>
+                      {({ isActive }) => (
+                        <SidebarMenuButton asChild isActive={isActive}>
+                          <span>{item.title}</span>
+                        </SidebarMenuButton>
+                      )}
+                    </Link>
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>
