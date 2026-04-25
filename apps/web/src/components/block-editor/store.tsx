@@ -139,7 +139,9 @@ const createBlockEditorState: StateInitializer =
           return updateDocumentBlocks(state, (nextBlocks) => {
             let hasStructuralChanges = false;
 
-            for (const change of buildChildBlockOrder(groupedChildIdsByParent)) {
+            for (const change of buildChildBlockOrder(
+              groupedChildIdsByParent,
+            )) {
               const currentBlock = nextBlocks[change.id];
 
               if (!currentBlock || currentBlock.parentId === null) {
