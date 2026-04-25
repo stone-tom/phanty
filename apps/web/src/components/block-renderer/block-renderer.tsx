@@ -2,7 +2,7 @@ import { getChildBlocks, getRootBlocks } from '../block-editor/ordering';
 import {
   type AnyBlock,
   type BlockEditorDocument,
-  isLeafBlock,
+  isChildBlock,
 } from '../block-editor/types';
 
 interface BlockRendererProps {
@@ -33,7 +33,7 @@ interface RenderedRootBlockProps {
 
 function RenderedRootBlock(props: RenderedRootBlockProps) {
   const { block, blocks } = props;
-  const childBlocks = getChildBlocks(blocks, block.id).filter(isLeafBlock);
+  const childBlocks = getChildBlocks(blocks, block.id).filter(isChildBlock);
 
   return (
     <section className="rounded-xl border border-border bg-card shadow-sm">

@@ -1,7 +1,7 @@
 import type {
   BlockEditorDocument,
   FormBlock,
-  ParentBlock,
+  RootBlock,
 } from '@/components/block-editor/types';
 
 const CONTAINER_COUNT = 10;
@@ -18,7 +18,7 @@ const containers = Array.from(
       type: 'container',
       parentId: null,
       sortIndex: containerIndex + 1,
-    } satisfies ParentBlock;
+    } satisfies RootBlock;
   },
 );
 

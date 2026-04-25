@@ -100,38 +100,38 @@ export function ContentBlockList() {
         onValueChange={setOpenParentIds}
         className="gap-2"
       >
-        {Object.entries(groupedChildBlockIds).map(([parentId, leafIds]) => (
-          <ParentItem key={parentId} id={parentId} onDropTarget={openParent}>
-            {leafIds.map((leafId, index) => (
-              <LeafItem
-                key={leafId}
-                id={leafId}
+        {Object.entries(groupedChildBlockIds).map(([parentId, childIds]) => (
+          <RootItem key={parentId} id={parentId} onDropTarget={openParent}>
+            {childIds.map((childId, index) => (
+              <ChildItem
+                key={childId}
+                id={childId}
                 index={index}
-                isLast={index === leafIds.length - 1}
+                isLast={index === childIds.length - 1}
                 parentId={parentId}
-                onClick={() => selectBlock(leafId)}
+                onClick={() => selectBlock(childId)}
               />
             ))}
-            {leafIds.length === 0 && (
+            {childIds.length === 0 && (
               <Button type="button" variant="outline" size="sm" className="m-2">
                 <Plus />
                 Add Block
               </Button>
             )}
-          </ParentItem>
+          </RootItem>
         ))}
       </Accordion>
     </DragDropProvider>
   );
 }
 
-interface ParentItemProps {
+interface RootItemProps {
   id: AnyBlock['id'];
   children: React.ReactNode;
   onDropTarget: (id: AnyBlock['id']) => void;
 }
 
-function ParentItem(props: ParentItemProps) {
+function RootItem(props: RootItemProps) {
   const { id, children, onDropTarget } = props;
   const block = useBlockEditorBlock({
     id,
@@ -140,8 +140,8 @@ function ParentItem(props: ParentItemProps) {
   const openTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { ref, isDropTarget } = useDroppable({
     id,
-    type: 'parent',
-    accept: 'leaf',
+    type: 'root',
+    accept: 'child',
     collisionPriority: CollisionPriority.Low,
   });
 
@@ -194,7 +194,7 @@ function ParentItem(props: ParentItemProps) {
   );
 }
 
-interface LeafItemProps {
+interface ChildItemProps {
   id: AnyBlock['id'];
   index: number;
   isLast: boolean;
@@ -202,14 +202,14 @@ interface LeafItemProps {
   onClick?: () => void;
 }
 
-function LeafItem(props: LeafItemProps) {
+function ChildItem(props: ChildItemProps) {
   const { id, index, isLast, parentId, onClick } = props;
 
   const { ref, handleRef, isDragging } = useSortable({
     id,
     index,
-    type: 'leaf',
-    accept: 'leaf',
+    type: 'child',
+    accept: 'child',
     group: parentId,
     plugins: [Feedback.configure({ feedback: 'clone' })],
   });

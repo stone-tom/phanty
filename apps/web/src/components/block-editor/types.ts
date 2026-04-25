@@ -29,15 +29,15 @@ export interface BaseBlock {
 
 // Future allowedBlocks / allowedChildren config should decide placement rules.
 // These aliases describe block capabilities, not where a block is allowed.
-export type ParentBlock = LayoutBlock;
-export type LeafBlock = FormBlock;
-export type AnyBlock = ParentBlock | LeafBlock;
+export type RootBlock = LayoutBlock;
+export type ChildBlock = FormBlock;
+export type AnyBlock = RootBlock | ChildBlock;
 
-export function isParentBlock(block: AnyBlock): block is ParentBlock {
+export function isRootBlock(block: AnyBlock): block is RootBlock {
   return block.category === 'layout';
 }
 
-export function isLeafBlock(block: AnyBlock): block is LeafBlock {
+export function isChildBlock(block: AnyBlock): block is ChildBlock {
   return block.category === 'form';
 }
 
