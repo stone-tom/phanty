@@ -16,9 +16,6 @@ type GetBlockChanges<TType extends BlockType> = SimplifyDeep<
   PartialDeep<Omit<GetBlock<TType>, StructuralBlockKey>>
 >;
 
-export type BlockEditorSaveState = 'idle' | 'saving' | 'error';
-export type BlockEditorHydrationState = 'idle' | 'hydrating' | 'hydrated';
-
 export type AssertedBlock<TParams> = TParams extends {
   assertType: infer TType extends BlockType;
 }
@@ -27,12 +24,7 @@ export type AssertedBlock<TParams> = TParams extends {
 
 export interface BlockEditorStoreState {
   document: BlockEditorDocument;
-  lastSavedDocument: BlockEditorDocument;
   selectedBlockId: AnyBlock['id'] | null;
-  dirty: boolean;
-  saveState: BlockEditorSaveState;
-  saveError: string | null;
-  hydrationState: BlockEditorHydrationState;
 
   actions: {
     reorderRootBlocks: (rootIds: AnyBlock['id'][]) => void;
@@ -43,12 +35,6 @@ export interface BlockEditorStoreState {
     ) => void;
     selectBlock: (blockId: string | null) => void;
     replaceDocument: (document: BlockEditorDocument) => void;
-    markSaved: (nextDocument?: BlockEditorDocument) => void;
-    resetToLastSaved: () => void;
-    setSaveState: (
-      saveState: BlockEditorSaveState,
-      saveError?: string | null,
-    ) => void;
   };
 }
 
@@ -90,20 +76,13 @@ function updateDocumentBlocks(
       ...state.document,
       blocks: nextBlocks,
     },
-    dirty: true,
-    saveError: null,
   };
 }
 
 const createBlockEditorState: StateInitializer =
   (initialDocument) => (set) => ({
     document: cloneDocument(initialDocument),
-    lastSavedDocument: cloneDocument(initialDocument),
     selectedBlockId: null,
-    dirty: false,
-    saveState: 'idle',
-    saveError: null,
-    hydrationState: 'idle',
 
     actions: {
       reorderRootBlocks: (rootIds) => {
@@ -209,54 +188,6 @@ const createBlockEditorState: StateInitializer =
             state.selectedBlockId,
             document,
           ),
-          dirty: false,
-          saveError: null,
-        }));
-      },
-
-      markSaved: (nextDocument) => {
-        set((state) => {
-          const document = nextDocument
-            ? cloneDocument(nextDocument)
-            : cloneDocument(state.document);
-
-          return {
-            ...state,
-            document,
-            lastSavedDocument: cloneDocument(document),
-            selectedBlockId: getValidSelectedBlockId(
-              state.selectedBlockId,
-              document,
-            ),
-            dirty: false,
-            saveState: 'idle',
-            saveError: null,
-          };
-        });
-      },
-
-      resetToLastSaved: () => {
-        set((state) => {
-          const document = cloneDocument(state.lastSavedDocument);
-
-          return {
-            ...state,
-            document,
-            selectedBlockId: getValidSelectedBlockId(
-              state.selectedBlockId,
-              document,
-            ),
-            dirty: false,
-            saveError: null,
-          };
-        });
-      },
-
-      setSaveState: (saveState, saveError = null) => {
-        set((state) => ({
-          ...state,
-          saveState,
-          saveError,
         }));
       },
     },

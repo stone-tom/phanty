@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { ContentBlockList } from './content-block-list';
 import { useBlockEditorActions, useBlockEditorState } from './hooks';
 import { LayoutBlockList } from './layout-block-list';
+import { SelectedBlockPanel } from './selected-block-panel';
 
 const editorTabs = ['layout', 'content'] as const;
 
@@ -19,23 +20,21 @@ export function BlockEditor() {
 
   return (
     <div className="h-full flex flex-col flex-1 min-h-0">
-      <div className="p-3 flex justify-between items-center">
-        <h2 className="text-lg font-semibold">Block Editor</h2>
-        <Button type="button">Save</Button>
-      </div>
-
       {selectedBlockId ? (
-        <div className="px-3 pb-3 border-b">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => selectBlock(null)}
-          >
-            <ArrowLeft />
-            Back
-          </Button>
-        </div>
+        <>
+          <div className="p-3 border-b">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => selectBlock(null)}
+            >
+              <ArrowLeft />
+              Back
+            </Button>
+          </div>
+          <SelectedBlockPanel />
+        </>
       ) : (
         <Tabs
           value={tab}
