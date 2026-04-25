@@ -15,6 +15,7 @@
 
 ## block editor
 ### next up
+- small first renderer
 - first block form (text)
 - first block renderer (container + text)
 - layout-block-list

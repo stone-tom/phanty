@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { BlockEditor } from '@/components/block-editor/block-editor';
+import { BlockEditorPreview } from '@/components/block-editor/block-editor-preview';
 import {
   BlockEditorStoreContext,
   useCreateBlockEditorStore,
@@ -77,9 +78,7 @@ function FormTemplateEditorPage() {
           </ResizablePanel>
           <ResizableHandle withHandle />
           <ResizablePanel defaultSize="70%" minSize={300}>
-            <div className="flex h-full items-center justify-center p-6">
-              <span className="font-semibold">Preview</span>
-            </div>
+            <BlockEditorPreview />
           </ResizablePanel>
         </ResizablePanelGroup>
       </BlockEditorStoreContext>
