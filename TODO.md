@@ -15,8 +15,6 @@
 
 ## block editor
 ### next up
-- base actions in store
-- connect store actions, store local storage, check performance (stress test)
 - first block form (text)
 - first block renderer (container + text)
 - layout-block-list
@@ -34,4 +32,10 @@
 - persist table state
 - single column grid sort
 
+#Ideas
 
+## Form Filling UI
+- projects will have documents - form questions could have a button for e.g. "save to documents", so files get transferred directly.
+
+## FormBuilder
+- banner in form, if field is conditionally dependent on another field (ux flow better)
