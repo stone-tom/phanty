@@ -11,9 +11,7 @@ export interface BlockEditorStorageParams {
   templateType: TemplateType;
 }
 
-export function createBlockEditorStorageKey(
-  params: BlockEditorStorageParams,
-) {
+export function createBlockEditorStorageKey(params: BlockEditorStorageParams) {
   return `${BLOCK_EDITOR_STORAGE_PREFIX}:${params.templateType}:${params.templateId}`;
 }
 
