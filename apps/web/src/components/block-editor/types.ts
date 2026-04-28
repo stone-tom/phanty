@@ -64,7 +64,6 @@ export interface TextFormBlock extends BaseFormBlock {
 }
 
 export interface FormFieldSchema {
-  name: string;
   label: string;
   description?: string;
   required?: boolean;

@@ -1,9 +1,11 @@
+import { FormProvider, useForm } from 'react-hook-form';
 import { getChildBlocks, getRootBlocks } from '../block-editor/ordering';
 import {
   type AnyBlock,
   type BlockEditorDocument,
   isChildBlock,
 } from '../block-editor/types';
+import { TextBlockComponent } from './blocks/form/text';
 
 interface BlockRendererProps {
   blocks: BlockEditorDocument['blocks'];
@@ -12,17 +14,23 @@ interface BlockRendererProps {
 export function BlockRenderer(props: BlockRendererProps) {
   const { blocks } = props;
   const rootBlocks = getRootBlocks(blocks);
+  const form = useForm();
 
+  // TODO: make the wrapper for the form blocks dependent on type of template (if possible with slot)
   return (
-    <div className="flex flex-col gap-6">
-      {rootBlocks.map((rootBlock) => (
-        <RenderedRootBlock
-          key={rootBlock.id}
-          block={rootBlock}
-          blocks={blocks}
-        />
-      ))}
-    </div>
+    <FormProvider {...form}>
+      <form>
+        <div className="flex flex-col gap-6">
+          {rootBlocks.map((rootBlock) => (
+            <RenderedRootBlock
+              key={rootBlock.id}
+              block={rootBlock}
+              blocks={blocks}
+            />
+          ))}
+        </div>
+      </form>
+    </FormProvider>
   );
 }
 
@@ -68,24 +76,7 @@ function RenderedChildBlock(props: RenderedChildBlockProps) {
 
   switch (block.type) {
     case 'text':
-      return (
-        <div className="rounded-lg border border-border bg-background px-4 py-3">
-          <p className="text-sm font-medium text-foreground">
-            {block.schema.label}
-          </p>
-          <p className="text-xs text-muted-foreground">{block.schema.name}</p>
-          {block.schema.description ? (
-            <p className="mt-2 text-sm text-muted-foreground">
-              {block.schema.description}
-            </p>
-          ) : null}
-          {block.schema.placeholder ? (
-            <div className="mt-3 rounded-md border border-input bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
-              {block.schema.placeholder}
-            </div>
-          ) : null}
-        </div>
-      );
+      return <TextBlockComponent block={block} />;
 
     default:
       return (

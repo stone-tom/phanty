@@ -3,10 +3,10 @@ import { parseAsStringLiteral, useQueryState } from 'nuqs';
 import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { BlockForm } from './block-form';
 import { ContentBlockList } from './content-block-list';
 import { useBlockEditorActions, useBlockEditorState } from './hooks';
 import { LayoutBlockList } from './layout-block-list';
-import { SelectedBlockPanel } from './selected-block-panel';
 
 const editorTabs = ['layout', 'content'] as const;
 
@@ -33,7 +33,7 @@ export function BlockEditor() {
               Back
             </Button>
           </div>
-          <SelectedBlockPanel />
+          <BlockForm blockId={selectedBlockId} />
         </>
       ) : (
         <Tabs

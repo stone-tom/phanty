@@ -116,41 +116,51 @@ function FormTemplateEditorContent(props: FormTemplateEditorContentProps) {
 
   return (
     <BlockEditorStoreContext value={store}>
-      <ResizablePanelGroup orientation="horizontal">
-        <ResizablePanel
-          defaultSize="30%"
-          minSize={300}
-          maxSize={500}
-          className="overflow-hidden!"
-        >
-          <div className="p-3 flex justify-between items-center">
-            <div>
-              <h2 className="text-lg font-semibold">Block Editor</h2>
-              {dirty ? (
-                <p className="text-sm text-muted-foreground">Unsaved changes</p>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  All changes saved
-                </p>
-              )}
+      <div className="min-h-0 flex-1">
+        <ResizablePanelGroup orientation="horizontal" className="min-h-0">
+          <ResizablePanel
+            defaultSize="30%"
+            minSize={300}
+            maxSize={500}
+            className="overflow-hidden!"
+          >
+            <div className="flex h-full min-h-0 flex-col">
+              <div className="flex shrink-0 items-center justify-between p-3">
+                <div>
+                  <h2 className="text-lg font-semibold">Block Editor</h2>
+                  {dirty ? (
+                    <p className="text-sm text-muted-foreground">
+                      Unsaved changes
+                    </p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      All changes saved
+                    </p>
+                  )}
+                </div>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    void handleSave();
+                  }}
+                  disabled={!dirty || saveState === 'saving'}
+                >
+                  {saveState === 'saving'
+                    ? 'Saving...'
+                    : dirty
+                      ? 'Save'
+                      : 'Saved'}
+                </Button>
+              </div>
+              <BlockEditor />
             </div>
-            <Button
-              type="button"
-              onClick={() => {
-                void handleSave();
-              }}
-              disabled={!dirty || saveState === 'saving'}
-            >
-              {saveState === 'saving' ? 'Saving...' : dirty ? 'Save' : 'Saved'}
-            </Button>
-          </div>
-          <BlockEditor />
-        </ResizablePanel>
-        <ResizableHandle withHandle />
-        <ResizablePanel defaultSize="70%" minSize={300}>
-          <BlockEditorPreview />
-        </ResizablePanel>
-      </ResizablePanelGroup>
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel defaultSize="70%" minSize={300}>
+            <BlockEditorPreview />
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
     </BlockEditorStoreContext>
   );
 }

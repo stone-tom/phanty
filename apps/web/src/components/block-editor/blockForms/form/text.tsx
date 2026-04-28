@@ -1,111 +1,131 @@
-import { Field, FieldContent, FieldGroup, FieldLabel } from '../../../ui/field';
-import { Input } from '../../../ui/input';
-import { Label } from '../../../ui/label';
-import { Textarea } from '../../../ui/textarea';
+import { debounce } from 'lodash';
+import { useEffect, useRef } from 'react';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { useShallow } from 'zustand/react/shallow';
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { typedPick } from '@/util/type-helpers';
 import { useBlockEditorActions, useBlockEditorBlock } from '../../hooks';
+import type { TextFieldSchema } from '../../types';
 
 interface TextBlockFormProps {
-  id: string;
+  blockId: string;
 }
 
 export function TextBlockForm(props: TextBlockFormProps) {
-  const block = useBlockEditorBlock({ id: props.id, assertType: 'text' });
+  const { blockId } = props;
   const { updateBlock } = useBlockEditorActions();
 
+  const formRef = useRef<HTMLFormElement>(null);
+  const defaultValues = useBlockEditorBlock(
+    {
+      id: blockId,
+      assertType: 'text',
+    },
+    useShallow((block) =>
+      typedPick(block.schema, [
+        'label',
+        'description',
+        'placeholder',
+        'required',
+      ]),
+    ),
+  );
+
+  const form = useForm<TextFieldSchema>({
+    defaultValues,
+    mode: 'onChange',
+  });
+
+  const { subscribe, handleSubmit } = form;
+
+  useEffect(() => {
+    return subscribe({
+      formState: { values: true },
+      callback: debounce(() => formRef.current?.requestSubmit(), 250, {
+        leading: false,
+        trailing: true,
+      }),
+    });
+  }, [subscribe]);
+
   return (
-    <FieldGroup>
-      <Field>
-        <FieldLabel htmlFor={`${block.id}-label`}>Label</FieldLabel>
-        <FieldContent>
-          <Input
-            id={`${block.id}-label`}
-            value={block.schema.label}
-            onChange={(event) => {
-              updateBlock(block.id, {
-                schema: {
-                  ...block.schema,
-                  label: event.target.value,
-                },
-              });
-            }}
-          />
-        </FieldContent>
-      </Field>
-
-      <Field>
-        <FieldLabel htmlFor={`${block.id}-name`}>Name</FieldLabel>
-        <FieldContent>
-          <Input
-            id={`${block.id}-name`}
-            value={block.schema.name}
-            onChange={(event) => {
-              updateBlock(block.id, {
-                schema: {
-                  ...block.schema,
-                  name: event.target.value,
-                },
-              });
-            }}
-          />
-        </FieldContent>
-      </Field>
-
-      <Field>
-        <FieldLabel htmlFor={`${block.id}-description`}>Description</FieldLabel>
-        <FieldContent>
-          <Textarea
-            id={`${block.id}-description`}
-            value={block.schema.description ?? ''}
-            onChange={(event) => {
-              updateBlock(block.id, {
-                schema: {
-                  ...block.schema,
-                  description: event.target.value || undefined,
-                },
-              });
-            }}
-          />
-        </FieldContent>
-      </Field>
-
-      <Field>
-        <FieldLabel htmlFor={`${block.id}-placeholder`}>Placeholder</FieldLabel>
-        <FieldContent>
-          <Input
-            id={`${block.id}-placeholder`}
-            value={block.schema.placeholder ?? ''}
-            onChange={(event) => {
-              updateBlock(block.id, {
-                schema: {
-                  ...block.schema,
-                  placeholder: event.target.value || undefined,
-                },
-              });
-            }}
-          />
-        </FieldContent>
-      </Field>
-
-      <Label
-        htmlFor={`${block.id}-required`}
-        className="flex items-center gap-3 rounded-lg border border-border px-3 py-3"
+    <FormProvider {...form}>
+      <form
+        ref={formRef}
+        onSubmit={handleSubmit((values) => {
+          updateBlock<'text'>(blockId, {
+            schema: values,
+          });
+        })}
+        className="space-y-6 p-3"
       >
-        <input
-          id={`${block.id}-required`}
-          type="checkbox"
-          className="size-4 accent-current"
-          checked={block.schema.required ?? false}
-          onChange={(event) => {
-            updateBlock(block.id, {
-              schema: {
-                ...block.schema,
-                required: event.target.checked || undefined,
-              },
-            });
-          }}
-        />
-        Required field
-      </Label>
-    </FieldGroup>
+        <FieldGroup>
+          <Controller
+            control={form.control}
+            name="label"
+            render={({ field, fieldState }) => (
+              <Field>
+                <FieldLabel htmlFor={field.name}>Label</FieldLabel>
+                <Input
+                  {...field}
+                  id={field.name}
+                  aria-invalid={fieldState.invalid}
+                />
+
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+          <Controller
+            control={form.control}
+            name="description"
+            render={({ field, fieldState }) => (
+              <Field>
+                <FieldLabel htmlFor={field.name}>Description</FieldLabel>
+                <Textarea
+                  {...field}
+                  id={field.name}
+                  aria-invalid={fieldState.invalid}
+                />
+
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+          <Controller
+            control={form.control}
+            name="placeholder"
+            render={({ field, fieldState }) => (
+              <Field>
+                <FieldLabel htmlFor={field.name}>Placeholder</FieldLabel>
+                <Input
+                  {...field}
+                  id={field.name}
+                  aria-invalid={fieldState.invalid}
+                />
+                <FieldDescription>
+                  Will be shown in the input when it's empty.
+                </FieldDescription>
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+        </FieldGroup>
+      </form>
+    </FormProvider>
   );
 }
