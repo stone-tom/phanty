@@ -38,7 +38,6 @@ const blocks = containers.reduce<BlockEditorDocument['blocks']>(
           parentId: container.id,
           sortIndex: fieldIndex,
           schema: {
-            name: `${container.id}Text${fieldNumber}`,
             label: `Text ${fieldNumber}`,
           },
         } satisfies FormBlock;
