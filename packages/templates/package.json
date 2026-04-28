@@ -1,0 +1,22 @@
+{
+  "name": "@repo/templates",
+  "version": "1.0.0",
+  "description": "Shared template document contracts and validation",
+  "main": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.24.0",
+  "devDependencies": {
+    "@repo/tsconfig": "workspace:*"
+  },
+  "dependencies": {
+    "zod": "^4.3.6"
+  }
+}

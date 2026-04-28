@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import isEqual from 'lodash/isEqual';
 import { useState } from 'react';
@@ -5,11 +6,6 @@ import { toast } from 'sonner';
 import { useStore } from 'zustand';
 import { BlockEditor } from '@/components/block-editor/block-editor';
 import { BlockEditorPreview } from '@/components/block-editor/block-editor-preview';
-import {
-  type BlockEditorStorageParams,
-  loadBlockEditorDocument,
-  saveBlockEditorDocument,
-} from '@/components/block-editor/block-editor-storage';
 import {
   BlockEditorStoreContext,
   useCreateBlockEditorStore,
@@ -30,19 +26,18 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useEdenMutation } from '@/hooks/use-eden-mutation';
 import { useEdenQuery } from '@/hooks/use-eden-query';
-import { formTemplates } from '@/queries/form-templates';
-import { largeEditorDocument } from './large-editor-document';
+import { api } from '@/lib/api';
+import { templates } from '@/queries/templates';
 
 export const Route = createFileRoute('/_private/form-templates/$id/editor')({
   component: FormTemplateEditorPage,
 });
 
-type LocalSaveState = 'idle' | 'saving';
-
 function FormTemplateEditorPage() {
   const { id: formTemplateId } = Route.useParams();
-  const { data, isPending } = useEdenQuery(formTemplates.get(formTemplateId));
+  const { data, isPending } = useEdenQuery(templates.get(formTemplateId));
 
   return (
     <>
@@ -65,52 +60,66 @@ function FormTemplateEditorPage() {
           </BreadcrumbList>
         </Breadcrumb>
       </PageHeader>
-      <FormTemplateEditorContent
-        key={formTemplateId}
-        templateId={formTemplateId}
-      />
+      {data ? (
+        <FormTemplateEditorContent
+          key={formTemplateId}
+          templateId={formTemplateId}
+          initialDocument={data.document}
+        />
+      ) : (
+        <div className="flex min-h-0 flex-1 flex-col gap-3 p-3">
+          {isPending && (
+            <>
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="min-h-0 flex-1 w-full" />
+            </>
+          )}
+        </div>
+      )}
     </>
   );
 }
 
 interface FormTemplateEditorContentProps {
   templateId: string;
+  initialDocument: BlockEditorDocument;
 }
 
 function FormTemplateEditorContent(props: FormTemplateEditorContentProps) {
-  const { templateId } = props;
+  const { initialDocument, templateId } = props;
   const [savedDocument, setSavedDocument] = useState(() =>
-    getInitialDocument({
-      templateId,
-      templateType: largeEditorDocument.templateType,
-    }),
+    structuredClone(initialDocument),
   );
-  const [saveState, setSaveState] = useState<LocalSaveState>('idle');
+  const queryClient = useQueryClient();
   const store = useCreateBlockEditorStore(savedDocument);
   const document = useStore(store, (state) => state.document);
   const dirty = !isEqual(document, savedDocument);
+  const { mutateAsync: saveDocument, isPending: isSaving } = useEdenMutation(
+    (nextDocument: BlockEditorDocument) =>
+      api.v1.templates({ id: templateId }).document.put({
+        document: nextDocument,
+      }),
+    {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: templates._def });
+      },
+    },
+  );
 
   const handleSave = async () => {
-    if (!dirty || saveState === 'saving') {
+    if (!dirty || isSaving) {
       return;
     }
 
-    setSaveState('saving');
-
     try {
-      saveBlockEditorDocument(
-        {
-          templateId,
-          templateType: document.templateType,
-        },
-        document,
-      );
-      setSavedDocument(structuredClone(document));
-      setSaveState('idle');
-      toast.success('Changes saved locally');
+      const updatedTemplate = await saveDocument(document);
+      const nextSavedDocument = updatedTemplate.document;
+
+      setSavedDocument(structuredClone(nextSavedDocument));
+      store.getState().actions.replaceDocument(nextSavedDocument);
+      toast.success('Changes saved');
     } catch {
-      setSaveState('idle');
-      toast.error('Unable to save changes locally');
+      toast.error('Unable to save changes');
     }
   };
 
@@ -143,13 +152,9 @@ function FormTemplateEditorContent(props: FormTemplateEditorContentProps) {
                   onClick={() => {
                     void handleSave();
                   }}
-                  disabled={!dirty || saveState === 'saving'}
+                  disabled={!dirty || isSaving}
                 >
-                  {saveState === 'saving'
-                    ? 'Saving...'
-                    : dirty
-                      ? 'Save'
-                      : 'Saved'}
+                  {isSaving ? 'Saving...' : dirty ? 'Save' : 'Saved'}
                 </Button>
               </div>
               <BlockEditor />
@@ -162,25 +167,5 @@ function FormTemplateEditorContent(props: FormTemplateEditorContentProps) {
         </ResizablePanelGroup>
       </div>
     </BlockEditorStoreContext>
-  );
-}
-
-function getInitialDocument(
-  storageParams: BlockEditorStorageParams,
-): BlockEditorDocument {
-  return (
-    loadBlockEditorDocument(storageParams) ?? {
-      ...largeEditorDocument,
-      blocks: {
-        ...largeEditorDocument.blocks,
-        'container-empty': {
-          id: 'container-empty',
-          category: 'layout',
-          type: 'container',
-          parentId: null,
-          sortIndex: 0,
-        },
-      },
-    }
   );
 }

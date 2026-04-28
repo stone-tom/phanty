@@ -50,7 +50,7 @@ import { useEdenMutation } from '@/hooks/use-eden-mutation';
 import { type EdenQueryData, useEdenQuery } from '@/hooks/use-eden-query';
 import { useFormatDate } from '@/hooks/use-format-date';
 import { api } from '@/lib/api';
-import { formTemplates } from '@/queries/form-templates';
+import { templates } from '@/queries/templates';
 import { CreateFormTemplateAction } from './-components/create-form-template-action';
 import { FormTemplatesTable } from './-components/form-templates-table';
 import { UpdateFormTemplateAction } from './-components/update-form-template-action';
@@ -59,11 +59,13 @@ export const Route = createFileRoute('/_private/form-templates/')({
   component: FormTemplatesPage,
 });
 
-type FormTemplate = EdenQueryData<typeof formTemplates.list>[number];
+type FormTemplate = EdenQueryData<typeof templates.list>[number];
 const columnHelper = createColumnHelper<FormTemplate>();
 
 function FormTemplatesPage() {
-  const { data } = useEdenQuery(formTemplates.list('active'));
+  const { data } = useEdenQuery(
+    templates.list({ type: 'form', status: 'active' }),
+  );
   const formatDate = useFormatDate();
 
   const [action, setAction] = useState<{
@@ -78,10 +80,10 @@ function FormTemplatesPage() {
   const { mutate: deleteFormTemplate, isPending: isDeletePending } =
     useEdenMutation(
       (formTemplateId: string) =>
-        api.v1.forms.templates({ id: formTemplateId }).delete(),
+        api.v1.templates({ id: formTemplateId }).delete(),
       {
         onSuccess: async () => {
-          await queryClient.invalidateQueries({ queryKey: formTemplates._def });
+          await queryClient.invalidateQueries({ queryKey: templates._def });
           toast.success('Form template archived');
           resetAction();
         },

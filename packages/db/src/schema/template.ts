@@ -1,17 +1,20 @@
+import type { BlockEditorDocument, TemplateType } from '@repo/templates';
 import { randomUUIDv7 } from 'bun';
 import { relations } from 'drizzle-orm';
-import { index, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { index, jsonb, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 import { member, organization } from './auth';
 
-export const formTemplate = pgTable(
-  'form_template',
+export const template = pgTable(
+  'template',
   {
     id: text('id')
       .primaryKey()
       .$defaultFn(() => randomUUIDv7()),
 
+    type: text('type').$type<TemplateType>().notNull(),
     name: text('name').notNull(),
     description: text('description'),
+    document: jsonb('document').$type<BlockEditorDocument>().notNull(),
 
     organizationId: text('organization_id')
       .notNull()
@@ -28,25 +31,28 @@ export const formTemplate = pgTable(
       .notNull(),
   },
   (table) => ({
-    createdByIdx: index('form_template_created_by_idx').on(table.createdById),
-    organizationIdx: index('form_template_organization_idx').on(
+    organizationIdx: index('template_organization_idx').on(
       table.organizationId,
     ),
-    archivedAtIdx: index('form_template_archived_at_idx').on(table.archivedAt),
-    organizationArchivedIdx: index('form_template_org_archived_idx').on(
+    organizationTypeIdx: index('template_org_type_idx').on(
+      table.organizationId,
+      table.type,
+    ),
+    organizationArchivedIdx: index('template_org_archived_idx').on(
       table.organizationId,
       table.archivedAt,
     ),
+    createdByIdx: index('template_created_by_idx').on(table.createdById),
   }),
 );
 
-export const formTemplateRelations = relations(formTemplate, ({ one }) => ({
+export const templateRelations = relations(template, ({ one }) => ({
   createdBy: one(member, {
-    fields: [formTemplate.createdById],
+    fields: [template.createdById],
     references: [member.id],
   }),
   organization: one(organization, {
-    fields: [formTemplate.organizationId],
+    fields: [template.organizationId],
     references: [organization.id],
   }),
 }));

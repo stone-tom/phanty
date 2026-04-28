@@ -1,3 +1,3 @@
 export * from './auth';
-export * from './form-template';
 export * from './project';
+export * from './template';
