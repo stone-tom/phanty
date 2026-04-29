@@ -1,6 +1,7 @@
 import Elysia from 'elysia';
 import { auth } from '../../../lib/auth';
 import { ErrorOutput } from '../../../plugins/error-handler';
+import { grantDefaultBlockAccessToOrganization } from '../blocks/service';
 import { SetupOrganizationInput, SetupOrganizationOutput } from './model';
 
 export const organizations = new Elysia({ prefix: '/organizations' }).post(
@@ -20,7 +21,8 @@ export const organizations = new Elysia({ prefix: '/organizations' }).post(
         body,
       });
 
-      // TODO: Grant default block access once organization block access exists.
+      await grantDefaultBlockAccessToOrganization(organization.id);
+
       const members = organization.members.filter(
         (
           member,
