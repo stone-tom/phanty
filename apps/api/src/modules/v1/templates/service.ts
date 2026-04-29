@@ -8,6 +8,7 @@ import { randomUUIDv7 } from 'bun';
 import { and, desc, eq, isNotNull, isNull } from 'drizzle-orm';
 import Elysia from 'elysia';
 import { db } from '../../../lib/db';
+import { validateOrganizationBlockAccess } from '../blocks/access-validation';
 
 export type TemplateListStatus = 'active' | 'archived' | 'all';
 
@@ -155,6 +156,17 @@ export class TemplateService {
 
     if (!validation.success) {
       throw new TemplateDocumentValidationError(validation.errors);
+    }
+
+    // TODO: Keep an eye on save performance as the block catalog grows.
+    // for now it is good to have strict validation. Lets see how often we run into that.
+    const blockAccessErrors = await validateOrganizationBlockAccess(
+      organizationId,
+      validation.document,
+    );
+
+    if (blockAccessErrors.length > 0) {
+      throw new TemplateDocumentValidationError(blockAccessErrors);
     }
 
     const [updatedTemplate] = await db
