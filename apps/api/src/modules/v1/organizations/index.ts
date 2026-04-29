@@ -1,8 +1,8 @@
 import Elysia from 'elysia';
 import { auth } from '../../../lib/auth';
 import { ErrorOutput } from '../../../plugins/error-handler';
-import { grantDefaultBlockAccessToOrganization } from '../blocks/service';
 import { SetupOrganizationInput, SetupOrganizationOutput } from './model';
+import { grantDefaultBlockAccessToOrganization } from './prefill/blocks';
 
 export const organizations = new Elysia({ prefix: '/organizations' }).post(
   '/setup',
