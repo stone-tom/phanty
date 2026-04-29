@@ -15,6 +15,7 @@
 
 ## block editor
 ### next up
+- smoke test template document save rejects unknown block versions and ungranted block definitions
 - small first renderer
 - first block form (text)
 - first block renderer (container + text)
