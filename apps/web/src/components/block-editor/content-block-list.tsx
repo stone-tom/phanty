@@ -170,7 +170,7 @@ function RootItem(props: RootItemProps) {
         <span className="capitalize font-medium">{block.type}</span>
       </AccordionTrigger>
       <AccordionContent
-        className="data-open:overflow-visible data-closed:overflow-hidden"
+        className="data-open:animate-none data-open:overflow-visible data-closed:animate-none data-closed:overflow-hidden"
         contentClassName="pb-0"
       >
         <Separator className="bg-primary" />
