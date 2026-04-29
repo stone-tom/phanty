@@ -1,10 +1,10 @@
+import type { BlockType } from '@repo/templates';
 import { useStore } from 'zustand';
 import {
   type AssertedBlock,
   type BlockEditorStoreState,
   useBlockEditorStore,
 } from './store';
-import type { BlockType } from './types';
 
 export function useBlockEditorState<TSelectorResult>(
   selector: (state: BlockEditorStoreState) => TSelectorResult,

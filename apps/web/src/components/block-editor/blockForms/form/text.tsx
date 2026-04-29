@@ -1,3 +1,4 @@
+import type { TextFieldSchema } from '@repo/templates';
 import { debounce } from 'lodash';
 import { useEffect, useRef } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
@@ -13,7 +14,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { typedPick } from '@/util/type-helpers';
 import { useBlockEditorActions, useBlockEditorBlock } from '../../hooks';
-import type { TextFieldSchema } from '../../types';
 
 interface TextBlockFormProps {
   blockId: string;

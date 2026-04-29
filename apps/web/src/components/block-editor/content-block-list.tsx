@@ -3,6 +3,7 @@ import { Feedback } from '@dnd-kit/dom';
 import { move } from '@dnd-kit/helpers';
 import { DragDropProvider, useDroppable } from '@dnd-kit/react';
 import { useSortable } from '@dnd-kit/react/sortable';
+import type { AnyBlock } from '@repo/templates';
 import { GripVertical, Plus } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -20,7 +21,6 @@ import {
   useBlockEditorState,
 } from './hooks';
 import { type GroupedChildBlockIds, groupChildBlockIds } from './ordering';
-import type { AnyBlock } from './types';
 import { useSyncedSortableState } from './use-synced-sortable-state';
 
 const OPEN_ON_DROP_TARGET_DELAY_MS = 500;

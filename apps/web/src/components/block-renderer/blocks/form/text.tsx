@@ -1,5 +1,5 @@
+import type { TextFormBlock } from '@repo/templates';
 import { useController } from 'react-hook-form';
-import type { TextFormBlock } from '@/components/block-editor/types';
 import {
   Field,
   FieldDescription,

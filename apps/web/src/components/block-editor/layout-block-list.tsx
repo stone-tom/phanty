@@ -2,6 +2,7 @@ import { Feedback } from '@dnd-kit/dom';
 import { move } from '@dnd-kit/helpers';
 import { DragDropProvider } from '@dnd-kit/react';
 import { useSortable } from '@dnd-kit/react/sortable';
+import type { AnyBlock } from '@repo/templates';
 import { GripVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '../ui/button';
@@ -11,7 +12,6 @@ import {
   useBlockEditorState,
 } from './hooks';
 import { getRootBlockIds } from './ordering';
-import type { AnyBlock } from './types';
 import { useSyncedSortableState } from './use-synced-sortable-state';
 
 export function LayoutBlockList() {

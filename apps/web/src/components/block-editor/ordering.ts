@@ -1,4 +1,4 @@
-import type { AnyBlock, BlockEditorDocument } from './types';
+import type { AnyBlock, BlockEditorDocument } from '@repo/templates';
 
 export type GroupedChildBlockIds = Record<AnyBlock['id'], AnyBlock['id'][]>;
 

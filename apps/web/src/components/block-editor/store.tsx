@@ -1,3 +1,4 @@
+import type { AnyBlock, BlockEditorDocument, BlockType } from '@repo/templates';
 import { createContext, useContext, useState } from 'react';
 import type { PartialDeep, SimplifyDeep } from 'type-fest';
 import { createStore, type StateCreator, type StoreApi } from 'zustand/vanilla';
@@ -6,7 +7,6 @@ import {
   buildRootBlockOrder,
   type GroupedChildBlockIds,
 } from './ordering';
-import type { AnyBlock, BlockEditorDocument, BlockType } from './types';
 
 type GetBlock<TType extends BlockType> = Extract<AnyBlock, { type: TType }>;
 

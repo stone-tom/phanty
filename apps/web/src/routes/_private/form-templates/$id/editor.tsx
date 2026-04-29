@@ -1,3 +1,4 @@
+import type { BlockEditorDocument } from '@repo/templates';
 import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import isEqual from 'lodash/isEqual';
@@ -10,7 +11,6 @@ import {
   BlockEditorStoreContext,
   useCreateBlockEditorStore,
 } from '@/components/block-editor/store';
-import type { BlockEditorDocument } from '@/components/block-editor/types';
 import { PageHeader } from '@/components/page-header';
 import {
   Breadcrumb,
