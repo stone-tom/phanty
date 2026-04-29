@@ -1,4 +1,11 @@
-import type { AnyBlock, FormBlock, LayoutBlock, TemplateType } from './types';
+import type {
+  BlockCategory,
+  BlockType,
+  BlockVersion,
+  FormBlock,
+  LayoutBlock,
+  TemplateType,
+} from './types';
 
 export type BlockDefinitionKey =
   | `${LayoutBlock['category']}:${LayoutBlock['type']}`
@@ -22,14 +29,19 @@ export const templatePlacementRules: Record<
   content: {},
 } satisfies Record<TemplateType, TemplatePlacementRules>;
 
-export function getBlockDefinitionKey(block: AnyBlock): BlockDefinitionKey {
-  switch (block.type) {
-    case 'container':
-      return 'layout:container';
+export function getBlockDefinitionKey(
+  category: BlockCategory,
+  type: BlockType,
+): BlockDefinitionKey {
+  return `${category}:${type}` as BlockDefinitionKey;
+}
 
-    case 'text':
-      return 'form:text';
-  }
+export function getBlockVersionKey(
+  category: BlockCategory,
+  type: BlockType,
+  version: BlockVersion,
+): `${BlockDefinitionKey}@${BlockVersion}` {
+  return `${getBlockDefinitionKey(category, type)}@${version}`;
 }
 
 export function isBlockAllowedInParent(params: {

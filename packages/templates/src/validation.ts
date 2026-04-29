@@ -70,7 +70,7 @@ function validateDocumentStructure(
       );
     }
 
-    const blockKey = getBlockDefinitionKey(block);
+    const blockKey = getBlockDefinitionKey(block.category, block.type);
 
     if (block.parentId === null) {
       if (
@@ -95,7 +95,10 @@ function validateDocumentStructure(
       continue;
     }
 
-    const parentKey = getBlockDefinitionKey(parentBlock);
+    const parentKey = getBlockDefinitionKey(
+      parentBlock.category,
+      parentBlock.type,
+    );
 
     if (
       !isBlockAllowedInParent({

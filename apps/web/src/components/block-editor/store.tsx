@@ -10,7 +10,13 @@ import {
 
 type GetBlock<TType extends BlockType> = Extract<AnyBlock, { type: TType }>;
 
-type StructuralBlockKey = 'id' | 'type' | 'category' | 'parentId' | 'sortIndex';
+type StructuralBlockKey =
+  | 'id'
+  | 'type'
+  | 'category'
+  | 'version'
+  | 'parentId'
+  | 'sortIndex';
 
 type GetBlockChanges<TType extends BlockType> = SimplifyDeep<
   PartialDeep<Omit<GetBlock<TType>, StructuralBlockKey>>
@@ -153,6 +159,7 @@ const createBlockEditorState: StateInitializer =
             id: _id,
             type: _type,
             category: _category,
+            version: _version,
             parentId: _parentId,
             sortIndex: _sortIndex,
             ...safeChanges

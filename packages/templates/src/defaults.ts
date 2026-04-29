@@ -21,6 +21,7 @@ export function createDefaultTemplateDocument(
             id: containerId,
             category: 'layout',
             type: 'container',
+            version: 1,
             parentId: null,
             sortIndex: 0,
           },

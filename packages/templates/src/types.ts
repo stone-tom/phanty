@@ -26,6 +26,28 @@ export const BlockTypeSchema = z.union([
 ]);
 export type BlockType = z.infer<typeof BlockTypeSchema>;
 
+export const BlockDefinitionStatusSchema = z.enum([
+  'active',
+  'deprecated',
+  'disabled',
+]);
+export type BlockDefinitionStatus = z.infer<typeof BlockDefinitionStatusSchema>;
+
+export const BlockVersionSchema = z.number().int().positive();
+export type BlockVersion = z.infer<typeof BlockVersionSchema>;
+
+export const BlockDefinitionSchema = z
+  .object({
+    name: z.string().min(1),
+    description: z.string().min(1),
+    category: BlockCategorySchema,
+    type: BlockTypeSchema,
+    version: BlockVersionSchema,
+    status: BlockDefinitionStatusSchema,
+  })
+  .strict();
+export type BlockDefinition = z.infer<typeof BlockDefinitionSchema>;
+
 export const TemplateSettingsSchema = z
   .object({
     title: z.string().optional(),
@@ -38,6 +60,7 @@ export const BaseBlockSchema = z
     id: z.string().min(1),
     category: BlockCategorySchema,
     type: BlockTypeSchema,
+    version: BlockVersionSchema,
     parentId: z.string().min(1).nullable(),
     sortIndex: z.number().int().nonnegative(),
   })
