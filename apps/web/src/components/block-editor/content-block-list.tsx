@@ -10,7 +10,6 @@ import {
   ArrowUp,
   ArrowUpToLine,
   Copy,
-  ExternalLink,
   GripVertical,
   Pencil,
   Plus,
@@ -344,7 +343,7 @@ function ChildItem(props: ChildItemProps) {
         </ContextMenuTrigger>
         <ContextMenuContent>
           <ContextMenuGroup>
-            <ContextMenuItem disabled>
+            <ContextMenuItem onClick={onClick}>
               <Pencil />
               Edit
             </ContextMenuItem>
