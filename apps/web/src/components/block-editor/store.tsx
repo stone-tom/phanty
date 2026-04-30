@@ -39,6 +39,7 @@ export interface BlockEditorStoreState {
       id: string,
       changes: GetBlockChanges<TType>,
     ) => void;
+    addBlock: (input: { block: AnyBlock; select?: boolean }) => void;
     selectBlock: (blockId: string | null) => void;
     replaceDocument: (document: BlockEditorDocument) => void;
   };
@@ -180,6 +181,48 @@ const createBlockEditorState: StateInitializer =
 
             return true;
           });
+        });
+      },
+
+      addBlock: ({ block, select }) => {
+        set((state) => {
+          if (state.document.blocks[block.id]) {
+            return state;
+          }
+
+          if (
+            block.parentId !== null &&
+            !state.document.blocks[block.parentId]
+          ) {
+            return state;
+          }
+
+          const nextBlocks = { ...state.document.blocks };
+
+          for (const currentBlock of Object.values(nextBlocks)) {
+            if (
+              currentBlock.parentId !== block.parentId ||
+              currentBlock.sortIndex < block.sortIndex
+            ) {
+              continue;
+            }
+
+            nextBlocks[currentBlock.id] = {
+              ...currentBlock,
+              sortIndex: currentBlock.sortIndex + 1,
+            };
+          }
+
+          nextBlocks[block.id] = block;
+
+          return {
+            ...state,
+            selectedBlockId: select === true ? block.id : state.selectedBlockId,
+            document: {
+              ...state.document,
+              blocks: nextBlocks,
+            },
+          };
         });
       },
 

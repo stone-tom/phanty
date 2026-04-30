@@ -15,10 +15,7 @@ export const templates = createQueryKeys('templates', {
     queryKey: [options],
     queryFn: () =>
       api.v1.templates.get({
-        query: {
-          type: options.type,
-          status: options.status,
-        },
+        query: options,
       }),
   }),
 });

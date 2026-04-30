@@ -14,6 +14,15 @@ import {
   AccordionTrigger,
 } from '../ui/accordion';
 import { Button, buttonVariants } from '../ui/button';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../ui/dialog';
 import { Separator } from '../ui/separator';
 import {
   useBlockEditorActions,
@@ -21,9 +30,15 @@ import {
   useBlockEditorState,
 } from './hooks';
 import { type GroupedChildBlockIds, groupChildBlockIds } from './ordering';
+import { SelectContentBlockAction } from './select-content-block';
 import { useSyncedSortableState } from './use-synced-sortable-state';
 
 const OPEN_ON_DROP_TARGET_DELAY_MS = 500;
+
+interface InsertTarget {
+  parentId: string;
+  index: number;
+}
 
 export function ContentBlockList() {
   const documentBlocks = useBlockEditorState((state) => state.document.blocks);
@@ -45,69 +60,103 @@ export function ContentBlockList() {
     );
   }, []);
 
+  const [insertTarget, setInsertTarget] = useState<InsertTarget | null>(null);
+
   return (
-    <DragDropProvider
-      onDragStart={handleDragStart}
-      onDragOver={(event) => {
-        const sourceId = event.operation.source?.id;
-        const targetId = event.operation.target?.id;
+    <>
+      <DragDropProvider
+        onDragStart={handleDragStart}
+        onDragOver={(event) => {
+          const sourceId = event.operation.source?.id;
+          const targetId = event.operation.target?.id;
 
-        if (!sourceId || !targetId) {
-          event.preventDefault();
-          return;
-        }
+          if (!sourceId || !targetId) {
+            event.preventDefault();
+            return;
+          }
 
-        const sourceParentId = findParentId(groupedChildBlockIds, sourceId);
-        const targetParentId = findParentId(groupedChildBlockIds, targetId);
+          const sourceParentId = findParentId(groupedChildBlockIds, sourceId);
+          const targetParentId = findParentId(groupedChildBlockIds, targetId);
 
-        if (
-          sourceParentId &&
-          targetParentId &&
-          sourceParentId !== targetParentId &&
-          !openParentIds.includes(targetParentId)
-        ) {
-          event.preventDefault();
-          return;
-        }
+          if (
+            sourceParentId &&
+            targetParentId &&
+            sourceParentId !== targetParentId &&
+            !openParentIds.includes(targetParentId)
+          ) {
+            event.preventDefault();
+            return;
+          }
 
-        setGroupedChildBlockIds((prev) => move(prev, event));
-      }}
-      onDragEnd={(event) => {
-        if (!handleDragEnd(event.canceled)) {
-          return;
-        }
+          setGroupedChildBlockIds((prev) => move(prev, event));
+        }}
+        onDragEnd={(event) => {
+          if (!handleDragEnd(event.canceled)) {
+            return;
+          }
 
-        reorderChildBlocks(groupedChildBlockIds);
-      }}
-    >
-      <Accordion
-        type="multiple"
-        value={openParentIds}
-        onValueChange={setOpenParentIds}
-        className="gap-2"
+          reorderChildBlocks(groupedChildBlockIds);
+        }}
       >
-        {Object.entries(groupedChildBlockIds).map(([parentId, childIds]) => (
-          <RootItem key={parentId} id={parentId} onDropTarget={openParent}>
-            {childIds.map((childId, index) => (
-              <ChildItem
-                key={childId}
-                id={childId}
-                index={index}
-                isLast={index === childIds.length - 1}
-                parentId={parentId}
-                onClick={() => selectBlock(childId)}
-              />
-            ))}
-            {childIds.length === 0 && (
-              <Button type="button" variant="outline" size="sm" className="m-2">
-                <Plus />
-                Add Block
+        <Accordion
+          type="multiple"
+          value={openParentIds}
+          onValueChange={setOpenParentIds}
+          className="gap-2"
+        >
+          {Object.entries(groupedChildBlockIds).map(([parentId, childIds]) => (
+            <RootItem key={parentId} id={parentId} onDropTarget={openParent}>
+              {childIds.map((childId, index) => (
+                <ChildItem
+                  key={childId}
+                  id={childId}
+                  index={index}
+                  isLast={index === childIds.length - 1}
+                  parentId={parentId}
+                  onClick={() => selectBlock(childId)}
+                  onAddClick={(insertTarget) => setInsertTarget(insertTarget)}
+                />
+              ))}
+              {childIds.length === 0 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="m-2"
+                  onClick={() => setInsertTarget({ index: 0, parentId })}
+                >
+                  <Plus />
+                  Add Block
+                </Button>
+              )}
+            </RootItem>
+          ))}
+        </Accordion>
+      </DragDropProvider>
+      <Dialog
+        open={insertTarget !== null}
+        onOpenChange={() => {
+          setInsertTarget(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add block</DialogTitle>
+            <DialogDescription>
+              Select the block you want to insert.
+            </DialogDescription>
+          </DialogHeader>
+          <SelectContentBlockAction />
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                Cancel
               </Button>
-            )}
-          </RootItem>
-        ))}
-      </Accordion>
-    </DragDropProvider>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
@@ -185,11 +234,12 @@ interface ChildItemProps {
   index: number;
   isLast: boolean;
   parentId: AnyBlock['id'];
-  onClick?: () => void;
+  onClick: () => void;
+  onAddClick: (insertTarget: InsertTarget) => void;
 }
 
 function ChildItem(props: ChildItemProps) {
-  const { id, index, isLast, parentId, onClick } = props;
+  const { id, index, isLast, parentId, onClick, onAddClick } = props;
 
   const { ref, handleRef, isDragging } = useSortable({
     id,
@@ -217,7 +267,7 @@ function ChildItem(props: ChildItemProps) {
         position="top"
         ariaLabel="Add block above"
         onClick={() => {
-          console.log('add block above', { parentId, index });
+          onAddClick({ parentId, index });
         }}
       />
       {isLast ? (
@@ -225,7 +275,7 @@ function ChildItem(props: ChildItemProps) {
           position="bottom"
           ariaLabel="Add block below"
           onClick={() => {
-            console.log('add block below', { parentId, index: index + 1 });
+            onAddClick({ parentId, index: index + 1 });
           }}
         />
       ) : null}
