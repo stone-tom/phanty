@@ -6,6 +6,9 @@ import {
   buildChildBlockOrder,
   buildRootBlockOrder,
   type GroupedChildBlockIds,
+  getBlockAndDescendantIds,
+  insertBlockIntoOrder,
+  normalizeSiblingSortIndexes,
 } from './ordering';
 
 type GetBlock<TType extends BlockType> = Extract<AnyBlock, { type: TType }>;
@@ -40,6 +43,7 @@ export interface BlockEditorStoreState {
       changes: GetBlockChanges<TType>,
     ) => void;
     addBlock: (input: { block: AnyBlock; select?: boolean }) => void;
+    deleteBlock: (id: AnyBlock['id']) => void;
     selectBlock: (blockId: string | null) => void;
     replaceDocument: (document: BlockEditorDocument) => void;
   };
@@ -197,23 +201,7 @@ const createBlockEditorState: StateInitializer =
             return state;
           }
 
-          const nextBlocks = { ...state.document.blocks };
-
-          for (const currentBlock of Object.values(nextBlocks)) {
-            if (
-              currentBlock.parentId !== block.parentId ||
-              currentBlock.sortIndex < block.sortIndex
-            ) {
-              continue;
-            }
-
-            nextBlocks[currentBlock.id] = {
-              ...currentBlock,
-              sortIndex: currentBlock.sortIndex + 1,
-            };
-          }
-
-          nextBlocks[block.id] = block;
+          const nextBlocks = insertBlockIntoOrder(state.document.blocks, block);
 
           return {
             ...state,
@@ -221,6 +209,44 @@ const createBlockEditorState: StateInitializer =
             document: {
               ...state.document,
               blocks: nextBlocks,
+            },
+          };
+        });
+      },
+
+      deleteBlock: (id) => {
+        set((state) => {
+          const currentBlock = state.document.blocks[id];
+
+          if (!currentBlock) {
+            return state;
+          }
+
+          const deletedBlockIds = getBlockAndDescendantIds(
+            state.document.blocks,
+            id,
+          );
+          const nextBlocks = Object.fromEntries(
+            Object.entries(state.document.blocks).filter(
+              ([blockId]) => !deletedBlockIds.has(blockId),
+            ),
+          );
+
+          const normalizedBlocks = normalizeSiblingSortIndexes(
+            nextBlocks,
+            currentBlock.parentId,
+          );
+
+          return {
+            ...state,
+            selectedBlockId:
+              state.selectedBlockId &&
+              deletedBlockIds.has(state.selectedBlockId)
+                ? null
+                : state.selectedBlockId,
+            document: {
+              ...state.document,
+              blocks: normalizedBlocks,
             },
           };
         });
