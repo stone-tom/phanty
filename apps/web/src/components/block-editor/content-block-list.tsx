@@ -345,10 +345,6 @@ function ChildItem(props: ChildItemProps) {
         <ContextMenuContent>
           <ContextMenuGroup>
             <ContextMenuItem disabled>
-              <ExternalLink />
-              Open
-            </ContextMenuItem>
-            <ContextMenuItem disabled>
               <Pencil />
               Edit
             </ContextMenuItem>
