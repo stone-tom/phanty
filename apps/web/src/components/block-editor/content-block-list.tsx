@@ -4,7 +4,19 @@ import { move } from '@dnd-kit/helpers';
 import { DragDropProvider, useDroppable } from '@dnd-kit/react';
 import { useSortable } from '@dnd-kit/react/sortable';
 import type { AnyBlock, BlockDefinition } from '@repo/templates';
-import { GripVertical, Plus } from 'lucide-react';
+import {
+  ArrowDown,
+  ArrowDownToLine,
+  ArrowUp,
+  ArrowUpToLine,
+  Copy,
+  ExternalLink,
+  GripVertical,
+  Pencil,
+  Plus,
+  Scissors,
+  Trash2,
+} from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import {
@@ -14,6 +26,14 @@ import {
   AccordionTrigger,
 } from '../ui/accordion';
 import { Button, buttonVariants } from '../ui/button';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuGroup,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from '../ui/context-menu';
 import {
   Dialog,
   DialogClose,
@@ -304,21 +324,75 @@ function ChildItem(props: ChildItemProps) {
       >
         <GripVertical />
       </span>
-      <button
-        type="button"
-        onClick={onClick}
-        className={cn(
-          'w-full text-start py-3 pr-1.5 pl-11 outline-none transition-colors',
-          'hover:bg-muted/50 focus-visible:bg-primary/50 focus-visible:ring-2 focus-visible:ring-ring/50',
-          isLast && 'rounded-b-lg',
-        )}
-      >
-        {props.id} (index: {props.index})
-        <br />
-        {props.id} (index: {props.index})
-        <br />
-        {props.id} (index: {props.index})
-      </button>
+      <ContextMenu>
+        <ContextMenuTrigger asChild>
+          <button
+            type="button"
+            onClick={onClick}
+            className={cn(
+              'w-full text-start py-3 pr-1.5 pl-11 outline-none transition-colors',
+              'hover:bg-muted data-[state=open]:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset',
+              isLast && 'rounded-b-lg',
+            )}
+          >
+            {props.id} (index: {props.index})
+            <br />
+            {props.id} (index: {props.index})
+            <br />
+            {props.id} (index: {props.index})
+          </button>
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuGroup>
+            <ContextMenuItem disabled>
+              <ExternalLink />
+              Open
+            </ContextMenuItem>
+            <ContextMenuItem disabled>
+              <Pencil />
+              Edit
+            </ContextMenuItem>
+            <ContextMenuItem disabled>
+              <Copy />
+              Copy
+            </ContextMenuItem>
+            <ContextMenuItem disabled>
+              <Scissors />
+              Cut
+            </ContextMenuItem>
+          </ContextMenuGroup>
+          <ContextMenuSeparator />
+
+          <ContextMenuGroup>
+            <ContextMenuItem disabled>
+              <ArrowUpToLine />
+              Add block above
+            </ContextMenuItem>
+            <ContextMenuItem disabled>
+              <ArrowDownToLine />
+              Add block below
+            </ContextMenuItem>
+          </ContextMenuGroup>
+          <ContextMenuSeparator />
+          <ContextMenuGroup>
+            <ContextMenuItem disabled>
+              <ArrowUp />
+              Move up
+            </ContextMenuItem>
+            <ContextMenuItem disabled>
+              <ArrowDown />
+              Move down
+            </ContextMenuItem>
+          </ContextMenuGroup>
+          <ContextMenuSeparator />
+          <ContextMenuGroup>
+            <ContextMenuItem variant="destructive" disabled>
+              <Trash2 />
+              Delete
+            </ContextMenuItem>
+          </ContextMenuGroup>
+        </ContextMenuContent>
+      </ContextMenu>
     </div>
   );
 }
@@ -339,7 +413,7 @@ function InsertSeparator(props: InsertSeparatorProps) {
       className={cn(
         'group/separator absolute inset-x-0 z-20 h-6',
         'before:absolute before:left-0 before:right-0 before:top-1/2 before:h-px before:-translate-y-1/2 before:transition-colors',
-        'hover:before:bg-primary/50 hover:before:h-0.5',
+        'hover:before:bg-primary/50 hover:before:h-0.5 focus-visible:before:bg-primary/50 focus-visible:before:h-0.5',
         position === 'top' && '-top-3',
         position === 'bottom' && '-bottom-3',
       )}
@@ -352,7 +426,7 @@ function InsertSeparator(props: InsertSeparatorProps) {
         className={cn(
           'absolute left-1/2 top-1/2 flex size-6 -translate-x-1/2 -translate-y-1/2 p-0.5',
           'items-center justify-center rounded-full bg-primary text-primary-foreground',
-          'opacity-0 transition-opacity group-hover/separator:opacity-100',
+          'opacity-0 transition-opacity group-hover/separator:opacity-100 group-focus-visible/separator:opacity-100',
         )}
       >
         <Plus />
