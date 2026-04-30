@@ -24,6 +24,16 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '../ui/accordion';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '../ui/alert-dialog';
 import { Button, buttonVariants } from '../ui/button';
 import {
   ContextMenu,
@@ -62,7 +72,9 @@ interface InsertTarget {
 
 export function ContentBlockList() {
   const documentBlocks = useBlockEditorState((state) => state.document.blocks);
-  const { reorderChildBlocks, selectBlock, addBlock } = useBlockEditorActions();
+  const { reorderChildBlocks, selectBlock, addBlock, deleteBlock } =
+    useBlockEditorActions();
+
   const {
     localState: groupedChildBlockIds,
     setLocalState: setGroupedChildBlockIds,
@@ -81,6 +93,9 @@ export function ContentBlockList() {
   }, []);
 
   const [insertTarget, setInsertTarget] = useState<InsertTarget | null>(null);
+  const [deleteTargetId, setDeleteTargetId] = useState<AnyBlock['id'] | null>(
+    null,
+  );
 
   const handleAddBlock = (blockDefinition: BlockDefinition) => {
     if (!insertTarget) return;
@@ -95,6 +110,13 @@ export function ContentBlockList() {
       }),
     });
     setInsertTarget(null);
+  };
+
+  const handleDeleteBlock = () => {
+    if (!deleteTargetId) return;
+
+    deleteBlock(deleteTargetId);
+    setDeleteTargetId(null);
   };
 
   return (
@@ -150,6 +172,7 @@ export function ContentBlockList() {
                   parentId={parentId}
                   onClick={() => selectBlock(childId)}
                   onAddClick={(insertTarget) => setInsertTarget(insertTarget)}
+                  onDeleteClick={() => setDeleteTargetId(childId)}
                 />
               ))}
               {childIds.length === 0 && (
@@ -191,6 +214,32 @@ export function ContentBlockList() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <AlertDialog
+        open={deleteTargetId !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleteTargetId(null);
+          }
+        }}
+      >
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete block?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove the block from the document.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={handleDeleteBlock}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
@@ -271,10 +320,12 @@ interface ChildItemProps {
   parentId: AnyBlock['id'];
   onClick: () => void;
   onAddClick: (insertTarget: InsertTarget) => void;
+  onDeleteClick: () => void;
 }
 
 function ChildItem(props: ChildItemProps) {
-  const { id, index, isLast, parentId, onClick, onAddClick } = props;
+  const { id, index, isLast, parentId, onClick, onAddClick, onDeleteClick } =
+    props;
 
   const { ref, handleRef, isDragging } = useSortable({
     id,
@@ -381,7 +432,7 @@ function ChildItem(props: ChildItemProps) {
           </ContextMenuGroup>
           <ContextMenuSeparator />
           <ContextMenuGroup>
-            <ContextMenuItem variant="destructive" disabled>
+            <ContextMenuItem variant="destructive" onClick={onDeleteClick}>
               <Trash2 />
               Delete
             </ContextMenuItem>
