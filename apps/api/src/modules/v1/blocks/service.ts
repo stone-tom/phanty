@@ -1,8 +1,16 @@
 import { blockDefinition, organizationBlockDefinition } from '@repo/db/schema';
-import type { BlockCategory } from '@repo/templates';
+import {
+  type BlockCategory,
+  type BlockDefinition,
+  BlockDefinitionSchema,
+} from '@repo/templates';
 import { and, asc, eq, getTableColumns } from 'drizzle-orm';
 import Elysia from 'elysia';
 import { db } from '../../../lib/db';
+
+type BlockDefinitionRow = typeof blockDefinition.$inferSelect;
+type AvailableBlockDefinition = BlockDefinition &
+  Pick<BlockDefinitionRow, 'id' | 'createdAt' | 'updatedAt'>;
 
 export class BlockService {
   async findAvailableBlocks(organizationId: string, category?: BlockCategory) {
@@ -15,7 +23,7 @@ export class BlockService {
       predicates.push(eq(blockDefinition.category, category));
     }
 
-    return db
+    const rows = await db
       .select(getTableColumns(blockDefinition))
       .from(blockDefinition)
       .innerJoin(
@@ -28,7 +36,23 @@ export class BlockService {
         asc(blockDefinition.type),
         asc(blockDefinition.version),
       );
+
+    return rows.map(toAvailableBlockDefinition);
   }
+}
+
+function toAvailableBlockDefinition(
+  row: BlockDefinitionRow,
+): AvailableBlockDefinition {
+  const { id, createdAt, updatedAt, ...definition } = row;
+  const parsedDefinition = BlockDefinitionSchema.parse(definition);
+
+  return {
+    ...parsedDefinition,
+    id,
+    createdAt,
+    updatedAt,
+  };
 }
 
 export const blockService = new Elysia({

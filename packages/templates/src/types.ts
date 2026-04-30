@@ -36,16 +36,29 @@ export type BlockDefinitionStatus = z.infer<typeof BlockDefinitionStatusSchema>;
 export const BlockVersionSchema = z.number().int().positive();
 export type BlockVersion = z.infer<typeof BlockVersionSchema>;
 
-export const BlockDefinitionSchema = z
+const BaseBlockDefinitionSchema = z
   .object({
     name: z.string().min(1),
     description: z.string().min(1),
-    category: BlockCategorySchema,
-    type: BlockTypeSchema,
     version: BlockVersionSchema,
     status: BlockDefinitionStatusSchema,
   })
   .strict();
+
+export const LayoutBlockDefinitionSchema = BaseBlockDefinitionSchema.extend({
+  category: z.literal('layout'),
+  type: LayoutBlockTypeSchema,
+}).strict();
+
+export const FormBlockDefinitionSchema = BaseBlockDefinitionSchema.extend({
+  category: z.literal('form'),
+  type: FormBlockTypeSchema,
+}).strict();
+
+export const BlockDefinitionSchema = z.discriminatedUnion('category', [
+  LayoutBlockDefinitionSchema,
+  FormBlockDefinitionSchema,
+]);
 export type BlockDefinition = z.infer<typeof BlockDefinitionSchema>;
 
 export const TemplateSettingsSchema = z
