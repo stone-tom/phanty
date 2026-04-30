@@ -3,7 +3,7 @@ import { Feedback } from '@dnd-kit/dom';
 import { move } from '@dnd-kit/helpers';
 import { DragDropProvider, useDroppable } from '@dnd-kit/react';
 import { useSortable } from '@dnd-kit/react/sortable';
-import type { AnyBlock } from '@repo/templates';
+import type { AnyBlock, BlockDefinition } from '@repo/templates';
 import { GripVertical, Plus } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -24,13 +24,14 @@ import {
   DialogTitle,
 } from '../ui/dialog';
 import { Separator } from '../ui/separator';
+import { createBlockFromDefinition } from './block-factory';
+import { ChildBlockSelector } from './block-selector';
 import {
   useBlockEditorActions,
   useBlockEditorBlock,
   useBlockEditorState,
 } from './hooks';
 import { type GroupedChildBlockIds, groupChildBlockIds } from './ordering';
-import { SelectContentBlockAction } from './select-content-block';
 import { useSyncedSortableState } from './use-synced-sortable-state';
 
 const OPEN_ON_DROP_TARGET_DELAY_MS = 500;
@@ -42,7 +43,7 @@ interface InsertTarget {
 
 export function ContentBlockList() {
   const documentBlocks = useBlockEditorState((state) => state.document.blocks);
-  const { reorderChildBlocks, selectBlock } = useBlockEditorActions();
+  const { reorderChildBlocks, selectBlock, addBlock } = useBlockEditorActions();
   const {
     localState: groupedChildBlockIds,
     setLocalState: setGroupedChildBlockIds,
@@ -61,6 +62,21 @@ export function ContentBlockList() {
   }, []);
 
   const [insertTarget, setInsertTarget] = useState<InsertTarget | null>(null);
+
+  const handleAddBlock = (blockDefinition: BlockDefinition) => {
+    if (!insertTarget) return;
+
+    const { parentId, index } = insertTarget;
+
+    addBlock({
+      block: createBlockFromDefinition({
+        definition: blockDefinition,
+        parentId,
+        sortIndex: index,
+      }),
+    });
+    setInsertTarget(null);
+  };
 
   return (
     <>
@@ -146,7 +162,7 @@ export function ContentBlockList() {
               Select the block you want to insert.
             </DialogDescription>
           </DialogHeader>
-          <SelectContentBlockAction />
+          <ChildBlockSelector onSelect={handleAddBlock} />
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="outline">
