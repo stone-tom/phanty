@@ -34,10 +34,17 @@
 - persist table state
 - single column grid sort
 
-#Ideas
+# Ideas
 
 ## Form Filling UI
 - projects will have documents - form questions could have a button for e.g. "save to documents", so files get transferred directly.
+- progress indicator
 
 ## FormBuilder
 - banner in form, if field is conditionally dependent on another field (ux flow better)
+
+## Meeting Notes / Project Notes
+Should be shareable internal and also to customers. Can contain documents, assets and text so info material does not need to be sent per e-mail always. Should also contain commenting.
+
+## TODO Contracts
+We could create a TODO list that can be shared with a customer, which contains TODOs that need to be done by potentially both sides. Internal and external People can then mark things as done and write comments to the done todos - should be attachable to meeting notes.
