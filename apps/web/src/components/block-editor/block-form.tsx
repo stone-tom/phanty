@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { TextBlockForm } from './blockForms/form/text';
+import { TextBlockForm } from './block-forms/form/text';
 import { useBlockEditorBlock } from './hooks';
 
 interface BlockFormProps {
