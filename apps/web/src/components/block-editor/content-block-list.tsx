@@ -54,6 +54,7 @@ import {
 } from '../ui/dialog';
 import { Separator } from '../ui/separator';
 import { createBlockFromDefinition } from './block-factory';
+import { BlockPreview } from './block-preview';
 import { ChildBlockSelector } from './block-selector';
 import {
   useBlockEditorActions,
@@ -437,16 +438,12 @@ function ChildItem(props: ChildItemProps) {
             type="button"
             onClick={onClick}
             className={cn(
-              'w-full text-start py-3 pr-1.5 pl-11 outline-none transition-colors',
+              'w-full text-start py-3 pr-3 pl-11 outline-none transition-colors',
               'hover:bg-muted data-[state=open]:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset',
               isLast && 'rounded-b-lg',
             )}
           >
-            {props.id} (index: {props.index})
-            <br />
-            {props.id} (index: {props.index})
-            <br />
-            {props.id} (index: {props.index})
+            <BlockPreview blockId={id} />
           </button>
         </ContextMenuTrigger>
         <ContextMenuContent>
