@@ -465,7 +465,17 @@ function ChildItem(props: ChildItemProps) {
             </ContextMenuItem>
           </ContextMenuGroup>
           <ContextMenuSeparator />
-
+          <ContextMenuGroup>
+            <ContextMenuItem disabled={!canMoveUp} onClick={onMoveUpClick}>
+              <ArrowUp />
+              Move up
+            </ContextMenuItem>
+            <ContextMenuItem disabled={!canMoveDown} onClick={onMoveDownClick}>
+              <ArrowDown />
+              Move down
+            </ContextMenuItem>
+          </ContextMenuGroup>
+          <ContextMenuSeparator />
           <ContextMenuGroup>
             <ContextMenuItem onClick={() => onAddClick({ parentId, index })}>
               <ArrowUpToLine />
@@ -479,17 +489,7 @@ function ChildItem(props: ChildItemProps) {
             </ContextMenuItem>
           </ContextMenuGroup>
           <ContextMenuSeparator />
-          <ContextMenuGroup>
-            <ContextMenuItem disabled={!canMoveUp} onClick={onMoveUpClick}>
-              <ArrowUp />
-              Move up
-            </ContextMenuItem>
-            <ContextMenuItem disabled={!canMoveDown} onClick={onMoveDownClick}>
-              <ArrowDown />
-              Move down
-            </ContextMenuItem>
-          </ContextMenuGroup>
-          <ContextMenuSeparator />
+
           <ContextMenuGroup>
             <ContextMenuItem variant="destructive" onClick={onDeleteClick}>
               <Trash2 />
