@@ -70,6 +70,8 @@ interface InsertTarget {
   index: number;
 }
 
+type MoveDirection = 'up' | 'down';
+
 export function ContentBlockList() {
   const documentBlocks = useBlockEditorState((state) => state.document.blocks);
   const { reorderChildBlocks, selectBlock, addBlock, deleteBlock } =
@@ -118,6 +120,37 @@ export function ContentBlockList() {
 
     deleteBlock(deleteTargetId);
     setDeleteTargetId(null);
+  };
+
+  const handleMoveChildBlock = (
+    parentId: AnyBlock['id'],
+    childId: AnyBlock['id'],
+    direction: MoveDirection,
+  ) => {
+    const childIds = groupedChildBlockIds[parentId];
+
+    if (!childIds) return;
+
+    const currentIndex = childIds.indexOf(childId);
+    const nextIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+
+    if (currentIndex === -1 || nextIndex < 0 || nextIndex >= childIds.length) {
+      return;
+    }
+
+    const nextChildIds = [...childIds];
+    [nextChildIds[currentIndex], nextChildIds[nextIndex]] = [
+      nextChildIds[nextIndex],
+      nextChildIds[currentIndex],
+    ];
+
+    const nextGroupedChildBlockIds = {
+      ...groupedChildBlockIds,
+      [parentId]: nextChildIds,
+    };
+
+    setGroupedChildBlockIds(nextGroupedChildBlockIds);
+    reorderChildBlocks(nextGroupedChildBlockIds);
   };
 
   return (
@@ -171,9 +204,17 @@ export function ContentBlockList() {
                   index={index}
                   isLast={index === childIds.length - 1}
                   parentId={parentId}
+                  canMoveUp={index > 0}
+                  canMoveDown={index < childIds.length - 1}
                   onClick={() => selectBlock(childId)}
                   onAddClick={(insertTarget) => setInsertTarget(insertTarget)}
                   onDeleteClick={() => setDeleteTargetId(childId)}
+                  onMoveUpClick={() =>
+                    handleMoveChildBlock(parentId, childId, 'up')
+                  }
+                  onMoveDownClick={() =>
+                    handleMoveChildBlock(parentId, childId, 'down')
+                  }
                 />
               ))}
               {childIds.length === 0 && (
@@ -319,14 +360,29 @@ interface ChildItemProps {
   index: number;
   isLast: boolean;
   parentId: AnyBlock['id'];
+  canMoveUp: boolean;
+  canMoveDown: boolean;
   onClick: () => void;
   onAddClick: (insertTarget: InsertTarget) => void;
   onDeleteClick: () => void;
+  onMoveUpClick: () => void;
+  onMoveDownClick: () => void;
 }
 
 function ChildItem(props: ChildItemProps) {
-  const { id, index, isLast, parentId, onClick, onAddClick, onDeleteClick } =
-    props;
+  const {
+    id,
+    index,
+    isLast,
+    parentId,
+    canMoveUp,
+    canMoveDown,
+    onClick,
+    onAddClick,
+    onDeleteClick,
+    onMoveUpClick,
+    onMoveDownClick,
+  } = props;
 
   const { ref, handleRef, isDragging } = useSortable({
     id,
@@ -424,11 +480,11 @@ function ChildItem(props: ChildItemProps) {
           </ContextMenuGroup>
           <ContextMenuSeparator />
           <ContextMenuGroup>
-            <ContextMenuItem disabled>
+            <ContextMenuItem disabled={!canMoveUp} onClick={onMoveUpClick}>
               <ArrowUp />
               Move up
             </ContextMenuItem>
-            <ContextMenuItem disabled>
+            <ContextMenuItem disabled={!canMoveDown} onClick={onMoveDownClick}>
               <ArrowDown />
               Move down
             </ContextMenuItem>
