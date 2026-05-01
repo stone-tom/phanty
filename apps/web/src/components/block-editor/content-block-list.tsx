@@ -108,6 +108,7 @@ export function ContentBlockList() {
         parentId,
         sortIndex: index,
       }),
+      select: true,
     });
     setInsertTarget(null);
   };
@@ -410,11 +411,13 @@ function ChildItem(props: ChildItemProps) {
           <ContextMenuSeparator />
 
           <ContextMenuGroup>
-            <ContextMenuItem disabled>
+            <ContextMenuItem onClick={() => onAddClick({ parentId, index })}>
               <ArrowUpToLine />
               Add block above
             </ContextMenuItem>
-            <ContextMenuItem disabled>
+            <ContextMenuItem
+              onClick={() => onAddClick({ parentId, index: index + 1 })}
+            >
               <ArrowDownToLine />
               Add block below
             </ContextMenuItem>
