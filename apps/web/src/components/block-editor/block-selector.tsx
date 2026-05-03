@@ -1,18 +1,9 @@
-import {
-  type BlockDefinition,
-  type BlockType,
-  getBlockVersionKey,
-} from '@repo/templates';
-import { Container, type LucideIcon, Type } from 'lucide-react';
+import { type BlockDefinition, getBlockVersionKey } from '@repo/templates';
 import { useEdenQuery } from '@/hooks/use-eden-query';
 import { blocks } from '@/queries/blocks';
 import { AutoFillGrid } from '../ui/auto-fill-grid';
 import { Button } from '../ui/button';
-
-const blockIcon: Record<BlockType, LucideIcon> = {
-  text: Type,
-  container: Container,
-};
+import { blockIcon } from './block-icon';
 
 interface BlockSelectorProps {
   blockDefinitions: BlockDefinition[];
