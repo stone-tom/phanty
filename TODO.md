@@ -15,15 +15,16 @@
 
 ## block editor
 ### next up
-- smoke test template document save rejects unknown block versions and ungranted block definitions
-- small first renderer
-- first block form (text)
-- first block renderer (container + text)
-- layout-block-list
+- previews (layout in both lists)
+- context menu for layout blocks
+- validation
+- form submissions
+- check what is needed for tanstack star
+- test setup? + tests for block editor
 
 ### later
-- prefill with data from the system (placeholder)
-- reuse layout components with inner content (e.g. base data selction can be pasted into another one)
+- prefill form fields (values) with data from the system (placeholder)
+- templates: reuse layout components with inner content (e.g. base data selction can be pasted into another one)
 - conditions for every block (usage should be very simple)
 
 ## the table
