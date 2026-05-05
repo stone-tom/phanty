@@ -129,6 +129,15 @@ export function ContentBlockList() {
   const handleDeleteBlock = () => {
     if (!deleteTargetId) return;
 
+    // Keep sortable local state in sync immediately so deleted child ids do not render for one stale frame.
+    setGroupedChildBlockIds((prev) =>
+      Object.fromEntries(
+        Object.entries(prev).map(([parentId, childIds]) => [
+          parentId,
+          childIds.filter((childId) => childId !== deleteTargetId),
+        ]),
+      ),
+    );
     deleteBlock(deleteTargetId);
     setDeleteTargetId(null);
   };
