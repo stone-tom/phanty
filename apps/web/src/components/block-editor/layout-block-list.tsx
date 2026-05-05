@@ -145,6 +145,7 @@ export function LayoutBlockList() {
                   id={rootId}
                   index={index}
                   onClick={() => selectBlock(rootId)}
+                  onAddClick={(insertTarget) => setInsertTarget(insertTarget)}
                   onDeleteClick={() => setDeleteTargetId(rootId)}
                 />
               </Fragment>
@@ -238,11 +239,12 @@ interface RootItemProps {
   id: AnyBlock['id'];
   index: number;
   onClick?: () => void;
+  onAddClick: (insertTarget: InsertTarget) => void;
   onDeleteClick: () => void;
 }
 
 function RootItem(props: RootItemProps) {
-  const { id, index, onClick, onDeleteClick } = props;
+  const { id, index, onClick, onAddClick, onDeleteClick } = props;
   const block = useBlockEditorBlock({ id });
   const { ref, handleRef, isDragging } = useSortable({
     id,
@@ -316,11 +318,11 @@ function RootItem(props: RootItemProps) {
           </ContextMenuGroup>
           <ContextMenuSeparator />
           <ContextMenuGroup>
-            <ContextMenuItem disabled>
+            <ContextMenuItem onClick={() => onAddClick({ index })}>
               <ArrowUpToLine />
               Add block above
             </ContextMenuItem>
-            <ContextMenuItem disabled>
+            <ContextMenuItem onClick={() => onAddClick({ index: index + 1 })}>
               <ArrowDownToLine />
               Add block below
             </ContextMenuItem>

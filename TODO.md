@@ -15,8 +15,8 @@
 
 ## block editor
 ### next up
-- previews (layout in both lists)
 - context menu for layout blocks
+- previews (layout in both lists)
 - validation
 - form submissions
 - check what is needed for tanstack star
