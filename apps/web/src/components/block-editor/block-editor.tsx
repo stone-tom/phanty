@@ -51,7 +51,10 @@ export function BlockEditor() {
           </div>
 
           <div className="w-full min-h-0 flex-1 flex flex-col pr-0.5">
-            <ScrollArea className="w-full min-h-0 flex-1 pl-3 pr-2.5">
+            <ScrollArea
+              className="w-full min-h-0 flex-1 pl-3 pr-2.5"
+              viewportClassName="overflow-x-hidden [&>div]:w-full [&>div]:table-fixed"
+            >
               <TabsContent value="layout" className="py-3">
                 <LayoutBlockList />
               </TabsContent>

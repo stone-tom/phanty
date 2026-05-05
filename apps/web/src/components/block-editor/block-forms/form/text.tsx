@@ -1,3 +1,4 @@
+import type { TextFieldSchema } from '@repo/templates';
 import { debounce } from 'lodash';
 import { useEffect, useRef } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
@@ -13,7 +14,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { typedPick } from '@/util/type-helpers';
 import { useBlockEditorActions, useBlockEditorBlock } from '../../hooks';
-import type { TextFieldSchema } from '../../types';
 
 interface TextBlockFormProps {
   blockId: string;
@@ -56,6 +56,17 @@ export function TextBlockForm(props: TextBlockFormProps) {
     });
   }, [subscribe]);
 
+  // When component mounts, focus the label input and select its content for easy editing.
+  // especially useful when adding a new text block, as the label will be pre-filled with a default value.
+  const autoFocusRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (autoFocusRef.current) {
+      autoFocusRef.current.focus();
+      autoFocusRef.current.select();
+    }
+  }, []);
+
   return (
     <FormProvider {...form}>
       <form
@@ -76,6 +87,7 @@ export function TextBlockForm(props: TextBlockFormProps) {
                 <FieldLabel htmlFor={field.name}>Label</FieldLabel>
                 <Input
                   {...field}
+                  ref={autoFocusRef}
                   id={field.name}
                   aria-invalid={fieldState.invalid}
                 />

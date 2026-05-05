@@ -14,7 +14,7 @@ import {
   FieldLabel,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { authClient } from '@/lib/auth';
+import { api } from '@/lib/api';
 
 export const Route = createFileRoute('/_auth/setup-org')({
   component: SetupOrg,
@@ -25,7 +25,7 @@ function SetupOrg() {
   const [viewState, setViewState] = useState<'form' | 'error'>('form');
 
   const handleSubmitOrgInfo = async (values: SetupOrgFormValues) => {
-    const response = await authClient.organization.create({
+    const response = await api.v1.organizations.setup.post({
       slug: slugify(values.name),
       name: values.name,
     });

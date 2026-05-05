@@ -1,3 +1,4 @@
 export * from './auth';
-export * from './form-template';
+export * from './block-definition';
 export * from './project';
+export * from './template';

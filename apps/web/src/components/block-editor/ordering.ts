@@ -1,6 +1,7 @@
-import type { AnyBlock, BlockEditorDocument } from './types';
+import type { AnyBlock, BlockEditorDocument } from '@repo/templates';
 
 export type GroupedChildBlockIds = Record<AnyBlock['id'], AnyBlock['id'][]>;
+type BlockMap = BlockEditorDocument['blocks'];
 
 export interface BlockOrderChange {
   id: AnyBlock['id'];
@@ -29,6 +30,75 @@ export function getChildBlocks(
   return Object.values(blocks)
     .filter((block) => block.parentId === parentId)
     .toSorted(compareBlocks);
+}
+
+function getSiblingBlocks(blocks: BlockMap, parentId: AnyBlock['id'] | null) {
+  return parentId === null
+    ? getRootBlocks(blocks)
+    : getChildBlocks(blocks, parentId);
+}
+
+function applySortIndexes(blocks: BlockMap, orderedBlocks: AnyBlock[]) {
+  let nextBlocks: BlockMap | undefined;
+
+  for (const [sortIndex, block] of orderedBlocks.entries()) {
+    const currentBlock = blocks[block.id] ?? block;
+
+    if (blocks[block.id] && currentBlock.sortIndex === sortIndex) {
+      continue;
+    }
+
+    nextBlocks ??= { ...blocks };
+    nextBlocks[block.id] = {
+      ...currentBlock,
+      sortIndex,
+    };
+  }
+
+  return nextBlocks ?? blocks;
+}
+
+export function getBlockAndDescendantIds(
+  blocks: BlockMap,
+  blockId: AnyBlock['id'],
+) {
+  const blockIds = new Set<AnyBlock['id']>([blockId]);
+  const pendingBlockIds = [blockId];
+
+  while (pendingBlockIds.length > 0) {
+    const parentId = pendingBlockIds.shift();
+
+    if (!parentId) {
+      continue;
+    }
+
+    for (const childBlock of getChildBlocks(blocks, parentId)) {
+      if (blockIds.has(childBlock.id)) {
+        continue;
+      }
+
+      blockIds.add(childBlock.id);
+      pendingBlockIds.push(childBlock.id);
+    }
+  }
+
+  return blockIds;
+}
+
+export function normalizeSiblingSortIndexes(
+  blocks: BlockMap,
+  parentId: AnyBlock['id'] | null,
+) {
+  return applySortIndexes(blocks, getSiblingBlocks(blocks, parentId));
+}
+
+export function insertBlockIntoOrder(blocks: BlockMap, block: AnyBlock) {
+  const siblings = getSiblingBlocks(blocks, block.parentId);
+  const orderedSiblings = [...siblings];
+
+  orderedSiblings.splice(block.sortIndex, 0, block);
+
+  return applySortIndexes(blocks, orderedSiblings);
 }
 
 export function groupChildBlockIds(

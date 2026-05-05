@@ -1,3 +1,4 @@
+import type { AnyBlock, BlockEditorDocument, BlockType } from '@repo/templates';
 import { createContext, useContext, useState } from 'react';
 import type { PartialDeep, SimplifyDeep } from 'type-fest';
 import { createStore, type StateCreator, type StoreApi } from 'zustand/vanilla';
@@ -5,12 +6,20 @@ import {
   buildChildBlockOrder,
   buildRootBlockOrder,
   type GroupedChildBlockIds,
+  getBlockAndDescendantIds,
+  insertBlockIntoOrder,
+  normalizeSiblingSortIndexes,
 } from './ordering';
-import type { AnyBlock, BlockEditorDocument, BlockType } from './types';
 
 type GetBlock<TType extends BlockType> = Extract<AnyBlock, { type: TType }>;
 
-type StructuralBlockKey = 'id' | 'type' | 'category' | 'parentId' | 'sortIndex';
+type StructuralBlockKey =
+  | 'id'
+  | 'type'
+  | 'category'
+  | 'version'
+  | 'parentId'
+  | 'sortIndex';
 
 type GetBlockChanges<TType extends BlockType> = SimplifyDeep<
   PartialDeep<Omit<GetBlock<TType>, StructuralBlockKey>>
@@ -33,6 +42,8 @@ export interface BlockEditorStoreState {
       id: string,
       changes: GetBlockChanges<TType>,
     ) => void;
+    addBlock: (input: { block: AnyBlock; select?: boolean }) => void;
+    deleteBlock: (id: AnyBlock['id']) => void;
     selectBlock: (blockId: string | null) => void;
     replaceDocument: (document: BlockEditorDocument) => void;
   };
@@ -153,6 +164,7 @@ const createBlockEditorState: StateInitializer =
             id: _id,
             type: _type,
             category: _category,
+            version: _version,
             parentId: _parentId,
             sortIndex: _sortIndex,
             ...safeChanges
@@ -173,6 +185,70 @@ const createBlockEditorState: StateInitializer =
 
             return true;
           });
+        });
+      },
+
+      addBlock: ({ block, select }) => {
+        set((state) => {
+          if (state.document.blocks[block.id]) {
+            return state;
+          }
+
+          if (
+            block.parentId !== null &&
+            !state.document.blocks[block.parentId]
+          ) {
+            return state;
+          }
+
+          const nextBlocks = insertBlockIntoOrder(state.document.blocks, block);
+
+          return {
+            ...state,
+            selectedBlockId: select === true ? block.id : state.selectedBlockId,
+            document: {
+              ...state.document,
+              blocks: nextBlocks,
+            },
+          };
+        });
+      },
+
+      deleteBlock: (id) => {
+        set((state) => {
+          const currentBlock = state.document.blocks[id];
+
+          if (!currentBlock) {
+            return state;
+          }
+
+          const deletedBlockIds = getBlockAndDescendantIds(
+            state.document.blocks,
+            id,
+          );
+          const nextBlocks = Object.fromEntries(
+            Object.entries(state.document.blocks).filter(
+              ([blockId]) => !deletedBlockIds.has(blockId),
+            ),
+          );
+
+          const normalizedBlocks = normalizeSiblingSortIndexes(
+            nextBlocks,
+            currentBlock.parentId,
+          );
+
+          return {
+            ...state,
+            selectedBlockId:
+              state.selectedBlockId &&
+              deletedBlockIds.has(state.selectedBlockId)
+                ? null
+                : state.selectedBlockId,
+            document: {
+              ...state.document,
+              blocks: normalizedBlocks,
+            },
+          };
         });
       },
 

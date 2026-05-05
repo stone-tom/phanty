@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import type { ActionChildrenProps } from '@/components/actions/types';
 import { useEdenMutation } from '@/hooks/use-eden-mutation';
 import { api } from '@/lib/api';
-import { formTemplates } from '@/queries/form-templates';
+import { templates } from '@/queries/templates';
 import {
   FormTemplateForm,
   type FormTemplateFormValues,
@@ -19,10 +19,11 @@ export function CreateFormTemplateAction(props: CreateFormTemplateActionProps) {
   const queryClient = useQueryClient();
 
   const { mutate, isPending } = useEdenMutation(
-    (values: FormTemplateFormValues) => api.v1.forms.templates.post(values),
+    (values: FormTemplateFormValues) =>
+      api.v1.templates.post({ ...values, type: 'form' }),
     {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: formTemplates._def });
+        await queryClient.invalidateQueries({ queryKey: templates._def });
         toast.success('Form template created');
         props.onSuccess?.();
       },

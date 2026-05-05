@@ -1,5 +1,6 @@
 import { memo } from 'react';
-import { TextBlockForm } from './blockForms/form/text';
+import { TextBlockForm } from './block-forms/form/text';
+import { ContainerBlockForm } from './block-forms/layout/container';
 import { useBlockEditorBlock } from './hooks';
 
 interface BlockFormProps {
@@ -16,6 +17,9 @@ export const BlockForm = memo((props: BlockFormProps) => {
   );
 
   switch (type) {
+    case 'container': {
+      return <ContainerBlockForm blockId={blockId} />;
+    }
     case 'text': {
       return <TextBlockForm blockId={blockId} />;
     }

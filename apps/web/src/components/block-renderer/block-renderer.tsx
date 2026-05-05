@@ -1,10 +1,10 @@
-import { FormProvider, useForm } from 'react-hook-form';
-import { getChildBlocks, getRootBlocks } from '../block-editor/ordering';
 import {
   type AnyBlock,
   type BlockEditorDocument,
   isChildBlock,
-} from '../block-editor/types';
+} from '@repo/templates';
+import { FormProvider, useForm } from 'react-hook-form';
+import { getChildBlocks, getRootBlocks } from '../block-editor/ordering';
 import { TextBlockComponent } from './blocks/form/text';
 
 interface BlockRendererProps {
