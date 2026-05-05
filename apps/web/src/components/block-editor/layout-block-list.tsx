@@ -68,6 +68,8 @@ interface InsertTarget {
   index: number;
 }
 
+type MoveDirection = 'up' | 'down';
+
 export function LayoutBlockList() {
   const documentBlocks = useBlockEditorState((state) => state.document.blocks);
   const { reorderRootBlocks, selectBlock, addBlock, deleteBlock } =
@@ -108,6 +110,27 @@ export function LayoutBlockList() {
     setDeleteTargetId(null);
   };
 
+  const handleMoveRootBlock = (
+    rootId: AnyBlock['id'],
+    direction: MoveDirection,
+  ) => {
+    const currentIndex = rootIds.indexOf(rootId);
+    const nextIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+
+    if (currentIndex === -1 || nextIndex < 0 || nextIndex >= rootIds.length) {
+      return;
+    }
+
+    const nextRootIds = [...rootIds];
+    [nextRootIds[currentIndex], nextRootIds[nextIndex]] = [
+      nextRootIds[nextIndex],
+      nextRootIds[currentIndex],
+    ];
+
+    setRootIds(nextRootIds);
+    reorderRootBlocks(nextRootIds);
+  };
+
   return (
     <>
       <DragDropProvider
@@ -144,9 +167,13 @@ export function LayoutBlockList() {
                 <RootItem
                   id={rootId}
                   index={index}
+                  canMoveUp={index > 0}
+                  canMoveDown={index < rootIds.length - 1}
                   onClick={() => selectBlock(rootId)}
                   onAddClick={(insertTarget) => setInsertTarget(insertTarget)}
                   onDeleteClick={() => setDeleteTargetId(rootId)}
+                  onMoveUpClick={() => handleMoveRootBlock(rootId, 'up')}
+                  onMoveDownClick={() => handleMoveRootBlock(rootId, 'down')}
                 />
               </Fragment>
             ))}
@@ -238,13 +265,27 @@ export function LayoutBlockList() {
 interface RootItemProps {
   id: AnyBlock['id'];
   index: number;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
   onClick?: () => void;
   onAddClick: (insertTarget: InsertTarget) => void;
   onDeleteClick: () => void;
+  onMoveUpClick: () => void;
+  onMoveDownClick: () => void;
 }
 
 function RootItem(props: RootItemProps) {
-  const { id, index, onClick, onAddClick, onDeleteClick } = props;
+  const {
+    id,
+    index,
+    canMoveUp,
+    canMoveDown,
+    onClick,
+    onAddClick,
+    onDeleteClick,
+    onMoveUpClick,
+    onMoveDownClick,
+  } = props;
   const block = useBlockEditorBlock({ id });
   const { ref, handleRef, isDragging } = useSortable({
     id,
@@ -307,11 +348,11 @@ function RootItem(props: RootItemProps) {
           </ContextMenuGroup>
           <ContextMenuSeparator />
           <ContextMenuGroup>
-            <ContextMenuItem disabled>
+            <ContextMenuItem disabled={!canMoveUp} onClick={onMoveUpClick}>
               <ArrowUp />
               Move up
             </ContextMenuItem>
-            <ContextMenuItem disabled>
+            <ContextMenuItem disabled={!canMoveDown} onClick={onMoveDownClick}>
               <ArrowDown />
               Move down
             </ContextMenuItem>
