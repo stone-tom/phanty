@@ -2,10 +2,30 @@ import { Feedback } from '@dnd-kit/dom';
 import { move } from '@dnd-kit/helpers';
 import { DragDropProvider } from '@dnd-kit/react';
 import { useSortable } from '@dnd-kit/react/sortable';
-import type { AnyBlock } from '@repo/templates';
-import { GripVertical } from 'lucide-react';
+import type { AnyBlock, BlockDefinition } from '@repo/templates';
+import { GripVertical, Layers2, Plus } from 'lucide-react';
+import { Fragment, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { buttonVariants } from '../ui/button';
+import { Button, buttonVariants } from '../ui/button';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../ui/dialog';
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '../ui/empty';
+import { createBlockFromDefinition } from './block-factory';
+import { RootBlockSelector } from './block-selector';
 import {
   useBlockEditorActions,
   useBlockEditorBlock,
@@ -14,9 +34,13 @@ import {
 import { getRootBlockIds } from './ordering';
 import { useSyncedSortableState } from './use-synced-sortable-state';
 
+interface InsertTarget {
+  index: number;
+}
+
 export function LayoutBlockList() {
   const documentBlocks = useBlockEditorState((state) => state.document.blocks);
-  const { reorderRootBlocks, selectBlock } = useBlockEditorActions();
+  const { reorderRootBlocks, selectBlock, addBlock } = useBlockEditorActions();
 
   const {
     localState: rootIds,
@@ -25,39 +49,117 @@ export function LayoutBlockList() {
     handleDragEnd,
   } = useSyncedSortableState(documentBlocks, getRootBlockIds);
 
+  const [insertTarget, setInsertTarget] = useState<InsertTarget | null>(null);
+
+  const handleAddBlock = (blockDefinition: BlockDefinition) => {
+    if (!insertTarget) return;
+
+    addBlock({
+      block: createBlockFromDefinition({
+        definition: blockDefinition,
+        parentId: null,
+        sortIndex: insertTarget.index,
+      }),
+      select: false,
+    });
+    setInsertTarget(null);
+  };
+
   return (
-    <DragDropProvider
-      onDragStart={handleDragStart}
-      onDragOver={(event) => {
-        const sourceId = event.operation.source?.id;
-        const targetId = event.operation.target?.id;
+    <>
+      <DragDropProvider
+        onDragStart={handleDragStart}
+        onDragOver={(event) => {
+          const sourceId = event.operation.source?.id;
+          const targetId = event.operation.target?.id;
 
-        if (!sourceId || !targetId) {
-          event.preventDefault();
-          return;
-        }
+          if (!sourceId || !targetId) {
+            event.preventDefault();
+            return;
+          }
 
-        setRootIds((prev) => move(prev, event));
-      }}
-      onDragEnd={(event) => {
-        if (!handleDragEnd(event.canceled)) {
-          return;
-        }
+          setRootIds((prev) => move(prev, event));
+        }}
+        onDragEnd={(event) => {
+          if (!handleDragEnd(event.canceled)) {
+            return;
+          }
 
-        reorderRootBlocks(rootIds);
-      }}
-    >
-      <div className="flex flex-col gap-2">
-        {rootIds.map((rootId, index) => (
-          <RootItem
-            key={rootId}
-            id={rootId}
-            index={index}
-            onClick={() => selectBlock(rootId)}
-          />
-        ))}
-      </div>
-    </DragDropProvider>
+          reorderRootBlocks(rootIds);
+        }}
+      >
+        {rootIds.length > 0 ? (
+          <div className="flex flex-col">
+            {rootIds.map((rootId, index) => (
+              <Fragment key={rootId}>
+                <InsertSeparator
+                  ariaLabel="Add layout block above"
+                  onClick={() => {
+                    setInsertTarget({ index });
+                  }}
+                />
+                <RootItem
+                  id={rootId}
+                  index={index}
+                  onClick={() => selectBlock(rootId)}
+                />
+              </Fragment>
+            ))}
+            <InsertSeparator
+              ariaLabel="Add layout block below"
+              onClick={() => {
+                setInsertTarget({ index: rootIds.length });
+              }}
+            />
+          </div>
+        ) : (
+          <Empty className="border">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Layers2 />
+              </EmptyMedia>
+              <EmptyTitle>No layout blocks</EmptyTitle>
+              <EmptyDescription>
+                Add a container to start building the template layout.
+              </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => setInsertTarget({ index: 0 })}
+              >
+                <Plus />
+                Add layout block
+              </Button>
+            </EmptyContent>
+          </Empty>
+        )}
+      </DragDropProvider>
+      <Dialog
+        open={insertTarget !== null}
+        onOpenChange={() => {
+          setInsertTarget(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add layout block</DialogTitle>
+            <DialogDescription>
+              Select the layout block you want to insert.
+            </DialogDescription>
+          </DialogHeader>
+          <RootBlockSelector onSelect={handleAddBlock} />
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                Cancel
+              </Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
@@ -83,7 +185,7 @@ function RootItem(props: RootItemProps) {
       ref={ref}
       data-dragging={isDragging}
       className={cn(
-        'relative overflow-hidden rounded-lg border border-primary bg-background',
+        'relative rounded-lg border border-primary bg-background',
         'data-[dnd-placeholder=clone]:opacity-50',
       )}
     >
@@ -112,5 +214,40 @@ function RootItem(props: RootItemProps) {
         </span>
       </button>
     </div>
+  );
+}
+
+interface InsertSeparatorProps {
+  ariaLabel: string;
+  onClick: () => void;
+}
+
+function InsertSeparator(props: InsertSeparatorProps) {
+  const { ariaLabel, onClick } = props;
+
+  return (
+    <button
+      type="button"
+      aria-label={ariaLabel}
+      className={cn(
+        'group/separator relative z-20 -my-2 h-6 w-full',
+        'before:absolute before:left-0 before:right-0 before:top-1/2 before:h-px before:-translate-y-1/2 before:transition-colors',
+        'hover:before:bg-primary/50 hover:before:h-0.5 focus-visible:before:bg-primary/50 focus-visible:before:h-0.5',
+      )}
+      onClick={(event) => {
+        event.stopPropagation();
+        onClick();
+      }}
+    >
+      <span
+        className={cn(
+          'absolute left-1/2 top-1/2 flex size-6 -translate-x-1/2 -translate-y-1/2 p-0.5',
+          'items-center justify-center rounded-full bg-primary text-primary-foreground',
+          'opacity-0 transition-opacity group-hover/separator:opacity-100 group-focus-visible/separator:opacity-100',
+        )}
+      >
+        <Plus />
+      </span>
+    </button>
   );
 }
