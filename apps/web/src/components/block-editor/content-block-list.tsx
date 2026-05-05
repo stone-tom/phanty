@@ -10,7 +10,9 @@ import {
   ArrowUp,
   ArrowUpToLine,
   Copy,
+  FileText,
   GripVertical,
+  Layers2,
   Pencil,
   Plus,
   Scissors,
@@ -52,6 +54,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../ui/dialog';
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '../ui/empty';
 import { Separator } from '../ui/separator';
 import { createBlockFromDefinition } from './block-factory';
 import { BlockPreview } from './block-preview';
@@ -190,49 +200,65 @@ export function ContentBlockList() {
           reorderChildBlocks(groupedChildBlockIds);
         }}
       >
-        <Accordion
-          type="multiple"
-          value={openParentIds}
-          onValueChange={setOpenParentIds}
-          className="gap-2"
-        >
-          {Object.entries(groupedChildBlockIds).map(([parentId, childIds]) => (
-            <RootItem key={parentId} id={parentId} onDropTarget={openParent}>
-              {childIds.map((childId, index) => (
-                <ChildItem
-                  key={childId}
-                  id={childId}
-                  index={index}
-                  isLast={index === childIds.length - 1}
-                  parentId={parentId}
-                  canMoveUp={index > 0}
-                  canMoveDown={index < childIds.length - 1}
-                  onClick={() => selectBlock(childId)}
-                  onAddClick={(insertTarget) => setInsertTarget(insertTarget)}
-                  onDeleteClick={() => setDeleteTargetId(childId)}
-                  onMoveUpClick={() =>
-                    handleMoveChildBlock(parentId, childId, 'up')
-                  }
-                  onMoveDownClick={() =>
-                    handleMoveChildBlock(parentId, childId, 'down')
-                  }
-                />
-              ))}
-              {childIds.length === 0 && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="m-2"
-                  onClick={() => setInsertTarget({ index: 0, parentId })}
+        {Object.keys(groupedChildBlockIds).length > 0 ? (
+          <Accordion
+            type="multiple"
+            value={openParentIds}
+            onValueChange={setOpenParentIds}
+            className="gap-2"
+          >
+            {Object.entries(groupedChildBlockIds).map(
+              ([parentId, childIds]) => (
+                <RootItem
+                  key={parentId}
+                  id={parentId}
+                  onDropTarget={openParent}
                 >
-                  <Plus />
-                  Add Block
-                </Button>
-              )}
-            </RootItem>
-          ))}
-        </Accordion>
+                  {childIds.length > 0 ? (
+                    childIds.map((childId, index) => (
+                      <ChildItem
+                        key={childId}
+                        id={childId}
+                        index={index}
+                        isLast={index === childIds.length - 1}
+                        parentId={parentId}
+                        canMoveUp={index > 0}
+                        canMoveDown={index < childIds.length - 1}
+                        onClick={() => selectBlock(childId)}
+                        onAddClick={(insertTarget) =>
+                          setInsertTarget(insertTarget)
+                        }
+                        onDeleteClick={() => setDeleteTargetId(childId)}
+                        onMoveUpClick={() =>
+                          handleMoveChildBlock(parentId, childId, 'up')
+                        }
+                        onMoveDownClick={() =>
+                          handleMoveChildBlock(parentId, childId, 'down')
+                        }
+                      />
+                    ))
+                  ) : (
+                    <ContainerEmptyState
+                      onAddClick={() => setInsertTarget({ index: 0, parentId })}
+                    />
+                  )}
+                </RootItem>
+              ),
+            )}
+          </Accordion>
+        ) : (
+          <Empty className="border">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Layers2 />
+              </EmptyMedia>
+              <EmptyTitle>No content containers</EmptyTitle>
+              <EmptyDescription>
+                Add a layout block before adding content blocks.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        )}
       </DragDropProvider>
       <Dialog
         open={insertTarget !== null}
@@ -353,6 +379,34 @@ function RootItem(props: RootItemProps) {
         <div className="flex min-h-10 flex-col">{children}</div>
       </AccordionContent>
     </AccordionItem>
+  );
+}
+
+interface ContainerEmptyStateProps {
+  onAddClick: () => void;
+}
+
+function ContainerEmptyState(props: ContainerEmptyStateProps) {
+  const { onAddClick } = props;
+
+  return (
+    <Empty className="rounded-none border-0">
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <FileText />
+        </EmptyMedia>
+        <EmptyTitle>No content blocks</EmptyTitle>
+        <EmptyDescription>
+          Add a block to this container to start collecting content.
+        </EmptyDescription>
+      </EmptyHeader>
+      <EmptyContent>
+        <Button type="button" size="sm" onClick={onAddClick}>
+          <Plus />
+          Add Block
+        </Button>
+      </EmptyContent>
+    </Empty>
   );
 }
 
