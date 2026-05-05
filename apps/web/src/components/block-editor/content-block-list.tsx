@@ -333,6 +333,8 @@ function RootItem(props: RootItemProps) {
   const block = useBlockEditorBlock({
     id,
   });
+  const title =
+    block.type === 'container' ? block.name?.trim() || 'Container' : block.type;
 
   const openTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { ref, isDropTarget } = useDroppable({
@@ -378,7 +380,7 @@ function RootItem(props: RootItemProps) {
           isDropTarget && 'group-data-[state="closed"]/parent:bg-primary/25',
         )}
       >
-        <span className="capitalize font-medium">{block.type}</span>
+        <span className="font-medium">{title}</span>
       </AccordionTrigger>
       <AccordionContent
         className="data-open:animate-none data-open:overflow-visible data-closed:animate-none data-closed:overflow-hidden"

@@ -80,9 +80,16 @@ export const BaseBlockSchema = z
   .strict();
 export type BaseBlock = z.infer<typeof BaseBlockSchema>;
 
+const ContainerNameSchema = z.preprocess(
+  (value) =>
+    typeof value === 'string' && value.trim().length === 0 ? undefined : value,
+  z.string().trim().min(1).optional(),
+);
+
 export const ContainerLayoutBlockSchema = BaseBlockSchema.extend({
   category: z.literal('layout'),
   type: z.literal('container'),
+  name: ContainerNameSchema,
   parentId: z.null(),
 }).strict();
 export type ContainerLayoutBlock = z.infer<typeof ContainerLayoutBlockSchema>;
