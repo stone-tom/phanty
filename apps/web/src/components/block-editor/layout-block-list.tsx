@@ -3,10 +3,40 @@ import { move } from '@dnd-kit/helpers';
 import { DragDropProvider } from '@dnd-kit/react';
 import { useSortable } from '@dnd-kit/react/sortable';
 import type { AnyBlock, BlockDefinition } from '@repo/templates';
-import { GripVertical, Layers2, Plus } from 'lucide-react';
+import {
+  ArrowDown,
+  ArrowDownToLine,
+  ArrowUp,
+  ArrowUpToLine,
+  Copy,
+  GripVertical,
+  Layers2,
+  Pencil,
+  Plus,
+  Scissors,
+  Trash2,
+} from 'lucide-react';
 import { Fragment, useState } from 'react';
 import { cn } from '@/lib/utils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '../ui/alert-dialog';
 import { Button, buttonVariants } from '../ui/button';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuGroup,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from '../ui/context-menu';
 import {
   Dialog,
   DialogClose,
@@ -40,7 +70,8 @@ interface InsertTarget {
 
 export function LayoutBlockList() {
   const documentBlocks = useBlockEditorState((state) => state.document.blocks);
-  const { reorderRootBlocks, selectBlock, addBlock } = useBlockEditorActions();
+  const { reorderRootBlocks, selectBlock, addBlock, deleteBlock } =
+    useBlockEditorActions();
 
   const {
     localState: rootIds,
@@ -50,6 +81,9 @@ export function LayoutBlockList() {
   } = useSyncedSortableState(documentBlocks, getRootBlockIds);
 
   const [insertTarget, setInsertTarget] = useState<InsertTarget | null>(null);
+  const [deleteTargetId, setDeleteTargetId] = useState<AnyBlock['id'] | null>(
+    null,
+  );
 
   const handleAddBlock = (blockDefinition: BlockDefinition) => {
     if (!insertTarget) return;
@@ -63,6 +97,15 @@ export function LayoutBlockList() {
       select: false,
     });
     setInsertTarget(null);
+  };
+
+  const handleDeleteBlock = () => {
+    if (!deleteTargetId) return;
+
+    // Keep sortable local state in sync immediately so deleted root ids do not render for one stale frame.
+    setRootIds((prev) => prev.filter((rootId) => rootId !== deleteTargetId));
+    deleteBlock(deleteTargetId);
+    setDeleteTargetId(null);
   };
 
   return (
@@ -102,6 +145,7 @@ export function LayoutBlockList() {
                   id={rootId}
                   index={index}
                   onClick={() => selectBlock(rootId)}
+                  onDeleteClick={() => setDeleteTargetId(rootId)}
                 />
               </Fragment>
             ))}
@@ -159,6 +203,33 @@ export function LayoutBlockList() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <AlertDialog
+        open={deleteTargetId !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleteTargetId(null);
+          }
+        }}
+      >
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete layout block?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove the layout block and all content blocks inside
+              it.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={handleDeleteBlock}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
@@ -167,10 +238,11 @@ interface RootItemProps {
   id: AnyBlock['id'];
   index: number;
   onClick?: () => void;
+  onDeleteClick: () => void;
 }
 
 function RootItem(props: RootItemProps) {
-  const { id, index, onClick } = props;
+  const { id, index, onClick, onDeleteClick } = props;
   const block = useBlockEditorBlock({ id });
   const { ref, handleRef, isDragging } = useSortable({
     id,
@@ -199,20 +271,69 @@ function RootItem(props: RootItemProps) {
       >
         <GripVertical />
       </span>
-      <button
-        type="button"
-        onClick={onClick}
-        className={cn(
-          'w-full rounded-lg bg-primary-soft py-3 pr-1.5 pl-11 text-start text-primary-soft-foreground outline-none transition-colors',
-          'hover:bg-primary/13 focus-visible:bg-primary/20 focus-visible:ring-2 focus-visible:ring-ring/50',
-        )}
-      >
-        <span className="capitalize font-medium">{block.type}</span>
-        <br />
-        <span className="text-xs text-primary-soft-foreground/80">
-          {block.id}
-        </span>
-      </button>
+      <ContextMenu>
+        <ContextMenuTrigger asChild>
+          <button
+            type="button"
+            onClick={onClick}
+            className={cn(
+              'w-full rounded-lg bg-primary-soft py-3 pr-1.5 pl-11 text-start text-primary-soft-foreground outline-none transition-colors',
+              'hover:bg-primary/13 focus-visible:bg-primary/20 focus-visible:ring-2 focus-visible:ring-ring/50',
+            )}
+          >
+            <span className="capitalize font-medium">{block.type}</span>
+            <br />
+            <span className="text-xs text-primary-soft-foreground/80">
+              {block.id}
+            </span>
+          </button>
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuGroup>
+            <ContextMenuItem onClick={onClick}>
+              <Pencil />
+              Edit
+            </ContextMenuItem>
+            <ContextMenuItem disabled>
+              <Copy />
+              Copy
+            </ContextMenuItem>
+            <ContextMenuItem disabled>
+              <Scissors />
+              Cut
+            </ContextMenuItem>
+          </ContextMenuGroup>
+          <ContextMenuSeparator />
+          <ContextMenuGroup>
+            <ContextMenuItem disabled>
+              <ArrowUp />
+              Move up
+            </ContextMenuItem>
+            <ContextMenuItem disabled>
+              <ArrowDown />
+              Move down
+            </ContextMenuItem>
+          </ContextMenuGroup>
+          <ContextMenuSeparator />
+          <ContextMenuGroup>
+            <ContextMenuItem disabled>
+              <ArrowUpToLine />
+              Add block above
+            </ContextMenuItem>
+            <ContextMenuItem disabled>
+              <ArrowDownToLine />
+              Add block below
+            </ContextMenuItem>
+          </ContextMenuGroup>
+          <ContextMenuSeparator />
+          <ContextMenuGroup>
+            <ContextMenuItem variant="destructive" onClick={onDeleteClick}>
+              <Trash2 />
+              Delete
+            </ContextMenuItem>
+          </ContextMenuGroup>
+        </ContextMenuContent>
+      </ContextMenu>
     </div>
   );
 }
