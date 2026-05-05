@@ -15,10 +15,6 @@
 
 ## block editor
 ### next up
-- add layout blocks (seperators)
-- add context menu with edit and delete
-- add empty state to content block list empty accordions
-- when opening the text field form, focus label
 - previews (layout in both lists)
 - context menu for layout blocks
 - validation
