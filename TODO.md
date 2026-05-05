@@ -15,6 +15,8 @@
 
 ## block editor
 ### next up
+- add layout blocks (seperators)
+- add empty state to content block list empty accordions
 - previews (layout in both lists)
 - context menu for layout blocks
 - validation
