@@ -1,6 +1,7 @@
 import type { AnyBlock } from '@repo/templates';
 import { memo } from 'react';
 import { TextBlockPreview } from './block-previews/form/text';
+import { ContainerBlockPreview } from './block-previews/layout/container';
 import { useBlockEditorBlock } from './hooks';
 
 interface BlockPreviewProps {
@@ -17,6 +18,9 @@ export const BlockPreview = memo((props: BlockPreviewProps) => {
   );
 
   switch (type) {
+    case 'container': {
+      return <ContainerBlockPreview blockId={blockId} />;
+    }
     case 'text': {
       return <TextBlockPreview blockId={blockId} />;
     }

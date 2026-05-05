@@ -55,12 +55,9 @@ import {
   EmptyTitle,
 } from '../ui/empty';
 import { createBlockFromDefinition } from './block-factory';
+import { BlockPreview } from './block-preview';
 import { RootBlockSelector } from './block-selector';
-import {
-  useBlockEditorActions,
-  useBlockEditorBlock,
-  useBlockEditorState,
-} from './hooks';
+import { useBlockEditorActions, useBlockEditorState } from './hooks';
 import { getRootBlockIds } from './ordering';
 import { useSyncedSortableState } from './use-synced-sortable-state';
 
@@ -286,9 +283,6 @@ function RootItem(props: RootItemProps) {
     onMoveUpClick,
     onMoveDownClick,
   } = props;
-  const block = useBlockEditorBlock({ id });
-  const title =
-    block.type === 'container' ? block.name?.trim() || 'Container' : block.type;
   const { ref, handleRef, isDragging } = useSortable({
     id,
     index,
@@ -326,11 +320,7 @@ function RootItem(props: RootItemProps) {
               'hover:bg-primary/13 focus-visible:bg-primary/20 focus-visible:ring-2 focus-visible:ring-ring/50',
             )}
           >
-            <span className="font-medium">{title}</span>
-            <br />
-            <span className="text-xs text-primary-soft-foreground/80 capitalize">
-              {block.type} - {block.id}
-            </span>
+            <BlockPreview blockId={id} />
           </button>
         </ContextMenuTrigger>
         <ContextMenuContent>
